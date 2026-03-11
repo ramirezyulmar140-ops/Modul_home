@@ -357,8 +357,13 @@ export default function ManagerCalculator() {
                 {/* ПРАВАЯ КОЛОНКА - СМЕТА */}
                 <div className="lg:col-span-8 bg-white p-8 rounded-xl shadow-sm border border-gray-200 print:shadow-none print:border-none print:p-0" id="print-area">
                     <div className="mb-8 hidden print:block">
-                        <h1 className="text-3xl font-serif text-gray-900">Спецификация и расчет стоимости</h1>
-                        <p className="text-gray-600 mt-2">Каркасный дом, Размеры: {params.length} x {params.width} м. Общая площадь: {params.length * params.width} м²</p>
+                        <div className="flex justify-between items-start border-b border-gray-900 pb-4 mb-4">
+                            <div>
+                                <h1 className="text-3xl font-serif text-gray-900">Приложение №2</h1>
+                                <p className="text-gray-600 mt-2">Каркасный дом, Размеры: {params.length} x {params.width} м. Общая площадь: {params.length * params.width} м²</p>
+                            </div>
+                            <img src="/logo-black.png" alt="BestTown Logo" className="h-12 object-contain" />
+                        </div>
                     </div>
 
                     <div className="overflow-x-auto">
