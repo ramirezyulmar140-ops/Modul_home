@@ -394,8 +394,8 @@ export default function ManagerCalculator() {
 
                                 {/* ФИНАЛЬНЫЙ ИТОГ */}
                                 <tr className="bg-gray-900 text-white font-bold text-lg mt-4 border-t-4 border-white">
-                                    <td colSpan={4} className="px-6 py-5 rounded-bl-lg">ИТОГО БАЗОВЫЙ ДОМ «ПОД КЛЮЧ»:</td>
-                                    <td className="px-6 py-5 text-right rounded-br-lg">{grandTotal.toLocaleString('ru-RU')} ₽</td>
+                                    <td colSpan={4} className="px-6 py-5 rounded-bl-lg">ИТОГО ДОМ «ПОД КЛЮЧ»:</td>
+                                    <td className="px-6 py-5 text-right whitespace-nowrap rounded-br-lg">{grandTotal.toLocaleString('ru-RU')} ₽</td>
                                 </tr>
                             </tbody>
                         </table>
