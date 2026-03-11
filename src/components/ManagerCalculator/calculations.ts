@@ -120,7 +120,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     // Кровля: Пятно с учетом свесов 
     // Длина ската = (Ширина здания / 2 + карнизный свес) / cos(угол)
-    const angleRad = params.roofAngle * (Math.PI / 180);
+    const actualRoofAngle = params.roofType === 'shed' ? 10 : params.roofAngle; // У односкатной наклон меньше ~10 градусов
+    const angleRad = actualRoofAngle * (Math.PI / 180);
     let slopeLength = 0;
     let roofArea = 0;
 
@@ -249,8 +250,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     const gableStudsCount = Math.ceil((width * 2) / params.wallStudStep); // Два фронтона
 
     // Средняя высота фронтона = height + (высота конька / 2)
-    const ridgeHeight = (width / 2) * Math.tan(params.roofAngle * (Math.PI / 180));
-    const averageGableHeight = params.roofType === 'gable' ? height + (ridgeHeight / 2) : height + (ridgeHeight / 2); // Упрощенно для обоих типов
+    const ridgeHeight = params.roofType === 'gable' 
+        ? (width / 2) * Math.tan(actualRoofAngle * (Math.PI / 180))
+        : width * Math.tan(actualRoofAngle * (Math.PI / 180));
+    const averageGableHeight = height + (ridgeHeight / 2); // Упрощенно для обоих типов
 
     const totalStudsLength = (standardStudsCount * height) + (gableStudsCount * averageGableHeight);
 
@@ -615,6 +618,20 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     }
     const ceilingFinishingArea = finishFloorArea; // Площадь потолка равна площади пола с запасом
     finishItems.push({ name: ceilingFinishName, quantity: ceilingFinishingArea, unit: 'м2', price: ceilingFinishPrice, total: ceilingFinishingArea * ceilingFinishPrice });
+
+    if (params.isPainted) {
+        let paintingArea = parseFloat((outerWallAreaNet + innerWallAreaGross).toFixed(2));
+        if (params.ceilingFinish !== 'stretchCeiling') {
+            paintingArea += floorArea;
+        }
+        finishItems.push({
+            name: 'Покраска стен и потолка (2 слоя)',
+            quantity: paintingArea,
+            unit: 'м2',
+            price: PRICING_CONFIG.workPaintingM2,
+            total: Math.ceil(paintingArea * PRICING_CONFIG.workPaintingM2)
+        });
+    }
 
     sections.push({
         name: 'Окна и Двери',
