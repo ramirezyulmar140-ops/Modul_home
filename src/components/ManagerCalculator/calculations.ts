@@ -5,6 +5,7 @@ export interface HouseParams {
     width: number;       // Ширина, м
     height: number;      // Высота этажа, м
     innerWallsLength: number; // Длина перегородок, м
+    modulesCount: number;  // Количество модулей
 
     // Дополнительные параметры из 3 версии калькулятора
     windowsPercent: number; // Доля остекления фасада, %
@@ -55,8 +56,6 @@ export interface HouseParams {
 
     // Каркас
     optModuleExtendCount: number;
-    optMouseMeshFloor: boolean;
-    optExtraInsulation: boolean;
     optPartition: boolean;
     optTambour: boolean;
 
@@ -118,6 +117,13 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     const outerWallAreaNet = outerWallAreaGross - windowsArea - (params.doorsCount * 2); // за вычетом окон и дверей
     const innerWallAreaGross = innerWallsLength * height * 2; // Перегородки с двух сторон
 
+    // Модульные стены: между модулями двойные стены, их внутренняя отделка не считается
+    const moduleWallsCount = Math.max(0, params.modulesCount - 1); // Кол-во межмодульных стыков
+    const moduleWallArea = moduleWallsCount * 2 * length * height; // 2 поверхности на каждый стык
+
+    // Площадь стен для внутренней отделки (без межмодульных стен)
+    const finishableWallArea = Math.max(0, outerWallAreaNet + innerWallAreaGross - moduleWallArea);
+
     // Кровля: Пятно с учетом свесов 
     // Длина ската = (Ширина здания / 2 + карнизный свес) / cos(угол)
     const actualRoofAngle = params.roofType === 'shed' ? 10 : params.roofAngle; // У односкатной наклон меньше ~10 градусов
@@ -175,15 +181,20 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         total: Math.ceil(obvyazkaVol * (PRICING_CONFIG.timber200x200 * (1 / (0.2 * 0.2 * 6))))
     });
 
-    // Лаги пола (Доска 200х50)
+    // Лаги пола — ширина доски зависит от толщины утепления пола
+    const floorBoardWidth = params.floorInsulationThickness >= 200 ? 200 : 150;
+    const floorBoardWidthM = floorBoardWidth / 1000;
+    const floorBoardPrice = floorBoardWidth >= 200 ? PRICING_CONFIG.board200x50 : PRICING_CONFIG.board150x50;
+    const floorBoardVolPerPiece = floorBoardWidthM * 0.05 * 6;
+
     const lagsCount = Math.ceil(length / params.floorJoistStep) * Math.ceil(width / 6);
-    const lagsVol = parseFloat((lagsCount * 6 * 0.2 * 0.05 * CALCULATIONS_CONFIG.timberMargin).toFixed(2));
+    const lagsVol = parseFloat((lagsCount * 6 * floorBoardWidthM * 0.05 * CALCULATIONS_CONFIG.timberMargin).toFixed(2));
     floorItems.push({
-        name: 'Лаги пола (Доска 200х50)',
+        name: `Лаги пола (Доска ${floorBoardWidth}х50)`,
         quantity: lagsVol,
         unit: 'м3',
-        price: PRICING_CONFIG.board200x50 * (1 / (0.2 * 0.05 * 6)),
-        total: Math.ceil(lagsVol * (PRICING_CONFIG.board200x50 * (1 / (0.2 * 0.05 * 6))))
+        price: floorBoardPrice * (1 / floorBoardVolPerPiece),
+        total: Math.ceil(lagsVol * (floorBoardPrice * (1 / floorBoardVolPerPiece)))
     });
 
     // Черновой пол и ОСБ
@@ -224,13 +235,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         total: Math.ceil(floorArea * CALCULATIONS_CONFIG.membraneMargin * (PRICING_CONFIG.windProtection / 75))
     });
 
-    floorItems.push({
-        name: 'Пароизоляция пола (с проклейкой)',
-        quantity: Math.ceil(floorArea * CALCULATIONS_CONFIG.membraneMargin),
-        unit: 'м2',
-        price: PRICING_CONFIG.vaporBarrier,
-        total: Math.ceil(floorArea * CALCULATIONS_CONFIG.membraneMargin * PRICING_CONFIG.vaporBarrier)
-    });
+
 
     sections.push({
         name: 'Перекрытие пола',
@@ -243,7 +248,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // -------------------------------------------------------------------------------- //
     const wallItems: EstimateItem[] = [];
 
-    // --- Детальный расчет Каркаса Стен (Доска 150х50) ---
+    // --- Детальный расчет Каркаса Стен (Доска 150х50 — всегда фиксированная) ---
     // 1. Стойки (с учетом уклона фронтонов)
     // Упрощенно: для обычных стен высота = height. Для фронтонов средняя высота больше.
     const standardStudsCount = Math.ceil((length * 2) / params.wallStudStep); // Две обычные стены (если gable)
@@ -404,17 +409,22 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // -------------------------------------------------------------------------------- //
     const roofItems: EstimateItem[] = [];
 
-    // Стропила 200х50
+    // Стропила — ширина доски зависит от толщины утепления крыши
+    const roofBoardWidth = params.roofInsulationThickness >= 200 ? 200 : 150;
+    const roofBoardWidthM = roofBoardWidth / 1000;
+    const roofBoardPrice = roofBoardWidth >= 200 ? PRICING_CONFIG.board200x50 : PRICING_CONFIG.board150x50;
+    const roofBoardVolPerPiece = roofBoardWidthM * 0.05 * 6;
+
     const rafterCount = Math.ceil(length / params.roofRafterStep) * (params.roofType === 'gable' ? 2 : 1);
-    // Берем среднюю длину стропилы как slopeLength * 1.2 на свесы и подрезы
+    // Берем среднюю длину стропилы как slopeLength * 1.1 на свесы и подрезы
     const rafterTotalLength = rafterCount * slopeLength * 1.1;
-    const rafterVol = parseFloat((rafterTotalLength * 0.2 * 0.05 * CALCULATIONS_CONFIG.timberMargin).toFixed(2));
+    const rafterVol = parseFloat((rafterTotalLength * roofBoardWidthM * 0.05 * CALCULATIONS_CONFIG.timberMargin).toFixed(2));
     roofItems.push({
-        name: 'Стропильная нога (Доска 200х50)',
+        name: `Стропильная нога (Доска ${roofBoardWidth}х50)`,
         quantity: rafterVol,
         unit: 'м3',
-        price: PRICING_CONFIG.board200x50 * (1 / (0.2 * 0.05 * 6)),
-        total: Math.ceil(rafterVol * (PRICING_CONFIG.board200x50 * (1 / (0.2 * 0.05 * 6))))
+        price: roofBoardPrice * (1 / roofBoardVolPerPiece),
+        total: Math.ceil(rafterVol * (roofBoardPrice * (1 / roofBoardVolPerPiece)))
     });
 
     // Обрешетка
@@ -597,7 +607,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         interiorWallPrice = PRICING_CONFIG.plywoodInterior;
         interiorWallName = 'Отделка стен внутри (Березовая фанера)';
     }
-    const innerWallsFinishingArea = Math.ceil((outerWallAreaNet + innerWallAreaGross) * CALCULATIONS_CONFIG.finishingMargin);
+    const innerWallsFinishingArea = Math.ceil(finishableWallArea * CALCULATIONS_CONFIG.finishingMargin);
     finishItems.push({ name: interiorWallName, quantity: innerWallsFinishingArea, unit: 'м2', price: interiorWallPrice, total: innerWallsFinishingArea * interiorWallPrice });
 
     // Выбор потолка
@@ -620,7 +630,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     finishItems.push({ name: ceilingFinishName, quantity: ceilingFinishingArea, unit: 'м2', price: ceilingFinishPrice, total: ceilingFinishingArea * ceilingFinishPrice });
 
     if (params.isPainted) {
-        let paintingArea = parseFloat((outerWallAreaNet + innerWallAreaGross).toFixed(2));
+        let paintingArea = parseFloat(finishableWallArea.toFixed(2));
         if (params.ceilingFinish !== 'stretchCeiling') {
             paintingArea += floorArea;
         }
@@ -662,10 +672,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     const workInteriorWallPrice = params.interiorWallFinish === 'drywall' ? PRICING_CONFIG.workInteriorDrywallM2 : (params.interiorWallFinish === 'plywood' ? PRICING_CONFIG.workInteriorPlywoodM2 : PRICING_CONFIG.workInteriorWoodM2);
     smrFinishItems.push({
         name: 'Монтаж внутренней отделки стен (без покраски)',
-        quantity: parseFloat((outerWallAreaNet + innerWallAreaGross).toFixed(2)),
+        quantity: parseFloat(finishableWallArea.toFixed(2)),
         unit: 'м2',
         price: workInteriorWallPrice,
-        total: Math.ceil((outerWallAreaNet + innerWallAreaGross) * workInteriorWallPrice)
+        total: Math.ceil(finishableWallArea * workInteriorWallPrice)
     });
 
     const workCeilingPrice = params.ceilingFinish === 'stretchCeiling' ? PRICING_CONFIG.workStretchCeilingM2 : (params.ceilingFinish === 'drywall' ? PRICING_CONFIG.workInteriorDrywallM2 : (params.ceilingFinish === 'plywood' ? PRICING_CONFIG.workInteriorPlywoodM2 : PRICING_CONFIG.workInteriorWoodM2));
@@ -678,7 +688,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     });
 
     if (params.isPainted) {
-        let paintingArea = parseFloat((outerWallAreaNet + innerWallAreaGross).toFixed(2));
+        let paintingArea = parseFloat(finishableWallArea.toFixed(2));
         if (params.ceilingFinish !== 'stretchCeiling') {
             paintingArea += floorArea;
         }
@@ -765,8 +775,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     // Каркас (Доп) - Пересчет по м2
     if (params.optModuleExtendCount > 0) extraItems.push({ name: 'Увеличение длины модуля на 60 см (шт.)', quantity: params.optModuleExtendCount, unit: 'шт', price: PRICING_CONFIG.optModuleExtend, total: params.optModuleExtendCount * PRICING_CONFIG.optModuleExtend });
-    if (params.optMouseMeshFloor) extraItems.push({ name: 'Сетка от грызунов на основание дома', quantity: floorArea, unit: 'м2', price: PRICING_CONFIG.optMouseMeshFloorM2, total: Math.ceil(floorArea * PRICING_CONFIG.optMouseMeshFloorM2) });
-    if (params.optExtraInsulation) extraItems.push({ name: 'Доп. утепление стен до 200 мм', quantity: floorArea, unit: 'м2 пола', price: PRICING_CONFIG.optExtraInsulationM2, total: Math.ceil(floorArea * PRICING_CONFIG.optExtraInsulationM2) });
+
     if (params.optPartition) extraItems.push({ name: 'Перегородка между зоной входа и кухней-гостиной', quantity: 1, unit: 'шт', price: PRICING_CONFIG.optPartition, total: PRICING_CONFIG.optPartition });
     if (params.optTambour) extraItems.push({ name: 'Входной тамбур с межкомнатной дверью', quantity: 1, unit: 'шт', price: PRICING_CONFIG.optTambour, total: PRICING_CONFIG.optTambour });
 
@@ -836,7 +845,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     sections.push({
         name: 'Монтажные работы, логистика и накладные расходы',
         items: [{
-            name: 'Комплексные сборочно-монтажные работы, логистика и накладные расходы',
+            name: 'Комплексные сборочно-производственные работы, логистика и накладные расходы',
             quantity: 1,
             unit: 'услуга',
             price: worksTotal,
@@ -848,9 +857,9 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Итоговая сумма включает материалы (52%), работы (43%) и скрытые 5%
     let grandTotal = materialsTotal + worksTotal + hiddenTotal;
 
-    // Применяем скидку 20% на весь дом, если выбрана отделка из фанеры
-    if (params.interiorWallFinish === 'plywood') {
-        grandTotal = Math.ceil(grandTotal * 0.8);
+    // Применяем скидку 15% на весь дом, если выбрана отделка из фанеры (стены или потолок)
+    if (params.interiorWallFinish === 'plywood' || params.ceilingFinish === 'plywood') {
+        grandTotal = Math.ceil(grandTotal * 0.85);
     }
 
     return {
