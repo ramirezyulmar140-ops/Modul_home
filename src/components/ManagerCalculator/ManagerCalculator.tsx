@@ -88,7 +88,7 @@ const INITIAL_PARAMS: HouseParams = {
     optTerraceStepCount: 0,
     discountPercent: 0,
     markupAmount: 0,
-    marginPercent: 92.3, // Эквивалент старого разделения (48/52)
+    marginPercent: 20, // Начальная маржа 20%
     customItems: [],
     clientName: '',
     managerName: '',
