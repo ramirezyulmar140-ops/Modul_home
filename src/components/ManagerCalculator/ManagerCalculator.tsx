@@ -8,7 +8,7 @@ const CounterInput = ({ label, value, onChange, name, step = 1, min = 0 }: any) 
         <div className="flex items-center space-x-1">
             <button
                 type="button"
-                onClick={() => onChange({ target: { name, value: Math.max(min, Math.round(value - step)), type: 'number' } })}
+                onClick={() => onChange({ target: { name, value: Math.max(min, parseFloat((value - step).toFixed(2))), type: 'number' } })}
                 className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 text-gray-600 font-bold"
             >
                 -
@@ -22,7 +22,7 @@ const CounterInput = ({ label, value, onChange, name, step = 1, min = 0 }: any) 
             />
             <button
                 type="button"
-                onClick={() => onChange({ target: { name, value: Math.round(value + step), type: 'number' } })}
+                onClick={() => onChange({ target: { name, value: parseFloat((value + step).toFixed(2)), type: 'number' } })}
                 className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 text-gray-600 font-bold"
             >
                 +
@@ -227,7 +227,7 @@ export default function ManagerCalculator() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <CounterInput label="Длина, м" name="length" value={params.length} onChange={handleChange} />
                                     <CounterInput label="Ширина, м" name="width" value={params.width} onChange={handleChange} />
-                                    <CounterInput label="Высота, м" name="height" value={params.height} onChange={handleChange} />
+                                    <CounterInput label="Высота, м" name="height" value={params.height} onChange={handleChange} step={0.1} min={2} />
                                     <div>
                                         <label className="block text-xs font-medium text-gray-700 mb-1">Кол-во модулей</label>
                                         <select name="modulesCount" value={params.modulesCount} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
@@ -460,6 +460,10 @@ export default function ManagerCalculator() {
                                         <CounterInput label="Ступени кр. (шт)" name="optPorchStepCount" value={params.optPorchStepCount} onChange={handleChange} />
                                         <CounterInput label="Ступени тер. (шт)" name="optTerraceStepCount" value={params.optTerraceStepCount} onChange={handleChange} />
                                     </div>
+                                    <label className="flex items-center space-x-3 p-3 bg-amber-50 rounded-lg border border-amber-100 cursor-pointer hover:bg-amber-100 transition-colors">
+                                        <input type="checkbox" name="optSafeDoor" checked={params.optSafeDoor} onChange={handleChange} className="w-5 h-5 text-amber-600 border-gray-300 rounded" /> 
+                                        <span className="text-xs font-medium text-gray-700">Входная сейф-дверь + крыльцо (1×1.2м) + 2 ступени</span>
+                                    </label>
                                     <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-100 cursor-pointer">
                                         <input type="checkbox" name="optCanopy" checked={params.optCanopy} onChange={handleChange} className="w-5 h-5 text-green-600 border-gray-300 rounded" />
                                         <span className="text-xs font-medium text-gray-700">Навес над крыльцом</span>
@@ -471,10 +475,6 @@ export default function ManagerCalculator() {
                                             <label className="flex items-center space-x-2"><input type="checkbox" name="optGutterMetal" checked={params.optGutterMetal} onChange={handleChange} /> <span className="text-xs">Металл</span></label>
                                         </div>
                                     </div>
-                                    <label className="flex items-center space-x-2 pt-2 border-t font-bold">
-                                        <input type="checkbox" name="optSafeDoor" checked={params.optSafeDoor} onChange={handleChange} /> 
-                                        <span className="text-[11px]">Вх. сейф дверь + крыльцо (1х1,2) + 2 ступени (115т.р.)</span>
-                                    </label>
                                     <label className="flex items-center space-x-2 pt-2 border-t"><input type="checkbox" name="optPlinthPlanken" checked={params.optPlinthPlanken} onChange={handleChange} /> <span className="text-xs">Цоколь планкен</span></label>
                                 </div>
                             </div>
@@ -569,7 +569,7 @@ export default function ManagerCalculator() {
                                     <div className="space-y-1 text-xs font-mono pt-2 border-t border-gray-800">
                                         <div className="flex justify-between text-gray-400"><span>Себестоимость:</span><span>{materialsTotal.toLocaleString('ru-RU')} ₽</span></div>
                                         <div className="flex justify-between text-[#6b8e23]"><span>Маржа ({params.marginPercent}%):</span><span>{Math.ceil(materialsTotal * (params.marginPercent / 100)).toLocaleString('ru-RU')} ₽</span></div>
-                                        {params.discountPercent > 0 && <div className="flex justify-between text-red-400"><span>Скидка ({params.discountPercent}%):</span><span>-{Math.ceil(grandTotal / (1 - params.discountPercent / 100) * (params.discountPercent / 100)).toLocaleString('ru-RU')} ₽</span></div>}
+                                        {params.discountPercent > 0 && <div className="flex justify-between text-red-400"><span>Скидка ({params.discountPercent}%):</span><span>-{Math.ceil((materialsTotal + Math.ceil(materialsTotal * (params.marginPercent / 100))) * (params.discountPercent / 100)).toLocaleString('ru-RU')} ₽</span></div>}
                                     </div>
                                 </div>
                             )}
@@ -654,11 +654,12 @@ export default function ManagerCalculator() {
                                 {params.discountPercent > 0 && (
                                     <tr className="bg-green-50/30 text-green-700 font-semibold border-t">
                                         <td colSpan={4} className="px-6 py-3">Скидка лояльности ({params.discountPercent}%)</td>
-                                        <td className="px-6 py-3 text-right">-{Math.ceil(grandTotal / (1 - params.discountPercent / 100) * (params.discountPercent / 100)).toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
+                                        <td className="px-6 py-3 text-right">-{Math.ceil((materialsTotal + Math.ceil(materialsTotal * (params.marginPercent / 100))) * (params.discountPercent / 100)).toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                     </tr>
                                 )}
                                 {params.markupAmount !== 0 && (
                                     <tr className="bg-gray-50/50 text-gray-700 font-semibold border-t">
+                                        <td colSpan={4} className="px-6 py-3">Корректировка стоимости</td>
                                         <td className="px-6 py-3 text-right">{params.markupAmount > 0 ? '+' : ''}{params.markupAmount.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                     </tr>
                                 )}

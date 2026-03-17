@@ -125,7 +125,13 @@ export interface EstimateResult {
 
 export function calculateEstimate(params: HouseParams): EstimateResult {
     const sections: EstimateSection[] = [];
-    const { length, width, height, innerWallsLength, windowsPercent } = params;
+
+    // Валидация входных данных
+    const length = Math.max(2, params.length);
+    const width = Math.max(2, params.width);
+    const height = Math.max(2, params.height);
+    const innerWallsLength = Math.max(0, params.innerWallsLength);
+    const windowsPercent = Math.min(80, Math.max(0, params.windowsPercent));
 
     // Автоматическая корректировка шага для отделки фанерой
     const isPlywood = params.interiorWallFinish === 'plywood' || params.ceilingFinish === 'plywood';
@@ -1007,8 +1013,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.optWin150x50Count > 0) extraItems.push({ name: 'Доп. окно 1500x500 мм', quantity: params.optWin150x50Count, unit: 'шт', price: PRICING_CONFIG.optWin150x50, total: params.optWin150x50Count * PRICING_CONFIG.optWin150x50 });
 
     // Отделка фасадная (Доп)
-    if (params.optGutterPlastic) extraItems.push({ name: 'Водосточная система (пластик)', quantity: floorArea, unit: 'м2 пола', price: PRICING_CONFIG.optGutterPlasticM2, total: Math.ceil(floorArea * PRICING_CONFIG.optGutterPlasticM2) });
-    if (params.optGutterMetal) extraItems.push({ name: 'Водосточная система (металл)', quantity: floorArea, unit: 'м2 пола', price: PRICING_CONFIG.optGutterMetalM2, total: Math.ceil(floorArea * PRICING_CONFIG.optGutterMetalM2) });
+    if (params.optGutterPlastic) extraItems.push({ name: 'Водосточная система (пластик)', quantity: parseFloat(perimeter.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterPlasticM2, total: Math.ceil(perimeter * PRICING_CONFIG.optGutterPlasticM2) });
+    if (params.optGutterMetal) extraItems.push({ name: 'Водосточная система (металл)', quantity: parseFloat(perimeter.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterMetalM2, total: Math.ceil(perimeter * PRICING_CONFIG.optGutterMetalM2) });
     if (params.optPlinthPlanken) extraItems.push({ name: 'Обшивка цоколя планкеном', quantity: perimeter, unit: 'м.п.', price: PRICING_CONFIG.optPlinthPlankenM2, total: Math.ceil(perimeter * PRICING_CONFIG.optPlinthPlankenM2) }); // Используем периметр для цоколя
 
     if (extraItems.length > 0) {
