@@ -23,7 +23,7 @@ export interface HouseParams {
     roofRafterStep: number; // Шаг стропил, м
 
     // Отделка
-    floorFinish: 'laminate' | 'quartzVinyl' | 'linoleum' | 'floorBoardPine' | 'floorBoardLarch';
+    floorFinish: 'laminate' | 'laminateWaterproof' | 'quartzVinyl' | 'linoleum' | 'floorBoardPine' | 'floorBoardLarch';
     interiorWallFinish: 'imitationWood' | 'drywall' | 'woodLining' | 'blockHouse' | 'plywood';
     ceilingFinish: 'imitationWood' | 'drywall' | 'woodLining' | 'stretchCeiling' | 'plywood';
     exteriorWallFinish: 'combined' | 'planken' | 'proflistWall'; // combined = планкен на фронтонах + профлист по длине
@@ -37,6 +37,8 @@ export interface HouseParams {
     // Инженерия
     electricalType: 'none' | 'basic' | 'advanced';
     heatingType: 'none' | 'electricFloor' | 'waterFloor' | 'convectors' | 'onlyWiring';
+    heatingThermostatsCount: number;
+    heatingElectricFloorArea: number;
 
     // Опции
     isPainted: boolean;
@@ -147,9 +149,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Площадь стен для внутренней отделки (без межмодульных стен)
     const finishableWallArea = Math.max(0, outerWallAreaNet + innerWallAreaGross - moduleWallArea);
 
-    // Санузел: расчет площади стен санузла (примерно по периметру 4*sqrt(S))
     const bathroomWallArea = params.bathroomFloorArea > 0 
-        ? Math.ceil(Math.sqrt(params.bathroomFloorArea) * 4 * height)
+        ? parseFloat((Math.sqrt(params.bathroomFloorArea) * 4 * height).toFixed(2))
         : 0;
 
     // Площади для общей отделки (за вычетом санузла)
@@ -230,7 +231,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     });
 
     // Черновой пол и ОСБ
-    const osbSheets = Math.ceil(floorArea / 3.125 * CALCULATIONS_CONFIG.finishingMargin);
+    const osbSheets = parseFloat((floorArea / 3.125 * CALCULATIONS_CONFIG.finishingMargin).toFixed(2));
     floorItems.push({
         name: 'Черновой пол ОСБ 22мм',
         quantity: osbSheets,
@@ -261,7 +262,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     floorItems.push({
         name: 'Ветрозащита (низ пола)',
-        quantity: Math.ceil(floorArea * CALCULATIONS_CONFIG.membraneMargin),
+        quantity: parseFloat((floorArea * CALCULATIONS_CONFIG.membraneMargin).toFixed(2)),
         unit: 'м2',
         price: PRICING_CONFIG.windProtection / 75, // Перевод рулона 75м2 в цену за метр
         total: Math.ceil(floorArea * CALCULATIONS_CONFIG.membraneMargin * (PRICING_CONFIG.windProtection / 75))
@@ -341,24 +342,24 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         // Стандарт: фронтоны (по ширине) — планкен, боковые (по длине) — профлист
         wallItems.push({
             name: 'Фасад фронтоны (Планкен)',
-            quantity: Math.ceil(widthWallAreaNet * CALCULATIONS_CONFIG.finishingMargin),
+            quantity: parseFloat((widthWallAreaNet * CALCULATIONS_CONFIG.finishingMargin).toFixed(2)),
             unit: 'м2',
             price: PRICING_CONFIG.planken,
             total: Math.ceil(widthWallAreaNet * CALCULATIONS_CONFIG.finishingMargin * PRICING_CONFIG.planken)
         });
         wallItems.push({
             name: 'Фасад боковые стены (Профлист)',
-            quantity: Math.ceil(lengthWallAreaNet * CALCULATIONS_CONFIG.finishingMargin),
+            quantity: parseFloat((lengthWallAreaGross * CALCULATIONS_CONFIG.finishingMargin).toFixed(2)),
             unit: 'м2',
             price: PRICING_CONFIG.proflistWall,
-            total: Math.ceil(lengthWallAreaNet * CALCULATIONS_CONFIG.finishingMargin * PRICING_CONFIG.proflistWall)
+            total: Math.ceil(lengthWallAreaGross * CALCULATIONS_CONFIG.finishingMargin * PRICING_CONFIG.proflistWall)
         });
     } else {
         const exteriorWallPrice = params.exteriorWallFinish === 'planken' ? PRICING_CONFIG.planken : PRICING_CONFIG.proflistWall;
         const exteriorWallName = params.exteriorWallFinish === 'planken' ? 'Внешняя отделка (Планкен)' : 'Внешняя отделка (Профлист)';
         wallItems.push({
             name: exteriorWallName,
-            quantity: Math.ceil(outerWallAreaNet * CALCULATIONS_CONFIG.finishingMargin),
+            quantity: parseFloat((outerWallAreaNet * CALCULATIONS_CONFIG.finishingMargin).toFixed(2)),
             unit: 'м2',
             price: exteriorWallPrice,
             total: Math.ceil(outerWallAreaNet * CALCULATIONS_CONFIG.finishingMargin * exteriorWallPrice)
@@ -368,7 +369,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Пленки
     wallItems.push({
         name: 'Ветрозащита фасада',
-        quantity: Math.ceil(outerWallAreaGross * CALCULATIONS_CONFIG.membraneMargin),
+        quantity: parseFloat((outerWallAreaGross * CALCULATIONS_CONFIG.membraneMargin).toFixed(2)),
         unit: 'м2',
         price: PRICING_CONFIG.windProtection / 75,
         total: Math.ceil(outerWallAreaGross * CALCULATIONS_CONFIG.membraneMargin * (PRICING_CONFIG.windProtection / 75))
@@ -377,7 +378,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.interiorWallFinish !== 'plywood') {
         wallItems.push({
             name: 'Пароизоляция стен',
-            quantity: Math.ceil(outerWallAreaGross * CALCULATIONS_CONFIG.membraneMargin),
+            quantity: parseFloat((outerWallAreaGross * CALCULATIONS_CONFIG.membraneMargin).toFixed(2)),
             unit: 'м2',
             price: PRICING_CONFIG.vaporBarrier,
             total: Math.ceil(outerWallAreaGross * CALCULATIONS_CONFIG.membraneMargin * PRICING_CONFIG.vaporBarrier)
@@ -478,7 +479,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     roofItems.push({
         name: roofFinishName,
-        quantity: Math.ceil(roofArea * CALCULATIONS_CONFIG.finishingMargin),
+        quantity: parseFloat((roofArea * CALCULATIONS_CONFIG.finishingMargin).toFixed(2)),
         unit: 'м2',
         price: roofFinishPrice,
         total: Math.ceil(roofArea * CALCULATIONS_CONFIG.finishingMargin * roofFinishPrice)
@@ -497,7 +498,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     roofItems.push({
         name: 'Ветровлагозащитная мембрана кровли',
-        quantity: Math.ceil(roofArea * CALCULATIONS_CONFIG.membraneMargin),
+        quantity: parseFloat((roofArea * CALCULATIONS_CONFIG.membraneMargin).toFixed(2)),
         unit: 'м2',
         price: PRICING_CONFIG.windProtection / 75,
         total: Math.ceil(roofArea * CALCULATIONS_CONFIG.membraneMargin * (PRICING_CONFIG.windProtection / 75))
@@ -506,7 +507,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.ceilingFinish !== 'plywood') {
         roofItems.push({
             name: 'Пароизоляция потолка',
-            quantity: Math.ceil(floorArea * CALCULATIONS_CONFIG.membraneMargin),
+            quantity: parseFloat((floorArea * CALCULATIONS_CONFIG.membraneMargin).toFixed(2)),
             unit: 'м2',
             price: PRICING_CONFIG.vaporBarrier,
             total: Math.ceil(floorArea * CALCULATIONS_CONFIG.membraneMargin * PRICING_CONFIG.vaporBarrier)
@@ -536,7 +537,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.exteriorWallFinish === 'combined' || params.exteriorWallFinish === 'planken') {
         smrWarmItems.push({
             name: 'Монтаж фасада фронтонов (Планкен)',
-            quantity: Math.ceil(widthWallAreaNet),
+            quantity: parseFloat(widthWallAreaNet.toFixed(2)),
             unit: 'м2',
             price: PRICING_CONFIG.workFacadePlankenM2,
             total: Math.ceil(widthWallAreaNet * PRICING_CONFIG.workFacadePlankenM2)
@@ -567,7 +568,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         // Монтаж кровельного покрытия
         assemblyItems.push({
             name: 'Монтаж кровельного покрытия',
-            quantity: Math.ceil(roofArea),
+            quantity: parseFloat(roofArea.toFixed(2)),
             unit: 'м2',
             price: PRICING_CONFIG.workRoofingM2,
             total: Math.ceil(roofArea * PRICING_CONFIG.workRoofingM2)
@@ -577,15 +578,15 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         if (params.exteriorWallFinish === 'combined') {
             assemblyItems.push({
                 name: 'Монтаж фасада боковых стен (Профлист)',
-                quantity: Math.ceil(lengthWallAreaNet),
+                quantity: parseFloat(lengthWallAreaGross.toFixed(2)),
                 unit: 'м2',
                 price: PRICING_CONFIG.workFacadeProflistM2,
-                total: Math.ceil(lengthWallAreaNet * PRICING_CONFIG.workFacadeProflistM2)
+                total: Math.ceil(lengthWallAreaGross * PRICING_CONFIG.workFacadeProflistM2)
             });
         } else if (params.exteriorWallFinish === 'proflistWall') {
             assemblyItems.push({
                 name: 'Монтаж фасадной отделки (Профлист)',
-                quantity: Math.ceil(outerWallAreaNet),
+                quantity: parseFloat(outerWallAreaNet.toFixed(2)),
                 unit: 'м2',
                 price: PRICING_CONFIG.workFacadeProflistM2,
                 total: Math.ceil(outerWallAreaNet * PRICING_CONFIG.workFacadeProflistM2)
@@ -593,7 +594,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         } else if (params.exteriorWallFinish === 'planken') {
             assemblyItems.push({
                 name: 'Монтаж фасада боковых стен (Планкен)',
-                quantity: Math.ceil(lengthWallAreaNet),
+                quantity: parseFloat(lengthWallAreaNet.toFixed(2)),
                 unit: 'м2',
                 price: PRICING_CONFIG.workFacadePlankenM2,
                 total: Math.ceil(lengthWallAreaNet * PRICING_CONFIG.workFacadePlankenM2)
@@ -622,7 +623,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Выбор пола
     let floorFinishPrice = PRICING_CONFIG.laminate;
     let floorFinishName = 'Напольное покрытие (Ламинат)';
-    if (params.floorFinish === 'quartzVinyl') {
+    if (params.floorFinish === 'laminateWaterproof') {
+        floorFinishPrice = PRICING_CONFIG.laminateWaterproof;
+        floorFinishName = 'Напольное покрытие (Ламинат 33 кл. Водостойкий)';
+    } else if (params.floorFinish === 'quartzVinyl') {
         floorFinishPrice = PRICING_CONFIG.quartzVinyl;
         floorFinishName = 'Напольное покрытие (Кварцвинил)';
     } else if (params.floorFinish === 'linoleum') {
@@ -635,9 +639,9 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         floorFinishPrice = PRICING_CONFIG.floorBoardLarch;
         floorFinishName = 'Напольное покрытие (Половая доска Лиственница)';
     }
-    const finishFloorArea = Math.ceil(generalFloorArea * CALCULATIONS_CONFIG.finishingMargin);
+    const finishFloorArea = parseFloat(generalFloorArea.toFixed(2));
 
-    if (params.floorFinish === 'laminate' || params.floorFinish === 'quartzVinyl') {
+    if (params.floorFinish === 'laminate' || params.floorFinish === 'laminateWaterproof' || params.floorFinish === 'quartzVinyl') {
         finishItems.push({ name: 'Подложка под напольное покрытие', quantity: finishFloorArea, unit: 'м2', price: PRICING_CONFIG.underlayment, total: finishFloorArea * PRICING_CONFIG.underlayment });
     }
     finishItems.push({ name: floorFinishName, quantity: finishFloorArea, unit: 'м2', price: floorFinishPrice, total: finishFloorArea * floorFinishPrice });
@@ -650,7 +654,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
             bathFloorPrice = PRICING_CONFIG.keramogranit;
             bathFloorName = 'Отделка пола санузла (Керамогранит)';
         }
-        const bathFloorFinishingArea = Math.ceil(params.bathroomFloorArea * CALCULATIONS_CONFIG.finishingMargin);
+        const bathFloorFinishingArea = parseFloat(params.bathroomFloorArea.toFixed(2)); // Убираем запас 10% для с/у, чтобы не было "+1" при округлении
         finishItems.push({ 
             name: bathFloorName, 
             quantity: bathFloorFinishingArea, 
@@ -676,7 +680,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         interiorWallPrice = PRICING_CONFIG.plywoodInterior;
         interiorWallName = 'Отделка стен внутри (Березовая фанера)';
     }
-    const innerWallsFinishingArea = Math.ceil(generalWallArea * CALCULATIONS_CONFIG.finishingMargin);
+    const innerWallsFinishingArea = parseFloat(generalWallArea.toFixed(2));
     finishItems.push({ name: interiorWallName, quantity: innerWallsFinishingArea, unit: 'м2', price: interiorWallPrice, total: innerWallsFinishingArea * interiorWallPrice });
 
     // Санузел: Стены
@@ -687,7 +691,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
             bathWallPrice = PRICING_CONFIG.quartzVinyl;
             bathWallName = 'Отделка стен санузла (Кварцвинил)';
         }
-        const bathWallFinishingArea = Math.ceil(bathroomWallArea * CALCULATIONS_CONFIG.finishingMargin);
+        const bathWallFinishingArea = parseFloat(bathroomWallArea.toFixed(2));
         finishItems.push({ 
             name: bathWallName, 
             quantity: bathWallFinishingArea, 
@@ -713,15 +717,16 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         ceilingFinishPrice = PRICING_CONFIG.plywoodInterior;
         ceilingFinishName = 'Отделка потолка (Березовая фанера)';
     }
-    const ceilingFinishingArea = finishFloorArea; // Площадь потолка равна площади пола с запасом
+    const ceilingFinishingArea = parseFloat(roofArea.toFixed(2)); 
     finishItems.push({ name: ceilingFinishName, quantity: ceilingFinishingArea, unit: 'м2', price: ceilingFinishPrice, total: ceilingFinishingArea * ceilingFinishPrice });
 
     if (params.isPainted) {
         const hasPaintedCeiling = params.ceilingFinish !== 'stretchCeiling';
-        let paintingArea = parseFloat(generalWallArea.toFixed(2));
+        let paintingArea = generalWallArea;
         if (hasPaintedCeiling) {
-            paintingArea += generalFloorArea;
+            paintingArea += roofArea;
         }
+        paintingArea = parseFloat(paintingArea.toFixed(2));
         finishItems.push({
             name: hasPaintedCeiling ? 'Покраска стен и потолка (2 слоя)' : 'Покраска стен (2 слоя)',
             quantity: paintingArea,
@@ -800,7 +805,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
         smrFinishItems.push({
             name: bathWorkWallName,
-            quantity: bathroomWallArea,
+            quantity: parseFloat(bathroomWallArea.toFixed(2)),
             unit: 'м2',
             price: bathWorkWallPrice,
             total: Math.ceil(bathroomWallArea * bathWorkWallPrice)
@@ -813,19 +818,20 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.ceilingFinish !== 'plywood') {
         smrFinishItems.push({
             name: 'Монтаж внутренней отделки потолка (без покраски)',
-            quantity: floorArea,
+            quantity: parseFloat(roofArea.toFixed(2)),
             unit: 'м2',
             price: workCeilingPrice,
-            total: Math.ceil(floorArea * workCeilingPrice)
+            total: Math.ceil(roofArea * workCeilingPrice)
         });
     }
 
     if (params.isPainted) {
         const hasPaintedCeiling = params.ceilingFinish !== 'stretchCeiling';
-        let paintingArea = parseFloat(generalWallArea.toFixed(2));
+        let paintingArea = generalWallArea;
         if (hasPaintedCeiling) {
-            paintingArea += generalFloorArea;
+            paintingArea += roofArea;
         }
+        paintingArea = parseFloat(paintingArea.toFixed(2));
         smrFinishItems.push({
             name: hasPaintedCeiling ? 'Покраска стен и потолков (2 слоя)' : 'Покраска стен (2 слоя)',
             quantity: paintingArea,
@@ -847,22 +853,22 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.electricalType === 'basic') {
         commItems.push({ 
             name: 'Электромонтаж: Пакет «Стандарт»', 
-            quantity: floorArea, 
+            quantity: generalFloorArea, 
             unit: 'м2', 
             price: PRICING_CONFIG.electricalBasicM2, 
-            total: Math.ceil(floorArea * PRICING_CONFIG.electricalBasicM2) 
+            total: Math.ceil(generalFloorArea * PRICING_CONFIG.electricalBasicM2) 
         });
     } else if (params.electricalType === 'advanced') {
         commItems.push({ 
             name: 'Электромонтаж: Пакет «Премиум»', 
-            quantity: floorArea, 
+            quantity: generalFloorArea, 
             unit: 'м2', 
             price: PRICING_CONFIG.electricalAdvancedM2, 
-            total: Math.ceil(floorArea * PRICING_CONFIG.electricalAdvancedM2) 
+            total: Math.ceil(generalFloorArea * PRICING_CONFIG.electricalAdvancedM2) 
         });
     }
 
-    commItems.push({ name: 'Сантехника и скрытые коммуникации', quantity: floorArea, unit: 'м2', price: PRICING_CONFIG.plumbing, total: floorArea * PRICING_CONFIG.plumbing });
+    commItems.push({ name: 'Сантехника и скрытые коммуникации', quantity: generalFloorArea, unit: 'м2', price: PRICING_CONFIG.plumbing, total: generalFloorArea * PRICING_CONFIG.plumbing });
 
 
     if (commItems.length > 0) {
@@ -875,33 +881,59 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     // Отопление (отдельный раздел)
     const heatingItems: EstimateItem[] = [];
-    const heatingArea = parseFloat((floorArea * 0.7).toFixed(2)); // По умолчанию считаем на 70% площади (без мебели/отступов)
 
     if (params.heatingType === 'electricFloor') {
+        const bathArea = params.bathroomFloorArea || 0;
+        const mainFloorAreaForHeating = Math.max(0, floorArea - bathArea);
+        
+        const heatingAreaMain = params.heatingElectricFloorArea > 0 
+            ? params.heatingElectricFloorArea 
+            : parseFloat((mainFloorAreaForHeating * 0.7).toFixed(2));
+
         heatingItems.push({
-            name: 'Теплый пол электрический (пленка/маты)',
-            quantity: heatingArea,
+            name: 'Теплый пол электрический модульный ЗЕБРА ЭВО-300 WF',
+            quantity: heatingAreaMain,
             unit: 'м2',
             price: PRICING_CONFIG.heatingWarmFloorElectric,
-            total: Math.ceil(heatingArea * PRICING_CONFIG.heatingWarmFloorElectric)
+            total: Math.ceil(heatingAreaMain * PRICING_CONFIG.heatingWarmFloorElectric)
         });
+
+        if (bathArea > 0) {
+            heatingItems.push({
+                name: 'Теплый пол в санузле',
+                quantity: bathArea,
+                unit: 'м2',
+                price: PRICING_CONFIG.heatingWarmFloorBathroom,
+                total: Math.ceil(bathArea * PRICING_CONFIG.heatingWarmFloorBathroom)
+            });
+        }
+
+        if (params.heatingThermostatsCount > 0) {
+            heatingItems.push({
+                name: 'Терморегулятор для теплого пола',
+                quantity: params.heatingThermostatsCount,
+                unit: 'шт',
+                price: PRICING_CONFIG.heatingThermostat,
+                total: params.heatingThermostatsCount * PRICING_CONFIG.heatingThermostat
+            });
+        }
     } else if (params.heatingType === 'waterFloor') {
         heatingItems.push({
-            name: 'Теплый пол водяной (трубы, стяжка, коллектор)',
-            quantity: heatingArea,
+            name: 'Теплый пол водяной (трубы, коллектор)',
+            quantity: generalFloorArea,
             unit: 'м2',
             price: PRICING_CONFIG.heatingWarmFloorWater,
-            total: Math.ceil(heatingArea * PRICING_CONFIG.heatingWarmFloorWater)
+            total: Math.ceil(generalFloorArea * PRICING_CONFIG.heatingWarmFloorWater)
         });
         heatingItems.push({
-            name: 'Электрический котел с монтажом и обвязкой',
+            name: 'Электрический котел с монтажом',
             quantity: 1,
             unit: 'шт',
             price: PRICING_CONFIG.heatingElectricBoiler,
             total: PRICING_CONFIG.heatingElectricBoiler
         });
     } else if (params.heatingType === 'convectors') {
-        const convectorsCount = Math.ceil(floorArea / 15); // Примерно 1 конвектор на 15 кв.м
+        const convectorsCount = Math.ceil(generalFloorArea / 15); // Примерно 1 конвектор на 15 кв.м
         heatingItems.push({
             name: 'Конвекторы электрические настенные',
             quantity: convectorsCount,

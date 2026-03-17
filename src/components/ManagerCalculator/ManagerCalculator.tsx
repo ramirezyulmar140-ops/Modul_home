@@ -57,6 +57,8 @@ const INITIAL_PARAMS: HouseParams = {
     roofInsulationThickness: 200,
     electricalType: 'basic',
     heatingType: 'onlyWiring',
+    heatingThermostatsCount: 0,
+    heatingElectricFloorArea: 0,
     isPainted: true,
     optLightingCableCount: 0,
     optBreezerCount: 0,
@@ -140,6 +142,13 @@ export default function ManagerCalculator() {
         }
     };
 
+    // Auto-set laminate when electric floor is selected
+    useEffect(() => {
+        if (params.heatingType === 'electricFloor' && params.floorFinish !== 'laminate' && params.floorFinish !== 'laminateWaterproof') {
+            setParams(prev => ({ ...prev, floorFinish: 'laminate' }));
+        }
+    }, [params.heatingType, params.floorFinish]);
+
     const addCustomItem = () => {
         if (!newCustomItem.name) return;
         const total = newCustomItem.quantity * newCustomItem.price;
@@ -196,7 +205,7 @@ export default function ManagerCalculator() {
                             { id: 'geo', label: 'Чертеж' },
                             { id: 'finish', label: 'Отделка' },
                             { id: 'bathroom', label: 'Санузел' },
-                            { id: 'eng', label: 'Связи' },
+                            { id: 'eng', label: 'Инженерия' },
                             { id: 'extra', label: 'Допы' },
                             { id: 'finance', label: 'КП' }
                         ].map(tab => (
@@ -312,10 +321,15 @@ export default function ManagerCalculator() {
                                         <label className="block text-xs font-medium text-gray-700 mb-1">Напольное покрытие</label>
                                         <select name="floorFinish" value={params.floorFinish} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
                                             <option value="laminate">Ламинат 33 кл.</option>
-                                            <option value="linoleum">Линолеум</option>
-                                            <option value="quartzVinyl">Кварцвинил (SPC)</option>
-                                            <option value="floorBoardPine">Доска (Хвоя)</option>
-                                            <option value="floorBoardLarch">Доска (Листв.)</option>
+                                            <option value="laminateWaterproof">Ламинат 33 кл. Водостойкий</option>
+                                            {params.heatingType !== 'electricFloor' && (
+                                                <>
+                                                    <option value="linoleum">Линолеум</option>
+                                                    <option value="quartzVinyl">Кварцвинил (SPC)</option>
+                                                    <option value="floorBoardPine">Доска (Хвоя)</option>
+                                                    <option value="floorBoardLarch">Доска (Листв.)</option>
+                                                </>
+                                            )}
                                         </select>
                                     </div>
                                 </div>
@@ -381,6 +395,31 @@ export default function ManagerCalculator() {
                                             </select>
                                         </div>
                                     </div>
+                                    {params.heatingType === 'electricFloor' && (
+                                        <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 animate-fadeIn">
+                                            <CounterInput 
+                                                label="Кол-во зон (терморегуляторы)" 
+                                                name="heatingThermostatsCount" 
+                                                value={params.heatingThermostatsCount} 
+                                                onChange={handleChange} 
+                                                min={0}
+                                            />
+                                            <div className="mt-3">
+                                                <CounterInput 
+                                                    label="Площадь теплого пола, м2" 
+                                                    name="heatingElectricFloorArea" 
+                                                    value={params.heatingElectricFloorArea} 
+                                                    onChange={handleChange} 
+                                                    step={0.5}
+                                                    min={0}
+                                                />
+                                            </div>
+                                            <p className="text-[10px] text-yellow-700 mt-2 font-medium">
+                                                * При выборе электрического теплого пола доступен только ламинат.
+                                                {params.heatingElectricFloorArea === 0 && " Площадь рассчитывается как 70% от площади пола."}
+                                            </p>
+                                        </div>
+                                    )}
                                     <div className="grid grid-cols-2 gap-4">
                                         <CounterInput label="Бризеры (шт)" name="optBreezerCount" value={params.optBreezerCount} onChange={handleChange} />
                                         <CounterInput label="Уличный кран (шт)" name="optWarmTapCount" value={params.optWarmTapCount} onChange={handleChange} />
@@ -560,7 +599,7 @@ export default function ManagerCalculator() {
                             <div className="space-y-1">
                                 <p><span className="text-gray-400">Заказчик:</span> <span className="font-semibold">{params.clientName || '____________________'}</span></p>
                                 <p><span className="text-gray-400">Объект:</span> <span className="font-semibold">Модульный дом {params.length}x{params.width}м</span></p>
-                                <p><span className="text-gray-400">Площадь:</span> <span className="font-semibold">{(params.length * params.width).toFixed(1)} м²</span></p>
+                                <p><span className="text-gray-400">Площадь:</span> <span className="font-semibold">{(params.length * params.width - params.bathroomFloorArea).toFixed(2)} м²</span></p>
                             </div>
                             <div className="space-y-1 text-right">
                                 <p><span className="text-gray-400">Дата:</span> <span className="font-semibold">{params.kpDate}</span></p>
@@ -586,15 +625,19 @@ export default function ManagerCalculator() {
                                     <React.Fragment key={`section-${idx}`}>
                                         <tr className="bg-gray-50/80 border-b border-t font-semibold">
                                             <td colSpan={4} className="px-6 py-3 text-gray-900">{idx + 1}. {section.name}</td>
-                                            <td className="px-6 py-3 text-right text-gray-900">{section.total.toLocaleString('ru-RU')} ₽</td>
+                                            <td className="px-6 py-3 text-right text-gray-900">{section.total.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽</td>
                                         </tr>
                                         {section.items.map((item, itemIdx) => (
                                             <tr key={itemIdx} className="border-b last:border-none hover:bg-gray-50/50">
                                                 <td className="px-6 py-2.5 text-gray-700">{item.name}</td>
-                                                <td className="px-4 py-2.5 text-center">{item.quantity}</td>
+                                                <td className="px-4 py-2.5 text-center">
+                                                    {typeof item.quantity === 'number' 
+                                                        ? (['м2', 'м3', 'мп', 'пог. м'].includes(item.unit) ? item.quantity.toFixed(2) : Math.round(item.quantity))
+                                                        : item.quantity}
+                                                </td>
                                                 <td className="px-4 py-2.5 text-center text-gray-500">{item.unit}</td>
-                                                <td className="px-4 py-2.5 text-right text-gray-500">{item.price.toLocaleString('ru-RU')}</td>
-                                                <td className="px-6 py-2.5 text-right font-medium">{item.total.toLocaleString('ru-RU')} ₽</td>
+                                                <td className="px-4 py-2.5 text-right text-gray-500">{item.price.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}</td>
+                                                <td className="px-6 py-2.5 text-right font-medium">{item.total.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                             </tr>
                                         ))}
                                     </React.Fragment>
@@ -604,20 +647,19 @@ export default function ManagerCalculator() {
                                 {params.discountPercent > 0 && (
                                     <tr className="bg-green-50/30 text-green-700 font-semibold border-t">
                                         <td colSpan={4} className="px-6 py-3">Скидка лояльности ({params.discountPercent}%)</td>
-                                        <td className="px-6 py-3 text-right">-{Math.ceil(grandTotal / (1 - params.discountPercent / 100) * (params.discountPercent / 100)).toLocaleString('ru-RU')} ₽</td>
+                                        <td className="px-6 py-3 text-right">-{Math.ceil(grandTotal / (1 - params.discountPercent / 100) * (params.discountPercent / 100)).toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                     </tr>
                                 )}
                                 {params.markupAmount !== 0 && (
                                     <tr className="bg-gray-50/50 text-gray-700 font-semibold border-t">
-                                        <td colSpan={4} className="px-6 py-3">Прочие начисления / корректировки</td>
-                                        <td className="px-6 py-3 text-right">{params.markupAmount > 0 ? '+' : ''}{params.markupAmount.toLocaleString('ru-RU')} ₽</td>
+                                        <td className="px-6 py-3 text-right">{params.markupAmount > 0 ? '+' : ''}{params.markupAmount.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                     </tr>
                                 )}
 
                                 {/* ФИНАЛЬНЫЙ ИТОГ */}
                                 <tr className="bg-gray-900 text-white font-bold text-xl mt-4 border-t-4 border-white">
                                     <td colSpan={4} className="px-6 py-6 rounded-bl-lg">ИТОГО К ОПЛАТЕ:</td>
-                                    <td className="px-6 py-6 text-right whitespace-nowrap rounded-br-lg">{grandTotal.toLocaleString('ru-RU')} ₽</td>
+                                    <td className="px-6 py-6 text-right whitespace-nowrap rounded-br-lg">{grandTotal.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                 </tr>
                             </tbody>
                         </table>

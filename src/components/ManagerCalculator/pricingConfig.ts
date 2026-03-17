@@ -20,6 +20,7 @@ export const PRICING_CONFIG = {
     // Отделка (только материалы за 1 м2)
     linoleum: 600,     // Линолеум (материал)
     laminate: 900,     // Ламинат (материал)
+    laminateWaterproof: 1590, // Ламинат 33 кл. Водостойкий (материал)
     quartzVinyl: 1500, // Кварцвинил (материал)
     floorBoardPine: 1000,  // Половая доска (Хвоя)
     floorBoardLarch: 1600, // Половая доска (Лиственница)
@@ -55,8 +56,10 @@ export const PRICING_CONFIG = {
     // Отопление
     heatingWarmFloorElectric: 2140, // Теплый пол электрич (за 1 м2)
     heatingWarmFloorWater: 2500,    // Теплый пол водяной (трубы, коллектор, монтаж) (за 1 м2)
-    heatingElectricBoiler: 45000,   // Котел электрический с обвязкой (шт)
+    heatingElectricBoiler: 45000,   // Котел электрический (шт)
     heatingConvector: 7500,         // Конвектор электрический настенный (шт)
+    heatingThermostat: 2300,        // Терморегулятор для теплого пола (шт)
+    heatingWarmFloorBathroom: 4670, // Теплый пол в санузле (за 1 м2)
 
     // Строительно-монтажные работы (СМР)
     workFrameComplexM2: 7170,    // Сборка силового каркаса дома (каркас, утепление, мембраны, ОСП) за 1 м2
