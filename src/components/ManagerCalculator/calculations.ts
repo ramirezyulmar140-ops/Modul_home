@@ -98,8 +98,8 @@ export interface HouseParams {
 
     // Санузел
     bathroomFloorArea: number;
-    bathroomFloorFinish: 'quartzVinyl' | 'keramogranit';
-    bathroomWallFinish: 'keramogranit' | 'quartzVinyl';
+    bathroomFloorFinish: 'quartzVinyl' | 'keramogranit' | 'laminateWaterproof';
+    bathroomWallFinish: 'keramogranit' | 'quartzVinyl' | 'imitationWood' | 'plywood';
 }
 
 export interface EstimateSection {
@@ -331,12 +331,9 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     });
 
     // Наружная отделка (разделение по сторонам)
-    const widthWallAreaGross = width * height * 2; // Фронтоны (по ширине)
+    const totalOpeningsArea = windowsArea + (params.doorsCount * 2);
+    const widthWallAreaNet = Math.max(0, 2 * (width * (height + 0.4)) - (totalOpeningsArea / 2));
     const lengthWallAreaGross = length * height * 2; // Боковые стены (по длине)
-    // Распределение окон/дверей пропорционально
-    const widthRatio = widthWallAreaGross / outerWallAreaGross;
-    const widthWallAreaNet = Math.max(0, widthWallAreaGross - (windowsArea + params.doorsCount * 2) * widthRatio);
-    const lengthWallAreaNet = Math.max(0, lengthWallAreaGross - (windowsArea + params.doorsCount * 2) * (1 - widthRatio));
 
     if (params.exteriorWallFinish === 'combined') {
         // Стандарт: фронтоны (по ширине) — планкен, боковые (по длине) — профлист
@@ -507,10 +504,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.ceilingFinish !== 'plywood') {
         roofItems.push({
             name: 'Пароизоляция потолка',
-            quantity: parseFloat((floorArea * CALCULATIONS_CONFIG.membraneMargin).toFixed(2)),
+            quantity: parseFloat((roofArea * CALCULATIONS_CONFIG.membraneMargin).toFixed(2)),
             unit: 'м2',
             price: PRICING_CONFIG.vaporBarrier,
-            total: Math.ceil(floorArea * CALCULATIONS_CONFIG.membraneMargin * PRICING_CONFIG.vaporBarrier)
+            total: Math.ceil(roofArea * CALCULATIONS_CONFIG.membraneMargin * PRICING_CONFIG.vaporBarrier)
         });
     }
 
@@ -594,10 +591,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         } else if (params.exteriorWallFinish === 'planken') {
             assemblyItems.push({
                 name: 'Монтаж фасада боковых стен (Планкен)',
-                quantity: parseFloat(lengthWallAreaNet.toFixed(2)),
+                quantity: parseFloat(lengthWallAreaGross.toFixed(2)),
                 unit: 'м2',
                 price: PRICING_CONFIG.workFacadePlankenM2,
-                total: Math.ceil(lengthWallAreaNet * PRICING_CONFIG.workFacadePlankenM2)
+                total: Math.ceil(lengthWallAreaGross * PRICING_CONFIG.workFacadePlankenM2)
             });
         }
 
@@ -653,6 +650,9 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         if (params.bathroomFloorFinish === 'keramogranit') {
             bathFloorPrice = PRICING_CONFIG.keramogranit;
             bathFloorName = 'Отделка пола санузла (Керамогранит)';
+        } else if (params.bathroomFloorFinish === 'laminateWaterproof') {
+            bathFloorPrice = PRICING_CONFIG.laminateWaterproof;
+            bathFloorName = 'Отделка пола санузла (Ламинат Водостойкий)';
         }
         const bathFloorFinishingArea = parseFloat(params.bathroomFloorArea.toFixed(2)); // Убираем запас 10% для с/у, чтобы не было "+1" при округлении
         finishItems.push({ 
@@ -690,6 +690,12 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         if (params.bathroomWallFinish === 'quartzVinyl') {
             bathWallPrice = PRICING_CONFIG.quartzVinyl;
             bathWallName = 'Отделка стен санузла (Кварцвинил)';
+        } else if (params.bathroomWallFinish === 'imitationWood') {
+            bathWallPrice = PRICING_CONFIG.imitationWood + 150;
+            bathWallName = 'Отделка стен санузла (Имитация бруса)';
+        } else if (params.bathroomWallFinish === 'plywood') {
+            bathWallPrice = PRICING_CONFIG.plywoodInterior + 150;
+            bathWallName = 'Отделка стен санузла (Фанера)';
         }
         const bathWallFinishingArea = parseFloat(bathroomWallArea.toFixed(2));
         finishItems.push({ 
@@ -786,6 +792,9 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         if (params.bathroomFloorFinish === 'keramogranit') {
             bathWorkFloorPrice = PRICING_CONFIG.workInteriorKeramogranitM2;
             bathWorkFloorName = 'Укладка пола санузла (Керамогранит)';
+        } else if (params.bathroomFloorFinish === 'laminateWaterproof') {
+            bathWorkFloorPrice = PRICING_CONFIG.workFloorLaminateM2;
+            bathWorkFloorName = 'Укладка пола санузла (Ламинат)';
         }
         smrFinishItems.push({
             name: bathWorkFloorName,
@@ -801,6 +810,12 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         if (params.bathroomWallFinish === 'quartzVinyl') {
             bathWorkWallPrice = PRICING_CONFIG.workFloorQuartzM2;
             bathWorkWallName = 'Монтаж кварцвинила в санузле (стены)';
+        } else if (params.bathroomWallFinish === 'imitationWood') {
+            bathWorkWallPrice = PRICING_CONFIG.workInteriorWoodM2;
+            bathWorkWallName = 'Монтаж имитации бруса в санузле (стены)';
+        } else if (params.bathroomWallFinish === 'plywood') {
+            bathWorkWallPrice = PRICING_CONFIG.workInteriorPlywoodM2;
+            bathWorkWallName = 'Монтаж фанеры в санузле (стены)';
         }
 
         smrFinishItems.push({

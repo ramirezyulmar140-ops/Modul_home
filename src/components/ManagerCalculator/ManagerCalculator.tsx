@@ -353,6 +353,7 @@ export default function ManagerCalculator() {
                                         <select name="bathroomFloorFinish" value={params.bathroomFloorFinish} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
                                             <option value="quartzVinyl">Кварцвинил</option>
                                             <option value="keramogranit">Керамогранит</option>
+                                            <option value="laminateWaterproof">Ламинат Водостойкий</option>
                                         </select>
                                     </div>
                                 </div>
@@ -362,6 +363,8 @@ export default function ManagerCalculator() {
                                         <select name="bathroomWallFinish" value={params.bathroomWallFinish} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
                                             <option value="keramogranit">Керамогранит</option>
                                             <option value="quartzVinyl">Кварцвинил</option>
+                                            <option value="imitationWood">Имитация бруса</option>
+                                            <option value="plywood">Фанера</option>
                                         </select>
                                     </div>
                                     <div className="flex items-end">
@@ -468,6 +471,10 @@ export default function ManagerCalculator() {
                                             <label className="flex items-center space-x-2"><input type="checkbox" name="optGutterMetal" checked={params.optGutterMetal} onChange={handleChange} /> <span className="text-xs">Металл</span></label>
                                         </div>
                                     </div>
+                                    <label className="flex items-center space-x-2 pt-2 border-t font-bold">
+                                        <input type="checkbox" name="optSafeDoor" checked={params.optSafeDoor} onChange={handleChange} /> 
+                                        <span className="text-[11px]">Вх. сейф дверь + крыльцо (1х1,2) + 2 ступени (115т.р.)</span>
+                                    </label>
                                     <label className="flex items-center space-x-2 pt-2 border-t"><input type="checkbox" name="optPlinthPlanken" checked={params.optPlinthPlanken} onChange={handleChange} /> <span className="text-xs">Цоколь планкен</span></label>
                                 </div>
                             </div>
