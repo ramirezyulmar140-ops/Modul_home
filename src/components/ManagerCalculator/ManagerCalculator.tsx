@@ -90,7 +90,7 @@ const INITIAL_PARAMS: HouseParams = {
     optTerraceStepCount: 0,
     discountPercent: 0,
     markupAmount: 0,
-    marginPercent: 20, // Начальная маржа 20%
+    materialPercent: 50, // Доля материалов в цене дома (50%)
     customItems: [],
     clientName: '',
     managerName: '',
@@ -118,7 +118,7 @@ export default function ManagerCalculator() {
     });
 
     const [activeTab, setActiveTab ] = useState<'geo' | 'finish' | 'bathroom' | 'eng' | 'extra' | 'finance'>('geo');
-    const [isInternalMode, setIsInternalMode] = useState(false);
+
     const [newCustomItem, setNewCustomItem] = useState({ name: '', quantity: 1, unit: 'шт', price: 0 });
 
     useEffect(() => {
@@ -174,7 +174,7 @@ export default function ManagerCalculator() {
     };
 
     const estimateResult = useMemo(() => calculateEstimate(params), [params]);
-    const { sections, grandTotal, materialsTotal } = estimateResult;
+    const { sections, grandTotal, baseTotal } = estimateResult;
 
     const handlePrint = () => {
         window.print();
@@ -246,7 +246,7 @@ export default function ManagerCalculator() {
                                 <div className="pt-2 border-t">
                                     <label className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100 cursor-pointer hover:bg-blue-100 transition-colors">
                                         <input type="checkbox" name="hideFoundationAndAssembly" checked={params.hideFoundationAndAssembly} onChange={handleChange} className="w-5 h-5 text-blue-600 border-gray-300 rounded" />
-                                        <span className="text-xs font-bold text-blue-800 leading-tight">Без фундамента и монтажа</span>
+                                        <span className="text-xs font-bold text-blue-800 leading-tight">Без фундамента</span>
                                     </label>
                                 </div>
                                 <div>
@@ -541,46 +541,12 @@ export default function ManagerCalculator() {
                         <div className="bg-gray-900 text-white p-5 rounded-xl shadow-lg border border-gray-800">
                             <div className="flex justify-between items-end mb-2">
                                 <span className="text-gray-400 text-xs">Итоговая стоимость:</span>
-                                {isInternalMode && <span className="text-red-400 text-[10px] font-mono">DEBUG MODE ON</span>}
                             </div>
                             <div className="text-3xl font-bold text-[#6b8e23]">
                                 {grandTotal.toLocaleString('ru-RU')} ₽
                             </div>
 
-                            {isInternalMode && (
-                                <div className="mt-4 pt-4 border-t border-gray-700 space-y-2">
-                                    <div className="flex flex-col space-y-1">
-                                        <label className="text-[10px] text-gray-400 uppercase tracking-tighter">Наценка (работы/маржа), %</label>
-                                        <div className="flex items-center space-x-2">
-                                            <input 
-                                                type="range" 
-                                                name="marginPercent" 
-                                                min="0" 
-                                                max="200" 
-                                                step="5"
-                                                value={params.marginPercent} 
-                                                onChange={(e) => handleChange({ target: { name: 'marginPercent', value: parseFloat(e.target.value) }})}
-                                                className="flex-1 accent-[#6b8e23] h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                                            />
-                                            <span className="text-xs font-mono w-12 text-right">{params.marginPercent}%</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="space-y-1 text-xs font-mono pt-2 border-t border-gray-800">
-                                        <div className="flex justify-between text-gray-400"><span>Себестоимость:</span><span>{materialsTotal.toLocaleString('ru-RU')} ₽</span></div>
-                                        <div className="flex justify-between text-[#6b8e23]"><span>Маржа ({params.marginPercent}%):</span><span>{Math.ceil(materialsTotal * (params.marginPercent / 100)).toLocaleString('ru-RU')} ₽</span></div>
-                                        {params.discountPercent > 0 && <div className="flex justify-between text-red-400"><span>Скидка ({params.discountPercent}%):</span><span>-{Math.ceil((materialsTotal + Math.ceil(materialsTotal * (params.marginPercent / 100))) * (params.discountPercent / 100)).toLocaleString('ru-RU')} ₽</span></div>}
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="mt-4 grid grid-cols-2 gap-2">
-                                <button
-                                    onClick={() => setIsInternalMode(!isInternalMode)}
-                                    className={`text-[10px] py-1 px-2 rounded border uppercase tracking-wider transition-colors ${isInternalMode ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-gray-800 border-gray-700 text-gray-500'}`}
-                                >
-                                    {isInternalMode ? 'Скрыть маржу' : 'Инфо для профи'}
-                                </button>
+                            <div className="mt-4 grid grid-cols-1 gap-2">
                                 <button
                                     onClick={resetParams}
                                     className="text-[10px] py-1 px-2 rounded border border-gray-700 bg-gray-800 text-gray-500 hover:text-white uppercase tracking-wider"
@@ -598,7 +564,8 @@ export default function ManagerCalculator() {
                         <div className="flex justify-between items-center mb-8 border-b-2 border-gray-900 pb-6">
                             <img src="/logo-black.png" alt="Company Logo" className="h-10 object-contain" />
                             <div className="text-right">
-                                <span className="text-sm font-bold text-gray-700 uppercase tracking-widest">Приложение № 2</span>
+                                <h2 className="text-xl font-bold uppercase tracking-widest text-gray-900">Паспорт объекта</h2>
+                                <span className="text-xs font-medium text-gray-500 uppercase tracking-widest">Приложение № 2</span>
                             </div>
                         </div>
 
@@ -606,7 +573,10 @@ export default function ManagerCalculator() {
                             <div className="space-y-1">
                                 <p><span className="text-gray-400">Заказчик:</span> <span className="font-semibold">{params.clientName || '____________________'}</span></p>
                                 <p><span className="text-gray-400">Объект:</span> <span className="font-semibold">Модульный дом {params.length}x{params.width}м</span></p>
-                                <p><span className="text-gray-400">Площадь:</span> <span className="font-semibold">{(params.length * params.width - params.bathroomFloorArea).toFixed(2)} м²</span></p>
+                                <div className="flex space-x-6">
+                                    <p><span className="text-gray-400">Площадь:</span> <span className="font-semibold">{(params.length * params.width).toFixed(2)} м²</span></p>
+                                    <p><span className="text-gray-400">Высота:</span> <span className="font-semibold">{params.height} м</span></p>
+                                </div>
                             </div>
                             <div className="space-y-1 text-right">
                                 <p><span className="text-gray-400">Дата:</span> <span className="font-semibold">{params.kpDate}</span></p>
@@ -620,10 +590,10 @@ export default function ManagerCalculator() {
                             <thead className="text-xs uppercase bg-gray-100 text-gray-700">
                                 <tr>
                                     <th className="px-6 py-3 rounded-tl-lg">Наименование / Этап</th>
-                                    <th className="px-4 py-3 text-center">Кол-во</th>
-                                    <th className="px-4 py-3 text-center">Ед. изм.</th>
-                                    <th className="px-4 py-3 text-right">Цена</th>
-                                    <th className="px-6 py-3 text-right rounded-tr-lg">Сумма</th>
+                                    <th className="px-4 py-3 text-center print:hidden">Кол-во</th>
+                                    <th className="px-4 py-3 text-center print:hidden">Ед. изм.</th>
+                                    <th className="px-4 py-3 text-right print:hidden">Цена</th>
+                                    <th className="px-6 py-3 text-right rounded-tr-lg print:hidden">Сумма</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -631,20 +601,28 @@ export default function ManagerCalculator() {
                                 {sections.map((section, idx) => (
                                     <React.Fragment key={`section-${idx}`}>
                                         <tr className="bg-gray-50/80 border-b border-t font-semibold">
-                                            <td colSpan={4} className="px-6 py-3 text-gray-900">{idx + 1}. {section.name}</td>
-                                            <td className="px-6 py-3 text-right text-gray-900">{section.total.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽</td>
+                                            <td className="px-6 py-3 text-gray-900 print:col-span-5">{idx + 1}. {section.name}</td>
+                                            <td colSpan={3} className="print:hidden"></td>
+                                            <td className="px-6 py-3 text-right text-gray-900 print:hidden">{section.total.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₽</td>
                                         </tr>
-                                        {section.items.map((item, itemIdx) => (
-                                            <tr key={itemIdx} className="border-b last:border-none hover:bg-gray-50/50">
+                                        {!section.hideItems && section.items.map((item, itemIdx) => (
+                                            <tr key={itemIdx} className="border-b last:border-none hover:bg-gray-50/50 print:hidden">
                                                 <td className="px-6 py-2.5 text-gray-700">{item.name}</td>
-                                                <td className="px-4 py-2.5 text-center">
+                                                <td className="px-4 py-2.5 text-center print:hidden">
                                                     {typeof item.quantity === 'number' 
                                                         ? (['м2', 'м3', 'мп', 'пог. м'].includes(item.unit) ? item.quantity.toFixed(2) : Math.round(item.quantity))
                                                         : item.quantity}
                                                 </td>
-                                                <td className="px-4 py-2.5 text-center text-gray-500">{item.unit}</td>
-                                                <td className="px-4 py-2.5 text-right text-gray-500">{item.price.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}</td>
-                                                <td className="px-6 py-2.5 text-right font-medium">{item.total.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
+                                                <td className="px-4 py-2.5 text-center text-gray-500 print:hidden">{item.unit}</td>
+                                                <td className="px-4 py-2.5 text-right text-gray-500 print:hidden">{item.price.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}</td>
+                                                <td className="px-6 py-2.5 text-right font-medium print:hidden">{item.total.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
+                                            </tr>
+                                        ))}
+                                        {section.passportItems && section.passportItems.map((pItem, pIdx) => (
+                                            <tr key={`passport-${pIdx}`} className="hidden print:table-row border-b last:border-none">
+                                                <td className="px-10 py-1.5 text-gray-700 italic text-sm" colSpan={5}>
+                                                    • {pItem}
+                                                </td>
                                             </tr>
                                         ))}
                                     </React.Fragment>
@@ -652,20 +630,20 @@ export default function ManagerCalculator() {
 
                                 {/* ФИНАНСОВЫЕ КОРРЕКТИРОВКИ */}
                                 {params.discountPercent > 0 && (
-                                    <tr className="bg-green-50/30 text-green-700 font-semibold border-t">
+                                    <tr className="bg-green-50/30 text-green-700 font-semibold border-t print:hidden">
                                         <td colSpan={4} className="px-6 py-3">Скидка лояльности ({params.discountPercent}%)</td>
-                                        <td className="px-6 py-3 text-right">-{Math.ceil((materialsTotal + Math.ceil(materialsTotal * (params.marginPercent / 100))) * (params.discountPercent / 100)).toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
+                                        <td className="px-6 py-3 text-right">-{Math.ceil(baseTotal * (params.discountPercent / 100)).toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                     </tr>
                                 )}
                                 {params.markupAmount !== 0 && (
-                                    <tr className="bg-gray-50/50 text-gray-700 font-semibold border-t">
+                                    <tr className="bg-gray-50/50 text-gray-700 font-semibold border-t print:hidden">
                                         <td colSpan={4} className="px-6 py-3">Корректировка стоимости</td>
                                         <td className="px-6 py-3 text-right">{params.markupAmount > 0 ? '+' : ''}{params.markupAmount.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                     </tr>
                                 )}
 
                                 {/* ФИНАЛЬНЫЙ ИТОГ */}
-                                <tr className="bg-gray-900 text-white font-bold text-xl mt-4 border-t-4 border-white">
+                                <tr className="bg-gray-900 text-white font-bold text-xl mt-4 border-t-4 border-white print:hidden">
                                     <td colSpan={4} className="px-6 py-6 rounded-bl-lg">ИТОГО К ОПЛАТЕ:</td>
                                     <td className="px-6 py-6 text-right whitespace-nowrap rounded-br-lg">{grandTotal.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                 </tr>
@@ -673,13 +651,6 @@ export default function ManagerCalculator() {
                         </table>
                     </div>
 
-                    <div className="mt-8 pt-8 border-t text-sm text-gray-500 hidden print:block">
-                        <p>Данный расчет носит информационный характер и может быть уточнен после выезда специалиста на участок.</p>
-                        <div className="mt-16 flex justify-between px-10">
-                            <div className="text-center w-64 border-t pt-2">Подпись менеджера</div>
-                            <div className="text-center w-64 border-t pt-2">Подпись заказчика</div>
-                        </div>
-                    </div>
                 </div>
             </main>
 

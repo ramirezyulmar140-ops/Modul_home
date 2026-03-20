@@ -86,7 +86,7 @@ export interface HouseParams {
     // --- ФИНАНСЫ И КЛИЕНТ (Новое) ---
     discountPercent: number;    // Скидка в %
     markupAmount: number;       // Наценка в руб.
-    marginPercent: number;      // Процент наценки от материалов (маржа/работы)
+    materialPercent: number;     // Доля материалов в цене дома (%)
     customItems: EstimateItem[]; // Произвольные позиции
     clientName: string;
     managerName: string;
@@ -106,6 +106,8 @@ export interface EstimateSection {
     name: string;
     items: EstimateItem[];
     total: number;
+    hideItems?: boolean;
+    passportItems?: string[];
 }
 
 export interface EstimateItem {
@@ -120,6 +122,7 @@ export interface EstimateResult {
     sections: EstimateSection[];
     grandTotal: number;
     materialsTotal: number;
+    baseTotal: number;      // Цена до скидок и наценок
     hiddenTotal: number; // Для внутреннего пользования
 }
 
@@ -129,7 +132,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Валидация входных данных
     const length = Math.max(2, params.length);
     const width = Math.max(2, params.width);
-    const height = Math.max(2, params.height);
+    const height = Math.max(2, params.height) + 0.2; // +0.2м запас на отходы по высоте стен
     const innerWallsLength = Math.max(0, params.innerWallsLength);
     const windowsPercent = Math.min(80, Math.max(0, params.windowsPercent));
 
@@ -199,7 +202,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         sections.push({
             name: 'Фундамент',
             items: foundationItems,
-            total: foundationItems.reduce((acc, item) => acc + item.total, 0)
+            total: foundationItems.reduce((acc, item) => acc + item.total, 0),
+            passportItems: [
+                'Винтовые металлические сваи диаметром 108 мм, с оголовками и монтажом'
+            ]
         });
     }
 
@@ -210,8 +216,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     // Обвязка (Брус 200х200)
     // Внутренние несущие линии (предположим 1 линия по длине)
-    const obvyazkaLength = perimeter + length; // Упрощенно
-    const obvyazkaVol = parseFloat((obvyazkaLength * 0.2 * 0.2).toFixed(2));
+    const obvyazkaLength = perimeter + length;
+    const obvyazkaVol = parseFloat((obvyazkaLength * 0.2 * 0.2 * CALCULATIONS_CONFIG.timberMargin).toFixed(2));
     floorItems.push({
         name: 'Обвязка (брус 200х200)',
         quantity: obvyazkaVol,
@@ -260,10 +266,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Пленки и сетка
     floorItems.push({
         name: 'Сетка от грызунов ЦПВС',
-        quantity: floorArea,
+        quantity: parseFloat((floorArea * CALCULATIONS_CONFIG.finishingMargin).toFixed(2)),
         unit: 'м2',
         price: PRICING_CONFIG.mouseMesh,
-        total: floorArea * PRICING_CONFIG.mouseMesh
+        total: Math.ceil(floorArea * CALCULATIONS_CONFIG.finishingMargin * PRICING_CONFIG.mouseMesh)
     });
 
     floorItems.push({
@@ -279,7 +285,15 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     sections.push({
         name: 'Перекрытие пола',
         items: floorItems,
-        total: floorItems.reduce((acc, item) => acc + item.total, 0)
+        total: floorItems.reduce((acc, item) => acc + item.total, 0),
+        passportItems: [
+            'Нижняя силовая обвязка из деревянного бруса 200×200 мм',
+            `Лаги пола из сухой строганой доски ${params.floorInsulationThickness >= 200 ? 200 : 150}×50 мм`,
+            'Черновой пол из плит OSB толщиной 22 мм',
+            `Утепление пола минеральным утеплителем толщиной ${params.floorInsulationThickness} мм`,
+            'Металлическая защитная сетка от грызунов ЦПВС',
+            'Ветрозащитная мембрана по нижней части пола'
+        ]
     });
 
     // -------------------------------------------------------------------------------- //
@@ -388,10 +402,25 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         });
     }
 
+    const wallPassportItems = [
+        `Несущий каркас наружных стен из сухой строганой доски ${params.wallInsulationThickness}×50 мм`,
+        `Утепление наружных стен минеральным утеплителем толщиной ${params.wallInsulationThickness} мм`
+    ];
+    if (params.exteriorWallFinish === 'combined') {
+        wallPassportItems.push('Отделка фронтонов фасадной доской планкен');
+        wallPassportItems.push('Отделка боковых стен фасада металлическим профилированным листом');
+    } else if (params.exteriorWallFinish === 'planken') {
+        wallPassportItems.push('Отделка фасада доской планкен (все стороны)');
+    } else {
+        wallPassportItems.push('Отделка фасада металлическим профилированным листом (все стороны)');
+    }
+    wallPassportItems.push('Ветрозащитная мембрана наружных стен');
+
     sections.push({
-        name: 'Стены наружные (Каркас и Фасад)',
+        name: 'Наружные стены',
         items: wallItems,
-        total: wallItems.reduce((acc, item) => acc + item.total, 0)
+        total: wallItems.reduce((acc, item) => acc + item.total, 0),
+        passportItems: wallPassportItems
     });
 
     // -------------------------------------------------------------------------------- //
@@ -436,9 +465,13 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     if (innerWallItems.length > 0) {
         sections.push({
-            name: 'Стены внутренние (Каркас и Звукоизоляция)',
+            name: 'Стены внутренние (Перегородки)',
             items: innerWallItems,
-            total: innerWallItems.reduce((acc, item) => acc + item.total, 0)
+            total: innerWallItems.reduce((acc, item) => acc + item.total, 0),
+            passportItems: [
+                'Каркас внутренних перегородок из сухой строганой доски 100×50 мм',
+                'Звукоизоляция внутренних перегородок толщиной 100 мм'
+            ]
         });
     }
 
@@ -466,7 +499,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     });
 
     // Обрешетка
-    const obReshetkaVol = parseFloat(((roofArea / 0.35) * width * 0.1 * 0.025).toFixed(2)); // Шаг 35см, доска 100х25
+    const obReshetkaVol = parseFloat(((roofArea / 0.35) * 0.1 * 0.025 * CALCULATIONS_CONFIG.timberMargin).toFixed(2)); // Шаг 35см, доска 100х25
     roofItems.push({
         name: 'Обрешетка (Доска 100х25)',
         quantity: obReshetkaVol,
@@ -518,98 +551,21 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     }
 
     sections.push({
-        name: 'Крыша конструктив',
+        name: 'Крыша',
         items: roofItems,
-        total: roofItems.reduce((acc, item) => acc + item.total, 0)
-    });
-
-    // -------------------------------------------------------------------------------- //
-    // РАЗДЕЛ 5: СТРОИТЕЛЬНО-МОНТАЖНЫЕ РАБОТЫ (ТЕПЛЫЙ КОНТУР И ПЕРЕГОРОДКИ)
-    // -------------------------------------------------------------------------------- //
-    const smrWarmItems: EstimateItem[] = [];
-
-    smrWarmItems.push({
-        name: 'Сборка силового каркаса дома (силовой каркас, утепление, обшивка мембранами, ОСП)',
-        quantity: floorArea,
-        unit: 'м2',
-        price: PRICING_CONFIG.workFrameComplexM2,
-        total: Math.ceil(floorArea * PRICING_CONFIG.workFrameComplexM2)
+        total: roofItems.reduce((acc, item) => acc + item.total, 0),
+        passportItems: [
+            'Стропильная система крыши из сухой строганой доски 150×50 мм',
+            'Обрешетка крыши из сухой строганой доски 100×25 мм',
+            'Кровельное покрытие из металлочерепицы или профилированного листа',
+            `Утепление кровли минеральным утеплителем толщиной ${params.roofInsulationThickness} мм`,
+            'Ветровлагозащитная мембрана кровли'
+        ]
     });
 
 
-    if (params.exteriorWallFinish === 'combined' || params.exteriorWallFinish === 'planken') {
-        smrWarmItems.push({
-            name: 'Монтаж фасада фронтонов (Планкен)',
-            quantity: parseFloat(widthWallAreaNet.toFixed(2)),
-            unit: 'м2',
-            price: PRICING_CONFIG.workFacadePlankenM2,
-            total: Math.ceil(widthWallAreaNet * PRICING_CONFIG.workFacadePlankenM2)
-        });
-    }
 
-    sections.push({
-        name: 'Сборочно-производственные работы',
-        items: smrWarmItems,
-        total: smrWarmItems.reduce((acc, item) => acc + item.total, 0)
-    });
 
-    // -------------------------------------------------------------------------------- //
-    // РАЗДЕЛ 7: МОНТАЖ ДОМА НА ФУНДАМЕНТ
-    // -------------------------------------------------------------------------------- //
-    if (!params.hideFoundationAndAssembly) {
-        const assemblyItems: EstimateItem[] = [];
-
-        // Сама стоимость монтажа
-        assemblyItems.push({
-            name: 'Монтаж дома на фундамент (работа)',
-            quantity: floorArea,
-            unit: 'м2',
-            price: PRICING_CONFIG.workAssemblyHouseM2,
-            total: Math.ceil(floorArea * PRICING_CONFIG.workAssemblyHouseM2)
-        });
-
-        // Монтаж кровельного покрытия
-        assemblyItems.push({
-            name: 'Монтаж кровельного покрытия',
-            quantity: parseFloat(roofArea.toFixed(2)),
-            unit: 'м2',
-            price: PRICING_CONFIG.workRoofingM2,
-            total: Math.ceil(roofArea * PRICING_CONFIG.workRoofingM2)
-        });
-
-        // Монтаж фасада боковых стен (Профлист или Планкен)
-        if (params.exteriorWallFinish === 'combined') {
-            assemblyItems.push({
-                name: 'Монтаж фасада боковых стен (Профлист)',
-                quantity: parseFloat(lengthWallAreaGross.toFixed(2)),
-                unit: 'м2',
-                price: PRICING_CONFIG.workFacadeProflistM2,
-                total: Math.ceil(lengthWallAreaGross * PRICING_CONFIG.workFacadeProflistM2)
-            });
-        } else if (params.exteriorWallFinish === 'proflistWall') {
-            assemblyItems.push({
-                name: 'Монтаж фасадной отделки (Профлист)',
-                quantity: parseFloat(outerWallAreaNet.toFixed(2)),
-                unit: 'м2',
-                price: PRICING_CONFIG.workFacadeProflistM2,
-                total: Math.ceil(outerWallAreaNet * PRICING_CONFIG.workFacadeProflistM2)
-            });
-        } else if (params.exteriorWallFinish === 'planken') {
-            assemblyItems.push({
-                name: 'Монтаж фасада боковых стен (Планкен)',
-                quantity: parseFloat(lengthWallAreaGross.toFixed(2)),
-                unit: 'м2',
-                price: PRICING_CONFIG.workFacadePlankenM2,
-                total: Math.ceil(lengthWallAreaGross * PRICING_CONFIG.workFacadePlankenM2)
-            });
-        }
-
-        sections.push({
-            name: 'Монтаж дома на фундамент',
-            items: assemblyItems,
-            total: assemblyItems.reduce((acc, item) => acc + item.total, 0)
-        });
-    }
 
     // Внутренняя отделка, Окна, Электрика
     const finishItems: EstimateItem[] = [];
@@ -642,12 +598,12 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         floorFinishPrice = PRICING_CONFIG.floorBoardLarch;
         floorFinishName = 'Напольное покрытие (Половая доска Лиственница)';
     }
-    const finishFloorArea = parseFloat(generalFloorArea.toFixed(2));
+    const finishFloorArea = parseFloat((generalFloorArea * CALCULATIONS_CONFIG.finishingMargin).toFixed(2));
 
     if (params.floorFinish === 'laminate' || params.floorFinish === 'laminateWaterproof' || params.floorFinish === 'quartzVinyl') {
-        finishItems.push({ name: 'Подложка под напольное покрытие', quantity: finishFloorArea, unit: 'м2', price: PRICING_CONFIG.underlayment, total: finishFloorArea * PRICING_CONFIG.underlayment });
+        finishItems.push({ name: 'Подложка под напольное покрытие', quantity: finishFloorArea, unit: 'м2', price: PRICING_CONFIG.underlayment, total: Math.ceil(finishFloorArea * PRICING_CONFIG.underlayment) });
     }
-    finishItems.push({ name: floorFinishName, quantity: finishFloorArea, unit: 'м2', price: floorFinishPrice, total: finishFloorArea * floorFinishPrice });
+    finishItems.push({ name: floorFinishName, quantity: finishFloorArea, unit: 'м2', price: floorFinishPrice, total: Math.ceil(finishFloorArea * floorFinishPrice) });
 
     // Санузел: Пол
     if (params.bathroomFloorArea > 0) {
@@ -660,13 +616,13 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
             bathFloorPrice = PRICING_CONFIG.laminateWaterproof;
             bathFloorName = 'Отделка пола санузла (Ламинат Водостойкий)';
         }
-        const bathFloorFinishingArea = parseFloat(params.bathroomFloorArea.toFixed(2)); // Убираем запас 10% для с/у, чтобы не было "+1" при округлении
+        const bathFloorFinishingArea = parseFloat((params.bathroomFloorArea * CALCULATIONS_CONFIG.finishingMargin).toFixed(2));
         finishItems.push({ 
             name: bathFloorName, 
             quantity: bathFloorFinishingArea, 
             unit: 'м2', 
             price: bathFloorPrice, 
-            total: bathFloorFinishingArea * bathFloorPrice 
+            total: Math.ceil(bathFloorFinishingArea * bathFloorPrice) 
         });
     }
 
@@ -686,8 +642,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         interiorWallPrice = PRICING_CONFIG.plywoodInterior;
         interiorWallName = 'Отделка стен внутри (Березовая фанера)';
     }
-    const innerWallsFinishingArea = parseFloat(generalWallArea.toFixed(2));
-    finishItems.push({ name: interiorWallName, quantity: innerWallsFinishingArea, unit: 'м2', price: interiorWallPrice, total: innerWallsFinishingArea * interiorWallPrice });
+    const innerWallsFinishingArea = parseFloat((generalWallArea * CALCULATIONS_CONFIG.finishingMargin).toFixed(2));
+    finishItems.push({ name: interiorWallName, quantity: innerWallsFinishingArea, unit: 'м2', price: interiorWallPrice, total: Math.ceil(innerWallsFinishingArea * interiorWallPrice) });
 
     // Санузел: Стены
     if (params.bathroomFloorArea > 0) {
@@ -703,13 +659,13 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
             bathWallPrice = PRICING_CONFIG.plywoodInterior + 150;
             bathWallName = 'Отделка стен санузла (Фанера)';
         }
-        const bathWallFinishingArea = parseFloat(bathroomWallArea.toFixed(2));
+        const bathWallFinishingArea = parseFloat((bathroomWallArea * CALCULATIONS_CONFIG.finishingMargin).toFixed(2));
         finishItems.push({ 
             name: bathWallName, 
             quantity: bathWallFinishingArea, 
             unit: 'м2', 
             price: bathWallPrice, 
-            total: bathWallFinishingArea * bathWallPrice 
+            total: Math.ceil(bathWallFinishingArea * bathWallPrice) 
         });
     }
 
@@ -729,8 +685,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         ceilingFinishPrice = PRICING_CONFIG.plywoodInterior;
         ceilingFinishName = 'Отделка потолка (Березовая фанера)';
     }
-    const ceilingFinishingArea = parseFloat(roofArea.toFixed(2)); 
-    finishItems.push({ name: ceilingFinishName, quantity: ceilingFinishingArea, unit: 'м2', price: ceilingFinishPrice, total: ceilingFinishingArea * ceilingFinishPrice });
+    const ceilingFinishingArea = parseFloat((roofArea * CALCULATIONS_CONFIG.finishingMargin).toFixed(2)); 
+    finishItems.push({ name: ceilingFinishName, quantity: ceilingFinishingArea, unit: 'м2', price: ceilingFinishPrice, total: Math.ceil(ceilingFinishingArea * ceilingFinishPrice) });
 
     if (params.isPainted) {
         const hasPaintedCeiling = params.ceilingFinish !== 'stretchCeiling';
@@ -738,7 +694,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         if (hasPaintedCeiling) {
             paintingArea += roofArea;
         }
-        paintingArea = parseFloat(paintingArea.toFixed(2));
+        paintingArea = parseFloat((paintingArea * CALCULATIONS_CONFIG.finishingMargin).toFixed(2));
         finishItems.push({
             name: hasPaintedCeiling ? 'Покраска стен и потолка (2 слоя)' : 'Покраска стен (2 слоя)',
             quantity: paintingArea,
@@ -748,125 +704,52 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         });
     }
 
+    const winDoorPassport = [];
+    if (windowsArea > 0) winDoorPassport.push('Окна: панорамные и стандартные стеклопакеты');
+    winDoorPassport.push('Утепленная входная дверь с терморазрывом');
+    if (params.interiorDoorsCount > 0) winDoorPassport.push('Межкомнатные двери с фурнитурой');
+
     sections.push({
         name: 'Окна и Двери',
         items: finishItems.filter(i => i.name.includes('Остекление') || i.name.includes('Дверь')),
-        total: finishItems.filter(i => i.name.includes('Остекление') || i.name.includes('Дверь')).reduce((acc, item) => acc + item.total, 0)
+        total: finishItems.filter(i => i.name.includes('Остекление') || i.name.includes('Дверь')).reduce((acc, item) => acc + item.total, 0),
+        passportItems: winDoorPassport
     });
 
+    const finishPassport = [
+        'Подложка под напольное покрытие'
+    ];
+    const floorMap: Record<string, string> = {
+        'laminate': 'ламинат',
+        'laminateWaterproof': 'водостойкий ламинат',
+        'quartzVinyl': 'кварцвинил',
+        'linoleum': 'линолеум',
+        'floorBoardPine': 'половая доска (хвоя)',
+        'floorBoardLarch': 'половая доска (лиственница)'
+    };
+    finishPassport.push(`Финишное напольное покрытие — ${floorMap[params.floorFinish] || params.floorFinish}`);
+    if (params.bathroomFloorArea > 0) finishPassport.push('Влагостойкое напольное покрытие санузла — кварцвинил');
+    
+    if (params.interiorWallFinish === 'plywood') finishPassport.push('Внутренняя отделка стен березовой фанерой');
+    else if (params.interiorWallFinish === 'imitationWood') finishPassport.push('Внутренняя отделка стен имитацией бруса');
+    else if (params.interiorWallFinish === 'drywall') finishPassport.push('Внутренняя отделка стен гипсокартоном');
+    
+    if (params.bathroomFloorArea > 0) finishPassport.push('Отделка стен санузла имитацией бруса');
+    
+    if (params.ceilingFinish === 'plywood') finishPassport.push('Отделка потолка березовой фанерой');
+    else if (params.ceilingFinish === 'imitationWood') finishPassport.push('Отделка потолка имитацией бруса');
+    else if (params.ceilingFinish === 'stretchCeiling') finishPassport.push('Отделка потолка — натяжной потолок');
+
+    if (params.isPainted) finishPassport.push('Покраска стен и потолка в 2 слоя');
+
     sections.push({
-        name: 'Внутренняя отделка (Материалы)',
+        name: 'Внутренняя отделка',
         items: finishItems.filter(i => !i.name.includes('Остекление') && !i.name.includes('Дверь')),
-        total: finishItems.filter(i => !i.name.includes('Остекление') && !i.name.includes('Дверь')).reduce((acc, item) => acc + item.total, 0)
+        total: finishItems.filter(i => !i.name.includes('Остекление') && !i.name.includes('Дверь')).reduce((acc, item) => acc + item.total, 0),
+        passportItems: finishPassport
     });
 
-    // -------------------------------------------------------------------------------- //
-    // РАЗДЕЛ 6: ОТДЕЛОЧНЫЕ РАБОТЫ (СМР ВНУТРЕННЯЯ ОТДЕЛКА)
-    // -------------------------------------------------------------------------------- //
-    const smrFinishItems: EstimateItem[] = [];
 
-    let workFloorPrice = PRICING_CONFIG.workFloorLaminateM2;
-    if (params.floorFinish === 'linoleum') workFloorPrice = PRICING_CONFIG.workFloorLinoleumM2;
-    else if (params.floorFinish === 'quartzVinyl') workFloorPrice = PRICING_CONFIG.workFloorQuartzM2;
-    else if (params.floorFinish === 'floorBoardPine' || params.floorFinish === 'floorBoardLarch') workFloorPrice = PRICING_CONFIG.workFloorBoardM2;
-    smrFinishItems.push({
-        name: 'Укладка напольного покрытия',
-        quantity: generalFloorArea,
-        unit: 'м2',
-        price: workFloorPrice,
-        total: Math.ceil(generalFloorArea * workFloorPrice)
-    });
-
-    const workInteriorWallPrice = params.interiorWallFinish === 'drywall' ? PRICING_CONFIG.workInteriorDrywallM2 : (params.interiorWallFinish === 'plywood' ? PRICING_CONFIG.workInteriorPlywoodM2 : PRICING_CONFIG.workInteriorWoodM2);
-    
-    // Если выбрана фанера, то работы по отделке стен не считаем (считаем их включенными в общестрой или просто не требующими доп. работ)
-    if (params.interiorWallFinish !== 'plywood') {
-        smrFinishItems.push({
-            name: 'Монтаж внутренней отделки стен (без покраски)',
-            quantity: parseFloat(generalWallArea.toFixed(2)),
-            unit: 'м2',
-            price: workInteriorWallPrice,
-            total: Math.ceil(generalWallArea * workInteriorWallPrice)
-        });
-    }
-
-    // Работы санузел
-    if (params.bathroomFloorArea > 0) {
-        // Пол санузла
-        let bathWorkFloorPrice = PRICING_CONFIG.workFloorQuartzM2;
-        let bathWorkFloorName = 'Укладка пола санузла (Кварцвинил)';
-        if (params.bathroomFloorFinish === 'keramogranit') {
-            bathWorkFloorPrice = PRICING_CONFIG.workInteriorKeramogranitM2;
-            bathWorkFloorName = 'Укладка пола санузла (Керамогранит)';
-        } else if (params.bathroomFloorFinish === 'laminateWaterproof') {
-            bathWorkFloorPrice = PRICING_CONFIG.workFloorLaminateM2;
-            bathWorkFloorName = 'Укладка пола санузла (Ламинат)';
-        }
-        smrFinishItems.push({
-            name: bathWorkFloorName,
-            quantity: params.bathroomFloorArea,
-            unit: 'м2',
-            price: bathWorkFloorPrice,
-            total: Math.ceil(params.bathroomFloorArea * bathWorkFloorPrice)
-        });
-
-        // Стены санузла
-        let bathWorkWallPrice = PRICING_CONFIG.workInteriorKeramogranitM2;
-        let bathWorkWallName = 'Укладка керамогранита в санузле (стены)';
-        if (params.bathroomWallFinish === 'quartzVinyl') {
-            bathWorkWallPrice = PRICING_CONFIG.workFloorQuartzM2;
-            bathWorkWallName = 'Монтаж кварцвинила в санузле (стены)';
-        } else if (params.bathroomWallFinish === 'imitationWood') {
-            bathWorkWallPrice = PRICING_CONFIG.workInteriorWoodM2;
-            bathWorkWallName = 'Монтаж имитации бруса в санузле (стены)';
-        } else if (params.bathroomWallFinish === 'plywood') {
-            bathWorkWallPrice = PRICING_CONFIG.workInteriorPlywoodM2;
-            bathWorkWallName = 'Монтаж фанеры в санузле (стены)';
-        }
-
-        smrFinishItems.push({
-            name: bathWorkWallName,
-            quantity: parseFloat(bathroomWallArea.toFixed(2)),
-            unit: 'м2',
-            price: bathWorkWallPrice,
-            total: Math.ceil(bathroomWallArea * bathWorkWallPrice)
-        });
-    }
-
-    const workCeilingPrice = params.ceilingFinish === 'stretchCeiling' ? PRICING_CONFIG.workStretchCeilingM2 : (params.ceilingFinish === 'drywall' ? PRICING_CONFIG.workInteriorDrywallM2 : (params.ceilingFinish === 'plywood' ? PRICING_CONFIG.workInteriorPlywoodM2 : PRICING_CONFIG.workInteriorWoodM2));
-    
-    // Если выбрана фанера для потолка, работы по его отделке также не считаем
-    if (params.ceilingFinish !== 'plywood') {
-        smrFinishItems.push({
-            name: 'Монтаж внутренней отделки потолка (без покраски)',
-            quantity: parseFloat(roofArea.toFixed(2)),
-            unit: 'м2',
-            price: workCeilingPrice,
-            total: Math.ceil(roofArea * workCeilingPrice)
-        });
-    }
-
-    if (params.isPainted) {
-        const hasPaintedCeiling = params.ceilingFinish !== 'stretchCeiling';
-        let paintingArea = generalWallArea;
-        if (hasPaintedCeiling) {
-            paintingArea += roofArea;
-        }
-        paintingArea = parseFloat(paintingArea.toFixed(2));
-        smrFinishItems.push({
-            name: hasPaintedCeiling ? 'Покраска стен и потолков (2 слоя)' : 'Покраска стен (2 слоя)',
-            quantity: paintingArea,
-            unit: 'м2',
-            price: PRICING_CONFIG.workPaintingM2,
-            total: Math.ceil(paintingArea * PRICING_CONFIG.workPaintingM2)
-        });
-    }
-
-    sections.push({
-        name: 'Отделочные работы',
-        items: smrFinishItems,
-        total: smrFinishItems.reduce((acc, item) => acc + item.total, 0)
-    });
 
     // Инженерные сети
     const commItems: EstimateItem[] = [];
@@ -874,35 +757,32 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.electricalType === 'basic') {
         commItems.push({ 
             name: 'Электромонтаж: Пакет «Стандарт»', 
-            quantity: generalFloorArea, 
+            quantity: floorArea, 
             unit: 'м2', 
             price: PRICING_CONFIG.electricalBasicM2, 
-            total: Math.ceil(generalFloorArea * PRICING_CONFIG.electricalBasicM2) 
+            total: Math.ceil(floorArea * PRICING_CONFIG.electricalBasicM2) 
         });
     } else if (params.electricalType === 'advanced') {
         commItems.push({ 
             name: 'Электромонтаж: Пакет «Премиум»', 
-            quantity: generalFloorArea, 
+            quantity: floorArea, 
             unit: 'м2', 
             price: PRICING_CONFIG.electricalAdvancedM2, 
-            total: Math.ceil(generalFloorArea * PRICING_CONFIG.electricalAdvancedM2) 
+            total: Math.ceil(floorArea * PRICING_CONFIG.electricalAdvancedM2) 
         });
     }
 
-    commItems.push({ name: 'Сантехника и скрытые коммуникации', quantity: generalFloorArea, unit: 'м2', price: PRICING_CONFIG.plumbing, total: generalFloorArea * PRICING_CONFIG.plumbing });
+    commItems.push({ name: 'Сантехника и скрытые коммуникации', quantity: floorArea, unit: 'м2', price: PRICING_CONFIG.plumbing, total: floorArea * PRICING_CONFIG.plumbing });
 
 
-    if (commItems.length > 0) {
-        sections.push({
-            name: 'Инженерные сети',
-            items: commItems,
-            total: commItems.reduce((acc, item) => acc + item.total, 0)
-        });
-    }
+    const engPassport = [];
+    if (params.electricalType !== 'none') engPassport.push('Базовый пакет электромонтажа');
+    engPassport.push('Сантехника и скрытая разводка коммуникаций');
 
     // Отопление (отдельный раздел)
     const heatingItems: EstimateItem[] = [];
 
+    // Merge heating into Engineering for Passport
     if (params.heatingType === 'electricFloor') {
         const bathArea = params.bathroomFloorArea || 0;
         const mainFloorAreaForHeating = Math.max(0, floorArea - bathArea);
@@ -938,6 +818,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
                 total: params.heatingThermostatsCount * PRICING_CONFIG.heatingThermostat
             });
         }
+
+        engPassport.push('Теплый пол электрический модульный ЗЕБРА ЭВО-300 WF');
+        if (params.bathroomFloorArea > 0) engPassport.push('Теплый пол в санузле');
+        if (params.heatingThermostatsCount > 0) engPassport.push('Установка терморегуляторов теплого пола');
     } else if (params.heatingType === 'waterFloor') {
         heatingItems.push({
             name: 'Теплый пол водяной (трубы, коллектор)',
@@ -953,8 +837,11 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
             price: PRICING_CONFIG.heatingElectricBoiler,
             total: PRICING_CONFIG.heatingElectricBoiler
         });
+
+        engPassport.push('Теплый пол водяной (трубы, коллектор)');
+        engPassport.push('Электрический котел с монтажом');
     } else if (params.heatingType === 'convectors') {
-        const convectorsCount = Math.ceil(generalFloorArea / 15); // Примерно 1 конвектор на 15 кв.м
+        const convectorsCount = Math.ceil(generalFloorArea / 15);
         heatingItems.push({
             name: 'Конвекторы электрические настенные',
             quantity: convectorsCount,
@@ -962,13 +849,18 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
             price: PRICING_CONFIG.heatingConvector,
             total: convectorsCount * PRICING_CONFIG.heatingConvector
         });
+
+        engPassport.push('Конвекторы электрические настенные');
     }
 
-    if (heatingItems.length > 0) {
+    const allEngItems = [...commItems, ...heatingItems];
+
+    if (allEngItems.length > 0) {
         sections.push({
-            name: 'Отопление',
-            items: heatingItems,
-            total: heatingItems.reduce((acc, item) => acc + item.total, 0)
+            name: 'Инженерные сети',
+            items: allEngItems,
+            total: allEngItems.reduce((acc, item) => acc + item.total, 0),
+            passportItems: engPassport
         });
     }
 
@@ -1017,11 +909,24 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.optGutterMetal) extraItems.push({ name: 'Водосточная система (металл)', quantity: parseFloat(perimeter.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterMetalM2, total: Math.ceil(perimeter * PRICING_CONFIG.optGutterMetalM2) });
     if (params.optPlinthPlanken) extraItems.push({ name: 'Обшивка цоколя планкеном', quantity: perimeter, unit: 'м.п.', price: PRICING_CONFIG.optPlinthPlankenM2, total: Math.ceil(perimeter * PRICING_CONFIG.optPlinthPlankenM2) }); // Используем периметр для цоколя
 
+    const extraPassport = [];
+    if (params.optBreezerCount > 0) extraPassport.push('Приточная вентиляционная установка Ballu ONEAIR ASP-80');
+    if (params.optWarmTapCount > 0) extraPassport.push('Уличный незамерзающий водоразборный кран');
+    if (params.optSocketCount > 0) extraPassport.push('Дополнительная электрическая розетка');
+    if (params.optSpotlightCount > 0) extraPassport.push('Дополнительный точечный светильник');
+    if (params.optStreetLightCount > 0) extraPassport.push('Дополнительный уличный светильник');
+    if (params.optAcPrepCount > 0) extraPassport.push('Подготовка коммуникаций под установку кондиционера');
+    if (params.optWetPointSplit) extraPassport.push('Дополнительная разводка коммуникаций при удаленном расположении кухни от санузла');
+    if (params.optSafeDoor) extraPassport.push('Усиленная входная сейф-дверь');
+    if (params.optGutterPlastic) extraPassport.push('Пластиковая водосточная система');
+    if (params.optPlinthPlanken) extraPassport.push('Обшивка цоколя фасадной доской планкен');
+
     if (extraItems.length > 0) {
         sections.push({
             name: 'Дополнительные опции',
             items: extraItems,
-            total: extraItems.reduce((acc, item) => acc + item.total, 0)
+            total: extraItems.reduce((acc, item) => acc + item.total, 0),
+            passportItems: extraPassport
         });
     }
 
@@ -1049,37 +954,88 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.optPorchStepCount > 0) terraceItems.push({ name: 'Ступень крыльца 1.2м', quantity: params.optPorchStepCount, unit: 'шт', price: PRICING_CONFIG.optPorchStep, total: params.optPorchStepCount * PRICING_CONFIG.optPorchStep });
     if (params.optTerraceStepCount > 0) terraceItems.push({ name: 'Ступень террасы 6м', quantity: params.optTerraceStepCount, unit: 'шт', price: PRICING_CONFIG.optTerraceStep, total: params.optTerraceStepCount * PRICING_CONFIG.optTerraceStep });
 
+    const terracePassport = [];
+    if (params.optTerraceCloseCount > 0) terracePassport.push('Закрытие одной стороны проема террасы');
+    if (params.optCanopy) terracePassport.push('Навес над крыльцом');
+    if (params.optTerraceArea > 0) terracePassport.push('Увеличение площади террасы');
+    if (params.optRailingsLength > 0) terracePassport.push('Ограждение из доски планкен');
+    if (params.optRailingsCrossLength > 0) terracePassport.push('Декоративные перила с рисунком «крестик»');
+    if (params.optPorchStepCount > 0) terracePassport.push('Ступень крыльца шириной 1,2 м');
+    if (params.optTerraceStepCount > 0) terracePassport.push('Ступень террасы длиной 6 м');
+
     if (terraceItems.length > 0) {
         sections.push({
             name: 'Терраса и Крыльцо',
             items: terraceItems,
-            total: terraceItems.reduce((acc, item) => acc + item.total, 0)
+            total: terraceItems.reduce((acc, item) => acc + item.total, 0),
+            passportItems: terracePassport
         });
     }
+
+    // -------------------------------------------------------------------------------- //
+    // РАЗДЕЛ: РАСХОДНЫЕ МАТЕРИАЛЫ
+    // -------------------------------------------------------------------------------- //
+    // Расчет основан на средних отраслевых нормах потребления
+    const areaRatio = floorArea / 36;
+    const consumablesItems: EstimateItem[] = [
+        { name: 'Гайка оцинкованная ГОСТ 5927-70, M16 (5кг)', quantity: parseFloat((3 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_nutM16, total: Math.ceil(3 * areaRatio) * PRICING_CONFIG.consumables_nutM16 },
+        { name: 'Шуруп КРЕП-КОМП Глухарь 8x120 (50шт)', quantity: parseFloat((1 * areaRatio).toFixed(2)), unit: 'компл', price: PRICING_CONFIG.consumables_gluhar8x120, total: Math.ceil(1 * areaRatio) * PRICING_CONFIG.consumables_gluhar8x120 },
+        { name: 'Утеплитель межвенцовый ТермоДЖУТ (20м)', quantity: parseFloat((8 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_jute, total: Math.ceil(8 * areaRatio) * PRICING_CONFIG.consumables_jute },
+        { name: 'Клейкая лента Delta Multi Band M 60 (25м)', quantity: parseFloat((15 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_deltaTape, total: Math.ceil(15 * areaRatio) * PRICING_CONFIG.consumables_deltaTape },
+        { name: 'Гвозди шиферные 5x120 мм оцинк (1кг)', quantity: parseFloat((8 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_nailsShif5x120, total: Math.ceil(8 * areaRatio * PRICING_CONFIG.consumables_nailsShif5x120) },
+        { name: 'Скоба для степлера тонкая 53/14 (1000шт)', quantity: parseFloat((5 * areaRatio).toFixed(2)), unit: 'компл', price: PRICING_CONFIG.consumables_staples53, total: Math.ceil(5 * areaRatio) * PRICING_CONFIG.consumables_staples53 },
+        { name: 'Гвозди строительные 3x70 мм (1кг)', quantity: parseFloat((10 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_nails3x70, total: Math.ceil(10 * areaRatio * PRICING_CONFIG.consumables_nails3x70) },
+        { name: 'Саморезы по дереву/ГКЛ 3.5x35 (3кг)', quantity: parseFloat((10 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_screws35x35, total: Math.ceil(10 * areaRatio * PRICING_CONFIG.consumables_screws35x35) },
+        { name: 'Шуруп констр. для дер. домостр. 5x60 (1кг)', quantity: parseFloat((12 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_screwConstr5x60, total: Math.ceil(12 * areaRatio * PRICING_CONFIG.consumables_screwConstr5x60) },
+        { name: 'Шуруп констр. для дер. домостр. 5x70 (50шт)', quantity: parseFloat((35 * areaRatio).toFixed(2)), unit: 'компл', price: PRICING_CONFIG.consumables_screwConstr5x70, total: Math.ceil(35 * areaRatio) * PRICING_CONFIG.consumables_screwConstr5x70 },
+        { name: 'Лента бутил-каучуковая Изобонд LK (25м)', quantity: parseFloat((3 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_butylTape, total: Math.ceil(3 * areaRatio) * PRICING_CONFIG.consumables_butylTape },
+        { name: 'Герметик акриловый Kudo Praktik white (260мл)', quantity: parseFloat((24 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_sealantKudo, total: Math.ceil(24 * areaRatio) * PRICING_CONFIG.consumables_sealantKudo },
+        { name: 'Шайба DIN 125A 16 мм оцинк (1кг)', quantity: parseFloat((5 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_washerM16, total: Math.ceil(5 * areaRatio * PRICING_CONFIG.consumables_washerM16) },
+        { name: 'Саморезы кровельные 4.8x29 RAL7024 (1кг)', quantity: parseFloat((15 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_screwsRoof48x29, total: Math.ceil(15 * areaRatio * PRICING_CONFIG.consumables_screwsRoof48x29) },
+        { name: 'Саморезы по дереву/ГКЛ 4.8x100 (1кг)', quantity: parseFloat((10 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_screws48x100, total: Math.ceil(10 * areaRatio * PRICING_CONFIG.consumables_screws48x100) }
+    ];
+
+    sections.push({
+        name: 'Расходные материалы',
+        items: consumablesItems,
+        total: consumablesItems.reduce((acc, item) => acc + item.total, 0),
+        hideItems: true,
+        passportItems: [
+            'Расходные и вспомогательные материалы для строительства и монтажа'
+        ]
+    });
 
     // Считаем сумму всех собранных до этого момента разделов = Это чистая стоимость материалов
     const materialsTotal = sections.reduce((sum, s) => sum + s.total, 0);
 
-    // Рассчитываем стоимость работ/маржи на основе пользовательского процента
-    // Если 92.3%, то это эквивалент старого разделения (52% материалы, 48% остальное)
-    const marginAmount = Math.ceil(materialsTotal * (params.marginPercent / 100));
+    // Из умножения на коэффициент исключаем фундамент и окна/двери (они уже с прайсом "под ключ/с работой")
+    const foundationSection = sections.find(s => s.name === 'Фундамент');
+    const foundationTotal = foundationSection ? foundationSection.total : 0;
+    
+    const windowsDoorsSection = sections.find(s => s.name === 'Окна и Двери');
+    const windowsDoorsTotal = windowsDoorsSection ? windowsDoorsSection.total : 0;
 
-    sections.push({
-        name: 'Производство, логистика и сопровождение',
-        items: [{
-            name: 'Производство, логистика и услуги по сопровождению (в т.ч. накладные расходы)',
-            quantity: 1,
-            unit: 'услуга',
-            price: marginAmount,
-            total: marginAmount
-        }],
-        total: marginAmount
-    });
+    const consumablesSection = sections.find(s => s.name === 'Расходные материалы');
+    const consumablesTotal = consumablesSection ? consumablesSection.total : 0;
 
-    // Итоговая сумма
-    let grandTotal = materialsTotal + marginAmount;
+    const engineeringSection = sections.find(s => s.name === 'Инженерные сети');
+    const engineeringTotal = engineeringSection ? engineeringSection.total : 0;
 
-    // Скидка 15% на фанеру убрана по просьбе пользователя
+    const extraOptionsSection = sections.find(s => s.name === 'Дополнительные опции');
+    const extraOptionsTotal = extraOptionsSection ? extraOptionsSection.total : 0;
+
+    const terraceSection = sections.find(s => s.name === 'Терраса и Крыльцо');
+    const terraceTotal = terraceSection ? terraceSection.total : 0;
+    
+    const excludedTotal = foundationTotal + windowsDoorsTotal + consumablesTotal + engineeringTotal + extraOptionsTotal + terraceTotal;
+    const houseMaterialsTotal = materialsTotal - excludedTotal;
+
+    // Коэффициент наценки на материалы (динамический: 1.8 для фанеры, 2.1 для остального)
+    const multiplier = isPlywood ? 1.8 : 2.1; 
+    const housePrice = Math.ceil(houseMaterialsTotal * multiplier);
+
+    // Итоговая сумма (Дом + Исключения)
+    let grandTotal = housePrice + excludedTotal;
 
     // Применяем пользовательскую скидку
     if (params.discountPercent > 0) {
@@ -1093,6 +1049,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         sections,
         grandTotal,
         materialsTotal,
-        hiddenTotal: 0 // Потайные проценты убраны
+        baseTotal: housePrice + excludedTotal,
+        hiddenTotal: 0
     };
 }

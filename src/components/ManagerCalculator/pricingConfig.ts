@@ -27,7 +27,7 @@ export const PRICING_CONFIG = {
     imitationWood: 480, // Имитация бруса
     woodLining: 490,   // Вагонка Штиль
     blockHouse: 990,   // Блок хаус
-    drywall: 350,      // ГКЛ + профили + серпянка
+    drywall: 1350,     // ГКЛ + профили + серпянка
     plywoodInterior: 450, // Березовая фанера (стены/потолок)
     stretchCeiling: 750, // ПВХ полотно для натяжного потолка
     underlayment: 150, // Подложка под ламинат/кварцвинил
@@ -46,7 +46,7 @@ export const PRICING_CONFIG = {
     // Остекление и двери (руб)
     windowM2: 15000,          // Двухкамерный Рехау 70мм с монтажом (за 1 м2)
     doorEntrance: 35000,      // Входная дверь шт (терморазрыв)
-    doorInterior: 12000,      // Межкомнатная дверь с фурнитурой шт
+    doorInterior: 18000,      // Межкомнатная дверь с фурнитурой шт
 
     // Инженерия
     electricalBasicM2: 1500,    // Электрика "Стандарт" за 1 м2
@@ -84,7 +84,7 @@ export const PRICING_CONFIG = {
     // Прочие работы и коэффициенты
     fasteners: 500,           // Примерно крепежа на 1 м2 площади пола
     unexpectedExpensesPercent: 0.05, // 5% непредвиденные
-    marginPercent: 0.2,        // Наценка компании (например 20%)
+    materialPercent: 0.50,     // Доля материалов в цене дома (50%)
 
     // --- ДОПОЛНИТЕЛЬНЫЕ ОПЦИИ ИЗ ТАБЛИЦЫ ---
 
@@ -129,7 +129,24 @@ export const PRICING_CONFIG = {
     optRailings: 6000,
     optRailingsCross: 10000,
     optPorchStep: 2500,
-    optTerraceStep: 10000
+    optTerraceStep: 10000,
+
+    // Детальная спецификация расходных материалов (на базе 36 м2)
+    consumables_nutM16: 1719,
+    consumables_gluhar8x120: 700,
+    consumables_jute: 614,
+    consumables_deltaTape: 2460,
+    consumables_nailsShif5x120: 240,
+    consumables_staples53: 81,
+    consumables_nails3x70: 158,
+    consumables_screws35x35: 316,
+    consumables_screwConstr5x60: 498,
+    consumables_screwConstr5x70: 468,
+    consumables_butylTape: 475,
+    consumables_sealantKudo: 160,
+    consumables_washerM16: 548,
+    consumables_screwsRoof48x29: 698,
+    consumables_screws48x100: 330
 };
 
 export const CALCULATIONS_CONFIG = {
@@ -138,8 +155,8 @@ export const CALCULATIONS_CONFIG = {
     floorJoistStep: 0.4,      // Шаг лаг пола, м
     roofRafterStep: 0.6,      // Шаг стропил, м
     timberMargin: 1.1,        // Запас дерева +10%
-    membraneMargin: 1.15,     // Запас мембран +15%
-    insulationMargin: 1.15,   // Запас утеплителя +15%
+    membraneMargin: 1.1,      // Запас мембран +10%
+    insulationMargin: 1.1,    // Запас утеплителя +10%
     finishingMargin: 1.1,     // Запас отделки +10%
     roofAngle: 15             // Средний угол кровли
 };

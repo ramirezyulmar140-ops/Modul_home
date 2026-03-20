@@ -1,5 +1,121 @@
 import { Home, Sun, Maximize, Box } from 'lucide-react';
 
+// Стандартная комплектация "Под ключ" — одинакова для всех проектов каркасных домов
+export const STANDARD_INCLUSIONS = [
+    {
+        category: 'Фундамент и конструктив',
+        items: [
+            'Свайно-винтовой фундамент',
+            'Деревянный каркас из древесины камерной сушки',
+            'Утепление базальтовой ватой 200 мм (стены) и 250 мм (кровля)',
+            'Пароизоляция и ветрозащитная мембрана',
+        ],
+    },
+    {
+        category: 'Кровля и фасад',
+        items: [
+            'Кровля из металлочерепицы (цвет по выбору)',
+            'Внешняя отделка фасада по проекту',
+            'Металлопластиковые окна с двухкамерным стеклопакетом',
+            'Утеплённая входная дверь',
+        ],
+    },
+    {
+        category: 'Электрика',
+        items: [
+            'Разводка кабелей ВВГнг по всем помещениям',
+            'Электрощиток с автоматической защитой',
+            'Установленные розетки и выключатели',
+            'Базовые светильники (споты / потолочные)',
+        ],
+    },
+    {
+        category: 'Водоснабжение и отопление',
+        items: [
+            'Внутренняя разводка труб ХВС и ГВС',
+            'Внутренняя канализация до выпуска',
+            'Радиаторы отопления в каждой комнате',
+            'Подключение к системе отопления (котёл — под выбор клиента)',
+        ],
+    },
+    {
+        category: 'Чистовая отделка',
+        items: [
+            'Ламинат 33-го класса на полу',
+            'Покраска стен влагостойкой краской',
+            'Натяжной потолок белый матовый',
+            'Напольные и потолочные плинтуса',
+        ],
+    },
+    {
+        category: 'Санузел',
+        items: [
+            'Кафельная плитка на полу и стенах санузла',
+            'Подвесной унитаз с инсталляцией',
+            'Раковина со смесителем',
+            'Душевая кабина (поддон + стенки)',
+        ],
+    },
+    {
+        category: 'Двери',
+        items: [
+            'Межкомнатные двери с фурнитурой во всех комнатах',
+        ],
+    },
+];
+
+// Для фанерных модулей — немного другой состав (заводская сборка)
+export const PLYWOOD_INCLUSIONS = [
+    {
+        category: 'Конструктив и утепление',
+        items: [
+            'Каркас из клееного бруса заводской сборки',
+            'Утепление базальтовой ватой 200 мм',
+            'Пароизоляция и ветрозащита',
+        ],
+    },
+    {
+        category: 'Фасад и кровля',
+        items: [
+            'Плоская кровля с ПВХ-мембраной',
+            'Фасад из термообработанного дерева',
+            'Стеклопакеты с тонировкой',
+            'Утеплённая входная дверь',
+        ],
+    },
+    {
+        category: 'Электрика',
+        items: [
+            'Скрытая разводка кабелей',
+            'Электрощиток с автоматами',
+            'Розетки, выключатели, светильники',
+        ],
+    },
+    {
+        category: 'Водоснабжение',
+        items: [
+            'Разводка ХВС и ГВС',
+            'Внутренняя канализация',
+        ],
+    },
+    {
+        category: 'Отделка',
+        items: [
+            'Стены и потолок — шлифованная берёзовая фанера ФК',
+            'Пол — фанера ФК с лаковым покрытием',
+            'Скрытые коммуникации за панелями',
+        ],
+    },
+    {
+        category: 'Санузел',
+        items: [
+            'Кафельная плитка пол + стены',
+            'Унитаз, раковина, смеситель',
+            'Душевая кабина',
+        ],
+    },
+];
+
 export const catalogData = [
     {
         id: 'barnhouse',
@@ -19,6 +135,12 @@ export const catalogData = [
                 price: "1 950 000",
                 description: "Идеален для пары или гостевого дома. Просторная кухня-гостиная со вторым светом.",
                 image: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=800",
+                floorPlan: "https://images.unsplash.com/photo-1542314831-c6a4d14cdac8?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["1 спальня", "Кухня-гостиная", "Второй свет", "Терраса"],
                 popular: false,
                 tags: ["Компактный", "Отличный старт", "Растущий дом"],
@@ -39,6 +161,12 @@ export const catalogData = [
                 price: "2 850 000",
                 description: "Хит продаж. Дополнительная спальня или кабинет на антресольном этаже.",
                 image: "https://images.unsplash.com/photo-1542314831-c6a4d14cdac8?auto=format&fit=crop&q=80&w=800",
+                floorPlan: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1542314831-c6a4d14cdac8?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["2 спальни", "Антресоль", "Панорамный фасад", "Скрытая проводка"],
                 popular: true,
                 tags: ["Хит", "Растущий дом"],
@@ -59,6 +187,10 @@ export const catalogData = [
                 price: "4 200 000",
                 description: "Полноценный коттедж для большой семьи. Три независимые спальни и огромная гостиная.",
                 image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["3 спальни", "2 санузла", "Мастер-спальня", "Котельная"],
                 tags: ["Для большой семьи", "Подходит под IT-ипотеку"],
                 configurations: [
@@ -87,6 +219,10 @@ export const catalogData = [
                 price: "1 200 000",
                 description: "Минималистичный проект для уединенного отдыха на природе. Отлично подходит под сдачу.",
                 image: "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&get=80&w=800",
+                    "https://images.unsplash.com/photo-1542314831-c6a4d14cdac8?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["Студия", "Санузел", "Сауна (опция)", "Патио"],
                 tags: ["Инвестиция", "Можно пристроить модуль"],
                 configurations: [
@@ -106,6 +242,10 @@ export const catalogData = [
                 price: "2 400 000",
                 description: "Золотая середина. Комфортное зонирование, отделяющее спальни от шумной зоны гостиной.",
                 image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["2 спальни", "Кухня-ниша", "Раздельный санузел", "Крыльцо"],
                 popular: true,
                 tags: ["Хит", "Семейная ипотека"],
@@ -126,6 +266,10 @@ export const catalogData = [
                 price: "3 600 000",
                 description: "Широкий одноэтажный дом. Удобство отсутствия лестниц и просторные комнаты.",
                 image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["3 спальни", "Гардеробная", "Окно в ванной", "Большая терраса"],
                 tags: ["Просторный", "Без лестниц"],
                 configurations: [
@@ -154,6 +298,9 @@ export const catalogData = [
                 price: "1 800 000",
                 description: "Ультрасовременный компактный дом с возможностью отдыха на крыше.",
                 image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["1 спальня", "Плоская кровля", "Панорама", "Навес"],
                 tags: ["Инновационный", "Эксплуатируемая кровля"],
                 configurations: [
@@ -173,6 +320,9 @@ export const catalogData = [
                 price: "3 300 000",
                 description: "Г-образная планировка, создающая приватный внутренний дворик.",
                 image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["2 спальни", "Кабинет", "Мастер-зона", "Умный дом"],
                 popular: true,
                 tags: ["Хит", "Приватный двор"],
@@ -193,6 +343,9 @@ export const catalogData = [
                 price: "5 500 000",
                 description: "Впечатляющий двухэтажный особняк с балконами и открытыми террасами на втором этаже.",
                 image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["3 спальни", "2 гостиные", "2 санузла", "Мастер-люкс"],
                 tags: ["Премиум", "Панорамные окна"],
                 configurations: [
@@ -222,6 +375,14 @@ export const catalogData = [
                 price: "1 290 000",
                 description: "Функциональная студия с панорамным остеклением. Отличное решение для базы отдыха или гостевого дома.",
                 image: "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&q=80&w=800",
+                floorPlan: "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["Кухня-гостинная", "Санузел", "Терраса"],
                 popular: false,
                 tags: ["Студия", "Заводская сборка"],
@@ -241,6 +402,10 @@ export const catalogData = [
                 price: "1 590 000",
                 description: "Уютный дом с отдельной спальней и просторной кухней-столовой. Подходит для комфортного загородного отдыха.",
                 image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1623916949216-7afc8672074e?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["Кухня-столовая", "Гостинная", "Спальня", "Санузел", "Терраса"],
                 popular: false,
                 tags: ["1 спальня", "Заводская сборка"],
@@ -260,6 +425,10 @@ export const catalogData = [
                 price: "1 790 000",
                 description: "Квадратный в плане дом с рациональной планировкой. Выделенная спальная зона, большая кухня-столовая и гостиная.",
                 image: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["Кухня-столовая", "Гостинная", "Спальня", "Санузел", "Терраса"],
                 popular: true,
                 tags: ["Популярный", "Заводская сборка"],
@@ -279,6 +448,10 @@ export const catalogData = [
                 price: "2 290 000",
                 description: "Вместительный дом с двумя изолированными спальнями. Идеален для постоянного проживания семьи или комфортного отдыха на природе.",
                 image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["Кухня-гостинная", "2 Спальни", "Санузел", "Терраса"],
                 popular: false,
                 tags: ["2 спальни", "Заводская сборка"],
@@ -298,6 +471,10 @@ export const catalogData = [
                 price: "2 590 000",
                 description: "Самый просторный дом в линейке. Две большие спальни, огромная кухня-гостиная и комфортная терраса для всей семьи.",
                 image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800",
+                images: [
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800",
+                    "https://images.unsplash.com/photo-1542314831-c6a4d14cdac8?auto=format&fit=crop&q=80&w=800"
+                ],
                 features: ["Кухня-гостинная", "2 Спальни", "Санузел", "Терраса"],
                 popular: true,
                 tags: ["Премиум", "Хит продаж"],
