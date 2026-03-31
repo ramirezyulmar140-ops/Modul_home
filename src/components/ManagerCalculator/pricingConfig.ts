@@ -31,7 +31,9 @@ export const PRICING_CONFIG = {
     plywoodInterior: 450, // Березовая фанера (стены/потолок)
     stretchCeiling: 750, // ПВХ полотно для натяжного потолка
     underlayment: 150, // Подложка под ламинат/кварцвинил
-    proflistRoof: 590, // Металлочерепица / Профлист Кровля
+    proflistRoof: 590, // Профлист Кровля
+    metalTile: 690,    // Металлочерепица Кровля
+    clickfalz: 1100,   // Кликфальц Кровля
     proflistWall: 590, // Профлист Стены
     planken: 1250,     // Скошенный планкен лиственница
     keramogranit: 2500, // Керамогранит (материал)
@@ -115,14 +117,12 @@ export const PRICING_CONFIG = {
     optWin60x50: 30000,
     optWin150x50: 40000,
 
-    // Внешняя отделка (пересчитано на м2 площади пола)
     optFacadePlankenM2: 1450,       // Планкен вместо стандарта (разница/замена)
     optGutterPlasticM2: 1500,       // Водосточка пластик (за 1 м2 пола)
     optGutterMetalM2: 2300,         // Водосточка металл (за 1 м2 пола)
     optPlinthPlankenM2: 3000,       // Обшивка цоколя планкеном (за 1 м2)
 
     // Терраса / Крыльцо
-    optTerraceClose: 25000,
     optTerraceCanopy: 7000,         // Навес над террасой (за 1 м2)
     optTerraceAreaM2: 8000,
     optRailings: 6000,

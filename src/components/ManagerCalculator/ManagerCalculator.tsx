@@ -81,7 +81,6 @@ const INITIAL_PARAMS: HouseParams = {
     optGutterPlastic: false,
     optGutterMetal: false,
     optPlinthPlanken: false,
-    optTerraceCloseCount: 0,
     optTerraceCanopyArea: 0,
     optTerraceArea: 0,
     optRailingsLength: 0,
@@ -278,6 +277,7 @@ export default function ManagerCalculator() {
                                             <select name="interiorWallFinish" value={params.interiorWallFinish} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
                                                 <option value="imitationWood">Имитация бруса</option>
                                                 <option value="woodLining">Вагонка "Штиль"</option>
+                                                <option value="blockHouse">Блок хаус</option>
                                                 <option value="drywall">Гипсокартон</option>
                                                 <option value="plywood">Фанера</option>
                                             </select>
@@ -286,6 +286,8 @@ export default function ManagerCalculator() {
                                             <label className="block text-xs font-medium text-gray-700 mb-1">Потолок</label>
                                             <select name="ceilingFinish" value={params.ceilingFinish} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
                                                 <option value="imitationWood">Имитация бруса</option>
+                                                <option value="woodLining">Вагонка "Штиль"</option>
+                                                <option value="drywall">Гипсокартон</option>
                                                 <option value="stretchCeiling">Натяжной</option>
                                                 <option value="plywood">Фанера</option>
                                             </select>
@@ -459,7 +461,6 @@ export default function ManagerCalculator() {
                                         <CounterInput label="Ступени кр. (шт)" name="optPorchStepCount" value={params.optPorchStepCount} onChange={handleChange} />
                                         <CounterInput label="Ступени тер. (шт)" name="optTerraceStepCount" value={params.optTerraceStepCount} onChange={handleChange} />
                                     </div>
-                                    <CounterInput label="Закрытие проемов (шт)" name="optTerraceCloseCount" value={params.optTerraceCloseCount} onChange={handleChange} />
                                     <label className="flex items-center space-x-3 p-3 bg-amber-50 rounded-lg border border-amber-100 cursor-pointer hover:bg-amber-100 transition-colors">
                                         <input type="checkbox" name="optSafeDoor" checked={params.optSafeDoor} onChange={handleChange} className="w-5 h-5 text-amber-600 border-gray-300 rounded" /> 
                                         <span className="text-xs font-medium text-gray-700">Входная сейф-дверь + крыльцо (1×1.2м) + 2 ступени</span>

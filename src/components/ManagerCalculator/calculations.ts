@@ -75,7 +75,6 @@ export interface HouseParams {
     optPlinthPlanken: boolean;
 
     // Терраса / Крыльцо
-    optTerraceCloseCount: number;
     optTerraceCanopyArea: number; // м2 навеса над террасой
     optTerraceArea: number; // м2
     optRailingsLength: number; // пог. м
@@ -153,7 +152,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     // Модульные стены: между модулями двойные стены, их внутренняя отделка не считается
     const moduleWallsCount = Math.max(0, params.modulesCount - 1); // Кол-во межмодульных стыков
-    const moduleWallArea = moduleWallsCount * 2 * length * height; // 2 поверхности на каждый стык
+    const moduleWallArea = moduleWallsCount * 2 * width * height; // 2 поверхности на каждый стык (стыки идут поперёк, по ширине)
 
     // Площадь стен для внутренней отделки (без межмодульных стен)
     const finishableWallArea = Math.max(0, outerWallAreaNet + innerWallAreaGross - moduleWallArea);
@@ -512,8 +511,14 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     // Покрытие крыши
     let roofFinishPrice = PRICING_CONFIG.proflistRoof;
-    let roofFinishName = 'Кровельное покрытие (Металлочерепица / Профлист)';
-    // В будущем можно добавить отдельные цены на кликфальц
+    let roofFinishName = 'Кровельное покрытие (Профлист)';
+    if (params.roofFinish === 'metalTile') {
+        roofFinishPrice = PRICING_CONFIG.metalTile;
+        roofFinishName = 'Кровельное покрытие (Металлочерепица)';
+    } else if (params.roofFinish === 'clickfalz') {
+        roofFinishPrice = PRICING_CONFIG.clickfalz;
+        roofFinishName = 'Кровельное покрытие (Кликфальц)';
+    }
 
     roofItems.push({
         name: roofFinishName,
@@ -525,7 +530,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     // Утепление крыши
     const roofInsulM = params.roofInsulationThickness / 1000;
-    const roofInsulationVol = parseFloat((floorArea * roofInsulM * CALCULATIONS_CONFIG.insulationMargin).toFixed(2));
+    const roofInsulationVol = parseFloat((roofArea * roofInsulM * CALCULATIONS_CONFIG.insulationMargin).toFixed(2));
     roofItems.push({
         name: `Утеплитель кровли ${params.roofInsulationThickness}мм`,
         quantity: roofInsulationVol,
@@ -730,13 +735,15 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         'floorBoardLarch': 'половая доска (лиственница)'
     };
     finishPassport.push(`Финишное напольное покрытие — ${floorMap[params.floorFinish] || params.floorFinish}`);
-    if (params.bathroomFloorArea > 0) finishPassport.push('Влагостойкое напольное покрытие санузла — кварцвинил');
+    const bathFloorMap: Record<string, string> = { 'quartzVinyl': 'кварцвинил', 'keramogranit': 'керамогранит', 'laminateWaterproof': 'водостойкий ламинат' };
+    if (params.bathroomFloorArea > 0) finishPassport.push(`Влагостойкое напольное покрытие санузла — ${bathFloorMap[params.bathroomFloorFinish] || params.bathroomFloorFinish}`);
     
     if (params.interiorWallFinish === 'plywood') finishPassport.push('Внутренняя отделка стен березовой фанерой');
     else if (params.interiorWallFinish === 'imitationWood') finishPassport.push('Внутренняя отделка стен имитацией бруса');
     else if (params.interiorWallFinish === 'drywall') finishPassport.push('Внутренняя отделка стен гипсокартоном');
     
-    if (params.bathroomFloorArea > 0) finishPassport.push('Отделка стен санузла имитацией бруса');
+    const bathWallMap: Record<string, string> = { 'keramogranit': 'керамогранит', 'quartzVinyl': 'кварцвинил', 'imitationWood': 'имитация бруса', 'plywood': 'фанера' };
+    if (params.bathroomFloorArea > 0) finishPassport.push(`Отделка стен санузла — ${bathWallMap[params.bathroomWallFinish] || params.bathroomWallFinish}`);
     
     if (params.ceilingFinish === 'plywood') finishPassport.push('Отделка потолка березовой фанерой');
     else if (params.ceilingFinish === 'imitationWood') finishPassport.push('Отделка потолка имитацией бруса');
@@ -899,8 +906,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.optWin150x50Count > 0) extraItems.push({ name: 'Доп. окно 1500x500 мм', quantity: params.optWin150x50Count, unit: 'шт', price: PRICING_CONFIG.optWin150x50, total: params.optWin150x50Count * PRICING_CONFIG.optWin150x50 });
 
     // Отделка фасадная (Доп)
-    if (params.optGutterPlastic) extraItems.push({ name: 'Водосточная система (пластик)', quantity: parseFloat(perimeter.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterPlasticM2, total: Math.ceil(perimeter * PRICING_CONFIG.optGutterPlasticM2) });
-    if (params.optGutterMetal) extraItems.push({ name: 'Водосточная система (металл)', quantity: parseFloat(perimeter.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterMetalM2, total: Math.ceil(perimeter * PRICING_CONFIG.optGutterMetalM2) });
+    // Водосточка: по 2 стенам по длине в двухмодульном, по 1 стене в одномодульном
+    const gutterLength = length * (params.modulesCount >= 2 ? 2 : 1);
+    if (params.optGutterPlastic) extraItems.push({ name: 'Водосточная система (пластик)', quantity: parseFloat(gutterLength.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterPlasticM2, total: Math.ceil(gutterLength * PRICING_CONFIG.optGutterPlasticM2) });
+    if (params.optGutterMetal) extraItems.push({ name: 'Водосточная система (металл)', quantity: parseFloat(gutterLength.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterMetalM2, total: Math.ceil(gutterLength * PRICING_CONFIG.optGutterMetalM2) });
     if (params.optPlinthPlanken) {
         // Цоколь считаем в м2: периметр * высота цоколя (0.5м по умолчанию)
         const plinthHeight = 0.5; // высота цоколя, м
@@ -941,11 +950,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     }
 
     // -------------------------------------------------------------------------------- //
-    // РАЗДЕЛ: ТЕРРАСА И КРЫЛЬЦО
-    // -------------------------------------------------------------------------------- //
     const terraceItems: EstimateItem[] = [];
-
-    if (params.optTerraceCloseCount > 0) terraceItems.push({ name: 'Закрытие проема террасы (сторона)', quantity: params.optTerraceCloseCount, unit: 'шт', price: PRICING_CONFIG.optTerraceClose, total: params.optTerraceCloseCount * PRICING_CONFIG.optTerraceClose });
     if (params.optTerraceArea > 0) terraceItems.push({ name: 'Терраса настил (открытая)', quantity: params.optTerraceArea, unit: 'м2', price: PRICING_CONFIG.optTerraceAreaM2, total: params.optTerraceArea * PRICING_CONFIG.optTerraceAreaM2 });
     if (params.optTerraceCanopyArea > 0) terraceItems.push({ name: 'Навес над террасой', quantity: params.optTerraceCanopyArea, unit: 'м2', price: PRICING_CONFIG.optTerraceCanopy, total: params.optTerraceCanopyArea * PRICING_CONFIG.optTerraceCanopy });
     if (params.optRailingsLength > 0) terraceItems.push({ name: 'Перила (планкен)', quantity: params.optRailingsLength, unit: 'м.п.', price: PRICING_CONFIG.optRailings, total: params.optRailingsLength * PRICING_CONFIG.optRailings });
@@ -954,7 +959,6 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.optTerraceStepCount > 0) terraceItems.push({ name: 'Ступень террасы 6м', quantity: params.optTerraceStepCount, unit: 'шт', price: PRICING_CONFIG.optTerraceStep, total: params.optTerraceStepCount * PRICING_CONFIG.optTerraceStep });
 
     const terracePassport = [];
-    if (params.optTerraceCloseCount > 0) terracePassport.push('Закрытие одной стороны проема террасы');
     if (params.optTerraceArea > 0) terracePassport.push('Терраса настил (открытая)');
     if (params.optTerraceCanopyArea > 0) terracePassport.push('Навес над террасой');
     if (params.optRailingsLength > 0) terracePassport.push('Ограждение из доски планкен');
