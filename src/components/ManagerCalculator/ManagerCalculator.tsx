@@ -542,6 +542,9 @@ export default function ManagerCalculator() {
                             <div className="text-3xl font-bold text-[#6b8e23]">
                                 {grandTotal.toLocaleString('ru-RU')} ₽
                             </div>
+                            <div className="mt-1 text-sm text-gray-400">
+                                {Math.round(grandTotal / (params.length * params.width)).toLocaleString('ru-RU')} ₽/м²
+                            </div>
 
                             <div className="mt-4 grid grid-cols-1 gap-2">
                                 <button
@@ -572,7 +575,7 @@ export default function ManagerCalculator() {
                                 <p><span className="text-gray-400">Объект:</span> <span className="font-semibold">Модульный дом {params.length}x{params.width}м</span></p>
                                 <div className="flex space-x-6">
                                     <p><span className="text-gray-400">Площадь:</span> <span className="font-semibold">{(params.length * params.width).toFixed(2)} м²</span></p>
-                                    <p><span className="text-gray-400">Высота:</span> <span className="font-semibold">{params.height} м</span></p>
+                                    <p><span className="text-gray-400">Высота стен:</span> <span className="font-semibold">{params.height} м</span></p>
                                 </div>
                             </div>
                             <div className="space-y-1 text-right">
@@ -641,11 +644,31 @@ export default function ManagerCalculator() {
 
                                 {/* ФИНАЛЬНЫЙ ИТОГ */}
                                 <tr className="bg-gray-900 text-white font-bold text-xl mt-4 border-t-4 border-white print:hidden">
-                                    <td colSpan={4} className="px-6 py-6 rounded-bl-lg">ИТОГО К ОПЛАТЕ:</td>
+                                    <td colSpan={4} className="px-6 py-6 rounded-bl-lg">
+                                        ИТОГО К ОПЛАТЕ:
+                                        <div className="text-xs font-normal text-gray-400 mt-1">
+                                            Стоимость за м²: {Math.round(grandTotal / (params.length * params.width)).toLocaleString('ru-RU')} ₽/м²
+                                        </div>
+                                    </td>
                                     <td className="px-6 py-6 text-right whitespace-nowrap rounded-br-lg">{grandTotal.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</td>
                                 </tr>
                             </tbody>
                         </table>
+
+                        {/* PDF/PRINT: Итоговый блок */}
+                        <div className="hidden print:block mt-10 border-t-2 border-gray-900 pt-6">
+                            <div className="flex justify-between items-end">
+                                <div>
+                                    <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Итого к оплате</div>
+                                    <div className="text-3xl font-bold text-gray-900">{grandTotal.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽</div>
+                                    <div className="text-sm text-gray-500 mt-1">
+                                        Стоимость за м²: {Math.round(grandTotal / (params.length * params.width)).toLocaleString('ru-RU')} ₽/м²
+                                        <span className="ml-4">Площадь: {(params.length * params.width).toFixed(1)} м²</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
 
                 </div>
