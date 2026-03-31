@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function ExcursionSection() {
     return (
         <section id="excursion" className="py-20 bg-gray-900 text-white relative overflow-hidden">
