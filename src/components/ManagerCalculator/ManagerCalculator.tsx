@@ -82,7 +82,7 @@ const INITIAL_PARAMS: HouseParams = {
     optGutterMetal: false,
     optPlinthPlanken: false,
     optTerraceCloseCount: 0,
-    optCanopy: false,
+    optTerraceCanopyArea: 0,
     optTerraceArea: 0,
     optRailingsLength: 0,
     optRailingsCrossLength: 0,
@@ -381,11 +381,10 @@ export default function ManagerCalculator() {
                                 <div className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1">Электропроводка</label>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">Электрика</label>
                                             <select name="electricalType" value={params.electricalType} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
-                                                <option value="none">Без проводки</option>
-                                                <option value="basic">Стандарт (1.5к/м2)</option>
-                                                <option value="advanced">Премиум (2.7к/м2)</option>
+                                                <option value="none">Без электрики</option>
+                                                <option value="basic">Электрика (2.5к/м2)</option>
                                             </select>
                                         </div>
                                         <div>
@@ -433,7 +432,7 @@ export default function ManagerCalculator() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <CounterInput label="Уличный свет (шт)" name="optStreetLightCount" value={params.optStreetLightCount} onChange={handleChange} />
-                                        <CounterInput label="Трассы конд. (шт)" name="optAcPrepCount" value={params.optAcPrepCount} onChange={handleChange} />
+                                        <CounterInput label="Трассы конд. (25к/шт)" name="optAcPrepCount" value={params.optAcPrepCount} onChange={handleChange} />
                                     </div>
                                     <label className="flex items-center space-x-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100 cursor-pointer">
                                         <input type="checkbox" name="optWetPointSplit" checked={params.optWetPointSplit} onChange={handleChange} className="w-5 h-5 text-blue-600 border-gray-300 rounded" />
@@ -449,8 +448,8 @@ export default function ManagerCalculator() {
                                 <h2 className="text-lg font-bold border-b pb-2">Доп. строения и опции</h2>
                                 <div className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
-                                        <CounterInput label="Терраса доп. (м2)" name="optTerraceArea" value={params.optTerraceArea} onChange={handleChange} />
-                                        <CounterInput label="Закрытие проемов (шт)" name="optTerraceCloseCount" value={params.optTerraceCloseCount} onChange={handleChange} />
+                                        <CounterInput label="Терраса настил (м2)" name="optTerraceArea" value={params.optTerraceArea} onChange={handleChange} />
+                                        <CounterInput label="Навес террасы (м2)" name="optTerraceCanopyArea" value={params.optTerraceCanopyArea} onChange={handleChange} />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <CounterInput label="Перила планкен (мп)" name="optRailingsLength" value={params.optRailingsLength} onChange={handleChange} />
@@ -460,13 +459,10 @@ export default function ManagerCalculator() {
                                         <CounterInput label="Ступени кр. (шт)" name="optPorchStepCount" value={params.optPorchStepCount} onChange={handleChange} />
                                         <CounterInput label="Ступени тер. (шт)" name="optTerraceStepCount" value={params.optTerraceStepCount} onChange={handleChange} />
                                     </div>
+                                    <CounterInput label="Закрытие проемов (шт)" name="optTerraceCloseCount" value={params.optTerraceCloseCount} onChange={handleChange} />
                                     <label className="flex items-center space-x-3 p-3 bg-amber-50 rounded-lg border border-amber-100 cursor-pointer hover:bg-amber-100 transition-colors">
                                         <input type="checkbox" name="optSafeDoor" checked={params.optSafeDoor} onChange={handleChange} className="w-5 h-5 text-amber-600 border-gray-300 rounded" /> 
                                         <span className="text-xs font-medium text-gray-700">Входная сейф-дверь + крыльцо (1×1.2м) + 2 ступени</span>
-                                    </label>
-                                    <label className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border border-gray-100 cursor-pointer">
-                                        <input type="checkbox" name="optCanopy" checked={params.optCanopy} onChange={handleChange} className="w-5 h-5 text-green-600 border-gray-300 rounded" />
-                                        <span className="text-xs font-medium text-gray-700">Навес над крыльцом</span>
                                     </label>
                                     <div className="pt-2 border-t">
                                         <label className="block text-xs font-medium text-gray-700 mb-2 uppercase tracking-wider">Водосточная система</label>

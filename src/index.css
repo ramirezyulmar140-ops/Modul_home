@@ -8,6 +8,9 @@
   --color-green-600: #16a34a;
   --color-green-700: #15803d;
   --color-green-800: #166534;
+
+  --color-accent: #F97316;
+  --color-accent-hover: #EA580C;
 }
 
 @layer base {

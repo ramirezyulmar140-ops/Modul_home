@@ -35,7 +35,7 @@ export interface HouseParams {
     roofInsulationThickness: number;
 
     // Инженерия
-    electricalType: 'none' | 'basic' | 'advanced';
+    electricalType: 'none' | 'basic';
     heatingType: 'none' | 'electricFloor' | 'waterFloor' | 'convectors' | 'onlyWiring';
     heatingThermostatsCount: number;
     heatingElectricFloorArea: number;
@@ -76,7 +76,7 @@ export interface HouseParams {
 
     // Терраса / Крыльцо
     optTerraceCloseCount: number;
-    optCanopy: boolean;
+    optTerraceCanopyArea: number; // м2 навеса над террасой
     optTerraceArea: number; // м2
     optRailingsLength: number; // пог. м
     optRailingsCrossLength: number; // пог. м
@@ -192,11 +192,11 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         const pilesTotal = pilesLength * pilesWidth;
 
         foundationItems.push({
-            name: 'Свая винтовая d108 мм с оголовком и монтажом',
+            name: 'Свая винтовая d73 мм L-2500мм с оголовком и монтажом',
             quantity: pilesTotal,
             unit: 'шт',
-            price: PRICING_CONFIG.foundationPile108,
-            total: pilesTotal * PRICING_CONFIG.foundationPile108
+            price: PRICING_CONFIG.foundationPile73,
+            total: pilesTotal * PRICING_CONFIG.foundationPile73
         });
         // Добавляем раздел
         sections.push({
@@ -204,7 +204,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
             items: foundationItems,
             total: foundationItems.reduce((acc, item) => acc + item.total, 0),
             passportItems: [
-                'Винтовые металлические сваи диаметром 108 мм, с оголовками и монтажом'
+                'Винтовые металлические сваи диаметром 73 мм, длиной 2500 мм, с оголовками и монтажом'
             ]
         });
     }
@@ -214,16 +214,18 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // -------------------------------------------------------------------------------- //
     const floorItems: EstimateItem[] = [];
 
-    // Обвязка (Брус 200х200)
+    // Обвязка (Пакет из 3-х досок 150х50, стоящих поперек)
     // Внутренние несущие линии (предположим 1 линия по длине)
     const obvyazkaLength = perimeter + length;
-    const obvyazkaVol = parseFloat((obvyazkaLength * 0.2 * 0.2 * CALCULATIONS_CONFIG.timberMargin).toFixed(2));
+    // 3 доски 150х50 поперек = сечение 150х150
+    const obvyazkaVol = parseFloat((obvyazkaLength * 0.15 * 0.05 * 3 * CALCULATIONS_CONFIG.timberMargin).toFixed(2));
+    const board150x50PricePerM3 = PRICING_CONFIG.board150x50 * (1 / (0.15 * 0.05 * 6));
     floorItems.push({
-        name: 'Обвязка (брус 200х200)',
+        name: 'Обвязка (пакет 3-х досок 150х50)',
         quantity: obvyazkaVol,
         unit: 'м3',
-        price: PRICING_CONFIG.timber200x200 * (1 / (0.2 * 0.2 * 6)), // цена за 1 м3
-        total: Math.ceil(obvyazkaVol * (PRICING_CONFIG.timber200x200 * (1 / (0.2 * 0.2 * 6))))
+        price: board150x50PricePerM3, // цена за 1 м3
+        total: Math.ceil(obvyazkaVol * board150x50PricePerM3)
     });
 
     // Лаги пола — ширина доски зависит от толщины утепления пола
@@ -287,7 +289,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
         items: floorItems,
         total: floorItems.reduce((acc, item) => acc + item.total, 0),
         passportItems: [
-            'Нижняя силовая обвязка из деревянного бруса 200×200 мм',
+            'Нижняя силовая обвязка из пакета 3-х досок 150×50 мм',
             `Лаги пола из сухой строганой доски ${params.floorInsulationThickness >= 200 ? 200 : 150}×50 мм`,
             'Черновой пол из плит OSB толщиной 22 мм',
             `Утепление пола минеральным утеплителем толщиной ${params.floorInsulationThickness} мм`,
@@ -572,7 +574,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     finishItems.push({ name: 'Остекление (Панорамное и обычное)', quantity: windowsArea, unit: 'м2', price: PRICING_CONFIG.windowM2, total: windowsArea * PRICING_CONFIG.windowM2 });
 
     if (params.doorsCount > 0) {
-        finishItems.push({ name: 'Дверь входная с терморазрывом', quantity: params.doorsCount, unit: 'шт', price: PRICING_CONFIG.doorEntrance, total: params.doorsCount * PRICING_CONFIG.doorEntrance });
+        finishItems.push({ name: 'Дверь на террасу', quantity: params.doorsCount, unit: 'шт', price: PRICING_CONFIG.doorEntrance, total: params.doorsCount * PRICING_CONFIG.doorEntrance });
     }
 
     if (params.interiorDoorsCount > 0) {
@@ -706,7 +708,7 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     const winDoorPassport = [];
     if (windowsArea > 0) winDoorPassport.push('Окна: панорамные и стандартные стеклопакеты');
-    winDoorPassport.push('Утепленная входная дверь с терморазрывом');
+    winDoorPassport.push('Дверь на террасу');
     if (params.interiorDoorsCount > 0) winDoorPassport.push('Межкомнатные двери с фурнитурой');
 
     sections.push({
@@ -756,19 +758,11 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     
     if (params.electricalType === 'basic') {
         commItems.push({ 
-            name: 'Электромонтаж: Пакет «Стандарт»', 
+            name: 'Электрика', 
             quantity: floorArea, 
             unit: 'м2', 
-            price: PRICING_CONFIG.electricalBasicM2, 
-            total: Math.ceil(floorArea * PRICING_CONFIG.electricalBasicM2) 
-        });
-    } else if (params.electricalType === 'advanced') {
-        commItems.push({ 
-            name: 'Электромонтаж: Пакет «Премиум»', 
-            quantity: floorArea, 
-            unit: 'м2', 
-            price: PRICING_CONFIG.electricalAdvancedM2, 
-            total: Math.ceil(floorArea * PRICING_CONFIG.electricalAdvancedM2) 
+            price: PRICING_CONFIG.electricalM2, 
+            total: Math.ceil(floorArea * PRICING_CONFIG.electricalM2) 
         });
     }
 
@@ -907,7 +901,12 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Отделка фасадная (Доп)
     if (params.optGutterPlastic) extraItems.push({ name: 'Водосточная система (пластик)', quantity: parseFloat(perimeter.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterPlasticM2, total: Math.ceil(perimeter * PRICING_CONFIG.optGutterPlasticM2) });
     if (params.optGutterMetal) extraItems.push({ name: 'Водосточная система (металл)', quantity: parseFloat(perimeter.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterMetalM2, total: Math.ceil(perimeter * PRICING_CONFIG.optGutterMetalM2) });
-    if (params.optPlinthPlanken) extraItems.push({ name: 'Обшивка цоколя планкеном', quantity: perimeter, unit: 'м.п.', price: PRICING_CONFIG.optPlinthPlankenM2, total: Math.ceil(perimeter * PRICING_CONFIG.optPlinthPlankenM2) }); // Используем периметр для цоколя
+    if (params.optPlinthPlanken) {
+        // Цоколь считаем в м2: периметр * высота цоколя (0.5м по умолчанию)
+        const plinthHeight = 0.5; // высота цоколя, м
+        const plinthArea = parseFloat((perimeter * plinthHeight).toFixed(2));
+        extraItems.push({ name: 'Обшивка цоколя планкеном', quantity: plinthArea, unit: 'м2', price: PRICING_CONFIG.optPlinthPlankenM2, total: Math.ceil(plinthArea * PRICING_CONFIG.optPlinthPlankenM2) });
+    }
 
     const extraPassport = [];
     if (params.optBreezerCount > 0) extraPassport.push('Приточная вентиляционная установка Ballu ONEAIR ASP-80');
@@ -947,8 +946,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     const terraceItems: EstimateItem[] = [];
 
     if (params.optTerraceCloseCount > 0) terraceItems.push({ name: 'Закрытие проема террасы (сторона)', quantity: params.optTerraceCloseCount, unit: 'шт', price: PRICING_CONFIG.optTerraceClose, total: params.optTerraceCloseCount * PRICING_CONFIG.optTerraceClose });
-    if (params.optCanopy) terraceItems.push({ name: 'Навес над крыльцом', quantity: 1, unit: 'шт', price: PRICING_CONFIG.optCanopy, total: PRICING_CONFIG.optCanopy });
-    if (params.optTerraceArea > 0) terraceItems.push({ name: 'Доп. площадь террасы', quantity: params.optTerraceArea, unit: 'м2', price: PRICING_CONFIG.optTerraceAreaM2, total: params.optTerraceArea * PRICING_CONFIG.optTerraceAreaM2 });
+    if (params.optTerraceArea > 0) terraceItems.push({ name: 'Терраса настил (открытая)', quantity: params.optTerraceArea, unit: 'м2', price: PRICING_CONFIG.optTerraceAreaM2, total: params.optTerraceArea * PRICING_CONFIG.optTerraceAreaM2 });
+    if (params.optTerraceCanopyArea > 0) terraceItems.push({ name: 'Навес над террасой', quantity: params.optTerraceCanopyArea, unit: 'м2', price: PRICING_CONFIG.optTerraceCanopy, total: params.optTerraceCanopyArea * PRICING_CONFIG.optTerraceCanopy });
     if (params.optRailingsLength > 0) terraceItems.push({ name: 'Перила (планкен)', quantity: params.optRailingsLength, unit: 'м.п.', price: PRICING_CONFIG.optRailings, total: params.optRailingsLength * PRICING_CONFIG.optRailings });
     if (params.optRailingsCrossLength > 0) terraceItems.push({ name: 'Перила (узор крестик)', quantity: params.optRailingsCrossLength, unit: 'м.п.', price: PRICING_CONFIG.optRailingsCross, total: params.optRailingsCrossLength * PRICING_CONFIG.optRailingsCross });
     if (params.optPorchStepCount > 0) terraceItems.push({ name: 'Ступень крыльца 1.2м', quantity: params.optPorchStepCount, unit: 'шт', price: PRICING_CONFIG.optPorchStep, total: params.optPorchStepCount * PRICING_CONFIG.optPorchStep });
@@ -956,8 +955,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     const terracePassport = [];
     if (params.optTerraceCloseCount > 0) terracePassport.push('Закрытие одной стороны проема террасы');
-    if (params.optCanopy) terracePassport.push('Навес над крыльцом');
-    if (params.optTerraceArea > 0) terracePassport.push('Увеличение площади террасы');
+    if (params.optTerraceArea > 0) terracePassport.push('Терраса настил (открытая)');
+    if (params.optTerraceCanopyArea > 0) terracePassport.push('Навес над террасой');
     if (params.optRailingsLength > 0) terracePassport.push('Ограждение из доски планкен');
     if (params.optRailingsCrossLength > 0) terracePassport.push('Декоративные перила с рисунком «крестик»');
     if (params.optPorchStepCount > 0) terracePassport.push('Ступень крыльца шириной 1,2 м');

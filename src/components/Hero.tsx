@@ -12,8 +12,12 @@ export default function Hero() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
                     <div className="max-w-2xl">
+                        <div className="inline-block bg-green-100 text-green-800 px-4 py-1.5 rounded-full text-sm font-semibold mb-6 shadow-sm border border-green-200 animate-[fadeIn_0.5s_ease-out]">
+                            ✅ Подходит под льготную ипотеку от 6%
+                        </div>
+                        
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif leading-tight mb-6">
-                            Готовый дом в Екатеринбурге за <span className="text-green-700 italic">30 дней</span>:<br /> от <span className="font-display">890 000 ₽</span> с отделкой.
+                            Готовый дом в Екатеринбурге за <span className="text-green-700 italic">30 дней</span>:<br /> от <span className="font-display">1 290 000 ₽</span> с отделкой.
                         </h1>
 
                         <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed max-w-xl font-sans">
@@ -21,26 +25,26 @@ export default function Hero() {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 animate-[fadeIn_1s_ease-out]">
-                            <button className="btn-primary flex items-center justify-center">
-                                Узнать стоимость дома с доставкой
+                            <a href="#catalog" className="btn-primary flex items-center justify-center">
+                                Выбрать проект в каталоге
                                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </button>
+                            </a>
                             <button className="btn-outline flex items-center justify-center text-gray-700 border-gray-300 hover:border-green-600 hover:text-green-700">
-                                Скачать каталог проектов
+                                Скачать PDF-каталог
                             </button>
                         </div>
 
                         <div className="mt-10 flex flex-wrap items-center gap-6 text-sm text-gray-600 font-medium animate-[fadeIn_1.2s_ease-out]">
                             <div className="flex items-center gap-2">
-                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 shadow-sm border border-green-200">✓</span>
+                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 shadow-sm border border-green-200 font-bold">✓</span>
                                 Фиксированная цена в договоре
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 shadow-sm border border-green-200">✓</span>
+                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 shadow-sm border border-green-200 font-bold">✓</span>
                                 Ипотека, эскроу, маткапитал
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 shadow-sm border border-green-200">✓</span>
+                                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 shadow-sm border border-green-200 font-bold">✓</span>
                                 От фундамента до инженерии
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 export const PRICING_CONFIG = {
     // Фундамент
-    foundationPile108: 6950, // Цена с работой 1 свая
+    foundationPile73: 6950, // Свая винтовая d73 мм L-2500мм с оголовком и монтажом
 
     // Пиломатериалы (за 1 шт L=6м)
     // Указаны цены за 1 м3, пересчитанные в 1 шт
@@ -24,7 +24,7 @@ export const PRICING_CONFIG = {
     quartzVinyl: 1500, // Кварцвинил (материал)
     floorBoardPine: 1000,  // Половая доска (Хвоя)
     floorBoardLarch: 1600, // Половая доска (Лиственница)
-    imitationWood: 480, // Имитация бруса
+    imitationWood: 780, // Имитация бруса
     woodLining: 490,   // Вагонка Штиль
     blockHouse: 990,   // Блок хаус
     drywall: 1350,     // ГКЛ + профили + серпянка
@@ -49,9 +49,8 @@ export const PRICING_CONFIG = {
     doorInterior: 18000,      // Межкомнатная дверь с фурнитурой шт
 
     // Инженерия
-    electricalBasicM2: 1500,    // Электрика "Стандарт" за 1 м2
-    electricalAdvancedM2: 2700, // Электрика "Премиум" за 1 м2
-    plumbing: 2500,           // Сантехника за 1 м2 с/у
+    electricalM2: 2500,         // Электрика за 1 м2
+    plumbing: 1500,           // Сантехника за 1 м2 с/у
 
     // Отопление
     heatingWarmFloorElectric: 2140, // Теплый пол электрич (за 1 м2)
@@ -95,7 +94,7 @@ export const PRICING_CONFIG = {
     optSocket: 3000,
     optSpotlight: 4000,
     optStreetLight: 7000,
-    optAcPrep: 7000,
+    optAcPrep: 25000,
     optWetPointSplit: 40000,
 
     // Каркас (пересчитано на м2 площади пола, где применимо)
@@ -120,11 +119,11 @@ export const PRICING_CONFIG = {
     optFacadePlankenM2: 1450,       // Планкен вместо стандарта (разница/замена)
     optGutterPlasticM2: 1500,       // Водосточка пластик (за 1 м2 пола)
     optGutterMetalM2: 2300,         // Водосточка металл (за 1 м2 пола)
-    optPlinthPlankenM2: 3000,       // Обшивка цоколя планкеном (за 1 кв м)
+    optPlinthPlankenM2: 3000,       // Обшивка цоколя планкеном (за 1 м2)
 
     // Терраса / Крыльцо
     optTerraceClose: 25000,
-    optCanopy: 65000,
+    optTerraceCanopy: 7000,         // Навес над террасой (за 1 м2)
     optTerraceAreaM2: 8000,
     optRailings: 6000,
     optRailingsCross: 10000,

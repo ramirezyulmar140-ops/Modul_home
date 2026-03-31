@@ -407,6 +407,13 @@ export const catalogData = [
                     "https://images.unsplash.com/photo-1623916949216-7afc8672074e?auto=format&fit=crop&q=80&w=800"
                 ],
                 features: ["Кухня-столовая", "Гостинная", "Спальня", "Санузел", "Терраса"],
+                rooms: [
+                    { name: "Кухня-столовая", area: "8,23 м²" },
+                    { name: "Гостиная", area: "8,47 м²" },
+                    { name: "Спальня", area: "9,25 м²" },
+                    { name: "Санузел", area: "3,72 м²" },
+                    { name: "Терраса", area: "4,97 м²" }
+                ],
                 popular: false,
                 tags: ["1 спальня", "Заводская сборка"],
                 configurations: [

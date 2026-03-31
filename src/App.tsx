@@ -13,6 +13,9 @@ import Guarantee from './components/Guarantee'
 import Team from './components/Team'
 import Comparison from './components/Comparison'
 import LeadForm2 from './components/LeadForm2'
+
+import Header from './components/Header'
+import Footer from './components/Footer'
 import StyleProjectsPage from './pages/StyleProjectsPage'
 import ProjectDetailsPage from './pages/ProjectDetailsPage'
 import ManagerCalculator from './components/ManagerCalculator/ManagerCalculator'
@@ -40,7 +43,7 @@ const ScrollToTop = () => {
 function MainLayout() {
   return (
     <div className="min-h-screen font-sans flex flex-col">
-      {/* Header placeholders could go here */}
+      <Header />
 
       <main className="flex-grow">
         <Hero />
@@ -59,31 +62,7 @@ function MainLayout() {
         <LeadForm2 />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center pb-8 border-b border-gray-800">
-            <div className="mb-6 md:mb-0">
-              <span className="text-2xl font-bold text-white font-serif tracking-tight">Модуль<span className="text-green-500">Дом</span></span>
-              <p className="mt-2 text-sm max-w-xs">Современные модульные дома для круглогодичного проживания на Урале.</p>
-            </div>
-
-            <div className="flex gap-6">
-              <a href="#catalog" className="hover:text-white transition-colors">Каталог</a>
-              <a href="#" className="hover:text-white transition-colors">О нас</a>
-              <a href="#" className="hover:text-white transition-colors">Контакты</a>
-            </div>
-          </div>
-
-          <div className="mt-8 flex flex-col md:flex-row justify-between items-center text-xs">
-            <p>© 2026 МодульДом Екатеринбург. Все права защищены.</p>
-            <div className="flex gap-4 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white transition-colors">Политика конфиденциальности</a>
-              <a href="#" className="hover:text-white transition-colors">Пользовательское соглашение</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
