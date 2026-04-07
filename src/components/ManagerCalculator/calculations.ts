@@ -741,12 +741,16 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     if (params.interiorWallFinish === 'plywood') finishPassport.push('Внутренняя отделка стен березовой фанерой');
     else if (params.interiorWallFinish === 'imitationWood') finishPassport.push('Внутренняя отделка стен имитацией бруса');
     else if (params.interiorWallFinish === 'drywall') finishPassport.push('Внутренняя отделка стен гипсокартоном');
+    else if (params.interiorWallFinish === 'woodLining') finishPassport.push('Внутренняя отделка стен вагонкой Штиль');
+    else if (params.interiorWallFinish === 'blockHouse') finishPassport.push('Внутренняя отделка стен блок-хаусом');
     
     const bathWallMap: Record<string, string> = { 'keramogranit': 'керамогранит', 'quartzVinyl': 'кварцвинил', 'imitationWood': 'имитация бруса', 'plywood': 'фанера' };
     if (params.bathroomFloorArea > 0) finishPassport.push(`Отделка стен санузла — ${bathWallMap[params.bathroomWallFinish] || params.bathroomWallFinish}`);
     
     if (params.ceilingFinish === 'plywood') finishPassport.push('Отделка потолка березовой фанерой');
     else if (params.ceilingFinish === 'imitationWood') finishPassport.push('Отделка потолка имитацией бруса');
+    else if (params.ceilingFinish === 'drywall') finishPassport.push('Отделка потолка ГКЛ');
+    else if (params.ceilingFinish === 'woodLining') finishPassport.push('Отделка потолка вагонкой Штиль');
     else if (params.ceilingFinish === 'stretchCeiling') finishPassport.push('Отделка потолка — натяжной потолок');
 
     if (params.isPainted) {
