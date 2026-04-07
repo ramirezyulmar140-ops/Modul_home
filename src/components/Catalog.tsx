@@ -34,36 +34,54 @@ export default function Catalog() {
                                 key={`plywood-layout-${project.name}-${idx}`}
                                 className={`min-w-[280px] sm:min-w-0 snap-center rounded-2xl bg-white border ${project.popular ? 'border-green-600 shadow-lg ring-1 ring-green-600' : 'border-gray-200'} transition-all duration-300 flex flex-col group/card hover:-translate-y-1 hover:shadow-xl`}
                             >
-                                <div className="h-56 overflow-hidden relative rounded-t-2xl bg-gray-100">
-                                    <img src={project.image} alt={project.name} className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" loading="lazy" />
+                                <div className="h-64 overflow-hidden relative rounded-t-2xl bg-gray-100">
+                                    {/* Основное фото здания */}
+                                    <img 
+                                        src={project.images && project.images.length > 1 && project.images[0] === project.image ? project.images[1] : (project.images ? project.images[0] : project.image)} 
+                                        alt={project.name} 
+                                        className="w-full h-full object-cover absolute inset-0 transition-opacity duration-500 ease-in-out group-hover/card:opacity-0" 
+                                        loading="lazy" 
+                                    />
+                                    {/* Планировка (показывается при наведении) */}
+                                    <div className="absolute inset-0 bg-white opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 flex items-center justify-center p-4">
+                                        <img 
+                                            src={project.image} 
+                                            alt={`Планировка ${project.name}`} 
+                                            className="max-w-full max-h-full object-contain" 
+                                            loading="lazy" 
+                                        />
+                                    </div>
                                     {project.tags && project.tags.length > 0 && (
-                                        <div className="absolute top-3 right-3 flex flex-col items-end gap-2 z-10">
+                                        <div className="absolute top-3 right-3 flex flex-col items-end gap-2 z-10 transition-opacity duration-300 group-hover/card:opacity-0">
                                             {project.tags.map((tag, i) => (
-                                                <div key={i} className={`text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider rounded-md shadow-sm border ${i === 0 ? 'bg-green-500 text-white border-green-400' : 'bg-white/95 text-gray-800 backdrop-blur-md border-gray-200'} `}>
+                                                <div key={i} className={`text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider rounded-md shadow-sm border ${i === 0 ? 'bg-green-600 text-white border-green-500' : 'bg-white/95 text-gray-800 backdrop-blur-md border-gray-200'} `}>
                                                     {tag}
                                                 </div>
                                             ))}
                                         </div>
                                     )}
                                 </div>
-                                <div className="p-5 flex-1 flex flex-col">
-                                    <h4 className="text-xl font-bold font-serif mb-2">{project.name}</h4>
-                                    <div className="flex flex-wrap gap-2 text-xs font-medium text-gray-600 mb-4 pb-4 border-b border-gray-200">
-                                        <span className="bg-gray-100 px-2 py-1 rounded text-gray-800">{project.area}</span>
-                                        <span className="bg-gray-100 px-2 py-1 rounded text-gray-800">{project.dimensions}</span>
+                                <div className="p-6 flex-1 flex flex-col rounded-b-2xl bg-white border-t-0 shadow-sm relative z-20">
+                                    <h4 className="text-2xl font-bold font-serif mb-2 text-gray-900 group-hover/card:text-green-700 transition-colors">{project.name}</h4>
+                                    <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-700 mb-4 pb-4 border-b border-gray-100">
+                                        <span className="bg-gray-100 px-2.5 py-1 rounded-md">{project.area}</span>
+                                        <span className="bg-gray-100 px-2.5 py-1 rounded-md">{project.dimensions}</span>
                                     </div>
-                                    <ul className="space-y-2 mb-6 flex-1">
+                                    <ul className="space-y-2.5 mb-6 flex-1">
                                         {project.features.slice(0, 3).map((feat, i) => (
-                                            <li key={i} className="flex gap-2 text-sm text-gray-700">
-                                                <Check className="w-4 h-4 text-green-600 shrink-0" />
-                                                {feat}
+                                            <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                                                <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                                                <span className="leading-tight">{feat}</span>
                                             </li>
                                         ))}
                                     </ul>
-                                    <div className="flex justify-between items-center mt-auto pt-4">
-                                        <div className="text-xl font-display text-gray-900">от {project.price} ₽</div>
-                                        <Link to={`/project/${project.id}`} className="text-green-700 font-semibold text-sm hover:text-green-800 flex items-center gap-1">
-                                            Подробнее <ArrowRight className="w-4 h-4 transition-transform group-hover/card:translate-x-1" />
+                                    <div className="flex justify-between items-end mt-auto pt-4 bg-gray-50/50 -mx-6 -mb-6 px-6 py-5 rounded-b-2xl border-t border-gray-50">
+                                        <div>
+                                            <div className="text-[10px] uppercase font-bold text-gray-400 mb-0.5 tracking-wider">Цена от</div>
+                                            <div className="text-2xl font-display text-gray-900 leading-none">{project.price} ₽</div>
+                                        </div>
+                                        <Link to={`/project/${project.id}`} className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 group-hover/card:bg-green-600 group-hover/card:text-white transition-colors duration-300">
+                                            <ArrowRight className="w-5 h-5 transition-transform group-hover/card:-rotate-45" />
                                         </Link>
                                     </div>
                                 </div>
@@ -141,38 +159,56 @@ export default function Catalog() {
                         {activeStyle.layouts.map((project, idx) => (
                             <div
                                 key={`v2-layout-${project.name}-${idx}`}
-                                className={`min-w-[280px] sm:min-w-0 snap-center rounded-2xl bg-gray-50 border ${project.popular ? 'border-green-600 shadow-md' : 'border-gray-200'} transition-all duration-300 flex flex-col group/card hover:-translate-y-1 hover:shadow-xl`}
+                                className={`min-w-[280px] sm:min-w-0 snap-center rounded-2xl bg-white border ${project.popular ? 'border-green-600 shadow-md ring-1 ring-green-600' : 'border-gray-200'} transition-all duration-300 flex flex-col group/card hover:-translate-y-1 hover:shadow-xl`}
                             >
-                                <div className="h-56 overflow-hidden relative rounded-t-2xl">
-                                    <img src={project.image} alt={project.name} className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700" loading="lazy" />
+                                <div className="h-64 overflow-hidden relative rounded-t-2xl bg-gray-100">
+                                    {/* Основное фото здания */}
+                                    <img 
+                                        src={project.images && project.images.length > 1 && project.images[0] === project.image ? project.images[1] : (project.images ? project.images[0] : project.image)} 
+                                        alt={project.name} 
+                                        className="w-full h-full object-cover absolute inset-0 transition-opacity duration-500 ease-in-out group-hover/card:opacity-0" 
+                                        loading="lazy" 
+                                    />
+                                    {/* Планировка (показывается при наведении) */}
+                                    <div className="absolute inset-0 bg-white opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 flex items-center justify-center p-4">
+                                        <img 
+                                            src={project.image} 
+                                            alt={`Планировка ${project.name}`} 
+                                            className="max-w-full max-h-full object-contain" 
+                                            loading="lazy" 
+                                        />
+                                    </div>
                                     {project.tags && project.tags.length > 0 && (
-                                        <div className="absolute top-3 right-3 flex flex-col items-end gap-2 z-10">
+                                        <div className="absolute top-3 right-3 flex flex-col items-end gap-2 z-10 transition-opacity duration-300 group-hover/card:opacity-0">
                                             {project.tags.map((tag, i) => (
-                                                <div key={i} className={`text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider rounded-md shadow-sm border ${i === 0 ? 'bg-green-500 text-white border-green-400' : 'bg-white/95 text-gray-800 backdrop-blur-md border-gray-200'} `}>
+                                                <div key={i} className={`text-[10px] font-bold px-3 py-1.5 uppercase tracking-wider rounded-md shadow-sm border ${i === 0 ? 'bg-green-600 text-white border-green-500' : 'bg-white/95 text-gray-800 backdrop-blur-md border-gray-200'} `}>
                                                     {tag}
                                                 </div>
                                             ))}
                                         </div>
                                     )}
                                 </div>
-                                <div className="p-5 flex-1 flex flex-col">
-                                    <h4 className="text-xl font-bold font-serif mb-2">{project.name}</h4>
-                                    <div className="flex flex-wrap gap-2 text-xs font-medium text-gray-600 mb-4 pb-4 border-b border-gray-200">
-                                        <span className="bg-gray-200 px-2 py-1 rounded">{project.area}</span>
-                                        <span className="bg-gray-200 px-2 py-1 rounded">{project.dimensions}</span>
+                                <div className="p-6 flex-1 flex flex-col rounded-b-2xl bg-white border-t-0 shadow-sm relative z-20">
+                                    <h4 className="text-2xl font-bold font-serif mb-2 text-gray-900 group-hover/card:text-green-700 transition-colors">{project.name}</h4>
+                                    <div className="flex flex-wrap gap-2 text-xs font-semibold text-gray-700 mb-4 pb-4 border-b border-gray-100">
+                                        <span className="bg-gray-100 px-2.5 py-1 rounded-md">{project.area}</span>
+                                        <span className="bg-gray-100 px-2.5 py-1 rounded-md">{project.dimensions}</span>
                                     </div>
-                                    <ul className="space-y-2 mb-6 flex-1">
+                                    <ul className="space-y-2.5 mb-6 flex-1">
                                         {project.features.slice(0, 3).map((feat, i) => (
-                                            <li key={i} className="flex gap-2 text-sm text-gray-700">
-                                                <Check className="w-4 h-4 text-green-600 shrink-0" />
-                                                {feat}
+                                            <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                                                <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                                                <span className="leading-tight">{feat}</span>
                                             </li>
                                         ))}
                                     </ul>
-                                    <div className="flex justify-between items-center mt-auto pt-4">
-                                        <div className="text-xl font-display text-gray-900">от {project.price} ₽</div>
-                                        <Link to={`/project/${project.id}`} className="text-green-700 font-semibold text-sm hover:text-green-800 flex items-center gap-1">
-                                            Подробнее <ArrowRight className="w-4 h-4 transition-transform group-hover/card:translate-x-1" />
+                                    <div className="flex justify-between items-end mt-auto pt-4 bg-gray-50/50 -mx-6 -mb-6 px-6 py-5 rounded-b-2xl border-t border-gray-50">
+                                        <div>
+                                            <div className="text-[10px] uppercase font-bold text-gray-400 mb-0.5 tracking-wider">Цена от</div>
+                                            <div className="text-2xl font-display text-gray-900 leading-none">{project.price} ₽</div>
+                                        </div>
+                                        <Link to={`/project/${project.id}`} className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 group-hover/card:bg-green-600 group-hover/card:text-white transition-colors duration-300">
+                                            <ArrowRight className="w-5 h-5 transition-transform group-hover/card:-rotate-45" />
                                         </Link>
                                     </div>
                                 </div>

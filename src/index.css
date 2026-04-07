@@ -1,16 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Montserrat", system-ui, sans-serif;
-  --font-serif: "Exo 2", sans-serif;
-  --font-display: "Russo One", sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Outfit", sans-serif;
+  --font-display: "Outfit", sans-serif;
 
-  --color-green-600: #16a34a;
-  --color-green-700: #15803d;
-  --color-green-800: #166534;
+  --color-green-400: #3A8964;
+  --color-green-500: #2C6B4F;
+  --color-green-600: #1B4D3E;
+  --color-green-700: #12352A;
+  --color-green-800: #0A1C16;
 
-  --color-accent: #F97316;
-  --color-accent-hover: #EA580C;
+  --color-accent: #cd853f; /* Peru / Bronze */
+  --color-accent-hover: #a0522d; /* Sienna */
 }
 
 @layer base {

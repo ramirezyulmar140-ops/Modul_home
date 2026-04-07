@@ -1,3 +1,5 @@
+import { Home, Hammer, Drill, Truck, Droplets, CheckCircle2 } from 'lucide-react';
+
 interface PricingBreakdownProps {
     basePrice: string;
 }
@@ -11,44 +13,83 @@ export default function PricingBreakdown({ basePrice }: PricingBreakdownProps) {
     return (
         <section className="py-16 md:py-24 bg-white border-t border-gray-100">
             <div className="max-w-4xl mx-auto px-4">
-                <h2 className="text-3xl md:text-5xl font-bold font-serif mb-8 text-center text-gray-900 tracking-tight">Прозрачный расчет</h2>
-                <div className="bg-gray-50 p-6 md:p-10 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
-                    
-                    <p className="text-gray-600 mb-10 text-center md:text-left text-lg leading-relaxed relative z-10">
-                        Каждый участок уникален, поэтому работы на земле мы вынесли в отдельный, прозрачный прайс. <b className="text-gray-900">Никаких скрытых платежей.</b>
+                <div className="text-center mb-10 md:mb-14">
+                    <h2 className="text-3xl md:text-5xl font-bold font-serif mb-4 text-gray-900 tracking-tight">Прозрачный расчет</h2>
+                    <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto">
+                        Мы вынесли работы на участке в отдельный прайс. Вы платите только за то, что действительно нужно. <strong className="text-gray-900">Никаких скрытых платежей.</strong>
                     </p>
-                    
-                    <div className="space-y-6 relative z-10">
-                        <div className="flex justify-between items-center border-b border-gray-200 pb-4 group">
-                            <span className="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">Стоимость домокомплекта</span>
-                            <span className="font-bold text-gray-900">{basePrice} ₽</span>
+                </div>
+                
+                <div className="bg-gray-50/50 p-6 md:p-10 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
+                    <div className="space-y-3 relative z-10 mb-10">
+                        {/* Обязательные платежи */}
+                        <div className="bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-green-200 transition-colors">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-green-50 text-green-600 p-2.5 rounded-xl group-hover:scale-110 transition-transform">
+                                    <Home className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-900 text-sm md:text-base">Стоимость домокомплекта</div>
+                                    <div className="text-xs text-gray-500">Материалы, сборка модулей на производстве</div>
+                                </div>
+                            </div>
+                            <span className="font-bold font-display text-lg md:text-xl text-gray-900 whitespace-nowrap">{basePrice} ₽</span>
                         </div>
-                        <div className="flex justify-between items-center border-b border-gray-200 pb-4 group">
-                            <span className="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">Монтаж и сборка на участке</span>
-                            <span className="font-bold text-gray-900">+ {installationPrice.toLocaleString('ru-RU')} ₽</span>
+
+                        <div className="bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-green-200 transition-colors">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-green-50 text-green-600 p-2.5 rounded-xl group-hover:scale-110 transition-transform">
+                                    <Hammer className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-900 text-sm md:text-base">Монтаж на участке</div>
+                                    <div className="text-xs text-gray-500">Установка модулей, подключение коммуникаций</div>
+                                </div>
+                            </div>
+                            <span className="font-bold font-display text-lg md:text-xl text-gray-900 whitespace-nowrap">+ {installationPrice.toLocaleString('ru-RU')} ₽</span>
                         </div>
-                        <div className="flex justify-between items-center border-b border-gray-200 pb-4 group">
-                            <span className="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">Устройство фундамента (сваи)</span>
-                            <span className="font-bold text-gray-900">+ {foundationPrice.toLocaleString('ru-RU')} ₽</span>
+
+                        <div className="bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-green-200 transition-colors">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-green-50 text-green-600 p-2.5 rounded-xl group-hover:scale-110 transition-transform">
+                                    <Drill className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <div className="font-bold text-gray-900 text-sm md:text-base">Свайно-винтовой фундамент</div>
+                                    <div className="text-xs text-gray-500">Материалы и работа под ключ</div>
+                                </div>
+                            </div>
+                            <span className="font-bold font-display text-lg md:text-xl text-gray-900 whitespace-nowrap">+ {foundationPrice.toLocaleString('ru-RU')} ₽</span>
                         </div>
-                        <div className="flex justify-between items-center border-b border-gray-200 pb-4 opacity-60">
-                            <span className="text-gray-600 italic text-sm">Доставка до участка</span>
-                            <span className="text-xs font-bold text-gray-500 bg-gray-200 px-3 py-1 rounded-full uppercase">Индивидуально</span>
+
+                        {/* Опциональные платежи */}
+                        <div className="mt-6 pt-6 border-t border-gray-200/60 pb-2 px-2 flex justify-between items-center text-gray-400 opacity-80">
+                            <div className="flex items-center gap-3">
+                                <Truck className="w-4 h-4" />
+                                <span className="text-sm font-medium">Доставка до участка</span>
+                            </div>
+                            <span className="text-[10px] font-bold bg-gray-200 text-gray-500 px-2 py-1 rounded-md uppercase tracking-wider">Индивидуально</span>
                         </div>
-                        <div className="flex justify-between items-center border-b border-gray-200 pb-4 opacity-60">
-                            <span className="text-gray-600 italic text-sm">Скважина и септик</span>
-                            <span className="text-xs font-bold text-gray-500 bg-gray-200 px-3 py-1 rounded-full uppercase">По желанию</span>
+                        <div className="px-2 flex justify-between items-center text-gray-400 opacity-80 pb-4">
+                            <div className="flex items-center gap-3">
+                                <Droplets className="w-4 h-4" />
+                                <span className="text-sm font-medium">Скважина и септик</span>
+                            </div>
+                            <span className="text-[10px] font-bold bg-gray-200 text-gray-500 px-2 py-1 rounded-md uppercase tracking-wider">По желанию</span>
                         </div>
                     </div>
 
-                    <div className="mt-12 flex flex-col md:flex-row gap-6 justify-between items-center bg-white p-8 rounded-3xl shadow-xl shadow-green-900/5 border border-green-100 relative z-10">
-                        <div className="text-center md:text-left">
-                            <div className="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">Финальная цена под ключ</div>
-                            <div className="text-3xl md:text-4xl font-bold font-serif text-gray-900">{totalPrice} ₽</div>
+                    <div className="bg-gradient-to-br from-gray-900 to-green-950 p-8 md:p-10 rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col md:flex-row gap-6 justify-between items-center">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                        <div className="text-center md:text-left relative z-10 w-full md:w-auto">
+                            <div className="flex items-center justify-center md:justify-start gap-2 text-green-400 mb-2">
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span className="text-xs font-bold uppercase tracking-widest text-green-400">Финальная цена под ключ</span>
+                            </div>
+                            <div className="text-4xl md:text-5xl font-bold font-display text-white tracking-tight">{totalPrice} ₽</div>
                         </div>
-                        <button className="bg-green-600 hover:bg-green-500 text-white px-10 py-5 rounded-2xl font-bold transition-all shadow-lg shadow-green-600/20 active:scale-95 w-full md:w-auto">
-                            Запросить точную смету
+                        <button onClick={() => document.getElementById('order-form')?.scrollIntoView({ behavior: 'smooth' })} className="w-full md:w-auto bg-green-500 hover:bg-green-400 text-gray-900 px-10 py-5 rounded-2xl font-bold text-lg transition-all shadow-lg active:scale-95 text-center relative z-10">
+                            Зафиксировать цену
                         </button>
                     </div>
                 </div>

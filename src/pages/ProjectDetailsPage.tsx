@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Ruler, Grid, Maximize, Clock, Layers, Image, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Ruler, Grid, Maximize, Clock, Layers } from 'lucide-react';
 import { catalogData, STANDARD_INCLUSIONS, PLYWOOD_INCLUSIONS } from '../data/catalogData';
 import { useEffect, useState } from 'react';
 import LeadForm2 from '../components/LeadForm2';
@@ -7,12 +7,9 @@ import EquipmentSection from '../components/EquipmentSection';
 import PricingBreakdown from '../components/PricingBreakdown';
 import ExcursionSection from '../components/ExcursionSection';
 
-type ViewMode = 'visual' | 'plan';
-
 export default function ProjectDetailsPage() {
     const { projectId } = useParams();
     const [activeImage, setActiveImage] = useState<string | null>(null);
-    const [viewMode, setViewMode] = useState<ViewMode>('visual');
 
     // Ищем нужный проект и его родительский стиль
     let targetProject = null;
@@ -44,7 +41,6 @@ export default function ProjectDetailsPage() {
     useEffect(() => {
         window.scrollTo(0, 0);
         setActiveImage(null);
-        setViewMode('visual');
     }, [projectId]);
 
     if (!targetProject || !targetStyle) {
@@ -59,9 +55,6 @@ export default function ProjectDetailsPage() {
             </div>
         );
     }
-
-    // Главное изображение в зависимости от режима
-    const mainDisplayImage = viewMode === 'plan' ? floorPlanImage : (activeImage || targetProject.image);
 
     return (
         <div className="min-h-screen bg-gray-50 pb-0">
@@ -82,178 +75,162 @@ export default function ProjectDetailsPage() {
                 </div>
             </div>
 
-            {/* ====== ОБЪЕДИНЁННЫЙ HERO-БЛОК ====== */}
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
-                <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start mb-8 md:mb-12">
+            {/* ====== ОБЪЕДИНЁННЫЙ HERO-БЛОК (Double Hero) ====== */}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+                {/* AIRBNB-STYLE GALLERY HEADER */}
+                <div className="mb-6 md:mb-10">
+                    {/* Заголовок проекта (перенесен наверх перед галереей) */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+                        <div>
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                                <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Стиль {targetStyle.name}</span>
+                                {targetProject.popular && <span className="bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">ХИТ ПРОДАЖ</span>}
+                                {targetProject.tags?.slice(0, 2).map((tag: string, i: number) => (
+                                    <span key={i} className="bg-white border border-gray-200 text-gray-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">{tag}</span>
+                                ))}
+                            </div>
+                            <h1 className="text-4xl md:text-5xl font-bold font-serif text-gray-900 tracking-tight">Проект «{targetProject.name}»</h1>
+                        </div>
+                    </div>
+
+                    {/* Сетка фотографий */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-lg border border-gray-100">
+                        {/* Главное фото (слева) */}
+                        <div className="md:col-span-2 md:row-span-2 relative group cursor-pointer" onClick={() => setActiveImage(images[0] || targetProject.image)}>
+                            <img src={images[0] || targetProject.image} alt="Главный вид" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                        </div>
+                        {/* Правая секция миниатюр */}
+                        {Array.from({ length: 4 }).map((_, i) => {
+                            const imgIndex = (i + 1) % images.length;
+                            const imgSrc = images[imgIndex] || targetProject.image;
+                            return (
+                                <div key={i} className={`hidden md:block relative group cursor-pointer overflow-hidden`} onClick={() => setActiveImage(imgSrc)}>
+                                    <img src={imgSrc} alt={`Ракурс ${i+2}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Основной контент */}
+                <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 relative items-start">
                     
-                    {/* === ЛЕВАЯ КОЛОНКА: Визуал / Планировка === */}
-                    <div className="space-y-4">
-                        {/* Переключатель режимов */}
-                        <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-xl w-fit">
-                            <button 
-                                onClick={() => setViewMode('visual')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                                    viewMode === 'visual' 
-                                        ? 'bg-white text-gray-900 shadow-sm' 
-                                        : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                            >
-                                <Image className="w-4 h-4" /> Визуал
-                            </button>
-                            <button 
-                                onClick={() => setViewMode('plan')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                                    viewMode === 'plan' 
-                                        ? 'bg-white text-gray-900 shadow-sm' 
-                                        : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                            >
-                                <LayoutGrid className="w-4 h-4" /> Планировка
-                            </button>
-                        </div>
+                    {/* === ЛЕВАЯ КОЛОНКА: Описание, статы, комнаты === */}
+                    <div className="lg:col-span-8 space-y-10">
+                        {/* Описание */}
+                        <section>
+                            <h2 className="text-2xl font-bold font-serif mb-4 text-gray-900">О проекте</h2>
+                            <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+                                {targetProject.description} Идеально подходит для круглогодичного проживания. Модульная технология позволяет произвести монтаж за считанные дни без строительного мусора на участке.
+                            </p>
+                        </section>
 
-                        {/* Главное изображение */}
-                        <div className="aspect-[4/3] bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 relative group">
-                            <img
-                                src={mainDisplayImage}
-                                alt={viewMode === 'plan' ? 'Планировка' : targetProject.name}
-                                className={`w-full h-full transition-all duration-500 ${
-                                    viewMode === 'plan' 
-                                        ? 'object-contain p-4' 
-                                        : 'object-cover'
-                                }`}
-                            />
-                            {viewMode === 'visual' && targetProject.popular && (
-                                <div className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-green-600 text-white text-[10px] md:text-sm font-bold px-3 py-1 md:px-4 md:py-1.5 uppercase tracking-wider rounded-full shadow-lg z-10">
-                                    Популярный выбор
-                                </div>
-                            )}
-                            {viewMode === 'plan' && (
-                                <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow text-xs font-bold text-gray-600 border border-gray-200">
-                                    {targetProject.area}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Миниатюры (только в режиме визуала) */}
-                        {viewMode === 'visual' && images.length > 1 && (
-                            <div className="flex overflow-x-auto pb-1 gap-2.5 snap-x">
-                                {images.map((img: string, index: number) => (
-                                    <div 
-                                        key={index}
-                                        onClick={() => setActiveImage(img)}
-                                        className={`flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden shadow-sm cursor-pointer border-2 transition-all group snap-start
-                                            ${(activeImage === img || (!activeImage && index === 0)) ? 'border-green-500 opacity-100' : 'border-transparent opacity-70 hover:opacity-100'}`}
-                                    >
-                                        <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={`Ракурс ${index + 1}`} />
+                        {/* Характеристики */}
+                        <section>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {[
+                                    { icon: Maximize, label: "Площадь", value: targetProject.area },
+                                    { icon: Ruler, label: "Габариты", value: targetProject.dimensions },
+                                    { icon: Layers, label: "Этажность", value: targetProject.floors },
+                                    { icon: Clock, label: "Сборка", value: targetProject.time }
+                                ].map((stat, i) => (
+                                    <div key={i} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                                        <div className="bg-green-50 text-green-600 p-3 rounded-2xl mb-3">
+                                            <stat.icon className="w-6 h-6" />
+                                        </div>
+                                        <div className="text-xs text-gray-500 font-medium mb-1">{stat.label}</div>
+                                        <div className="text-base font-bold text-gray-900">{stat.value}</div>
                                     </div>
                                 ))}
                             </div>
-                        )}
+                        </section>
 
-                        {/* Подсказка в режиме планировки */}
-                        {viewMode === 'plan' && (
-                            <p className="text-[10px] md:text-sm text-gray-500 italic text-center px-4">
-                                * Вы можете запросить подробный файл планировки с размерами у менеджера.
-                            </p>
-                        )}
+                        {/* Планировка с переключением режима в ней */}
+                        <section>
+                            <h2 className="text-2xl font-bold font-serif mb-6 text-gray-900">Планировочное решение</h2>
+                            <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+                                <div className="flex flex-col md:flex-row gap-8 items-center">
+                                    <div className="md:w-1/2 w-full bg-gray-50 rounded-2xl p-4 aspect-square flex items-center justify-center border border-gray-100 relative group cursor-pointer" onClick={() => setActiveImage(floorPlanImage)}>
+                                        <img src={floorPlanImage} alt="Планировка" className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
+                                        <div className="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow backdrop-blur-sm text-gray-600 group-hover:text-green-600 transition-colors">
+                                            <Maximize className="w-5 h-5" />
+                                        </div>
+                                    </div>
+                                    <div className="md:w-1/2 w-full">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                            <Grid className="w-5 h-5 text-green-600" /> Экспликация помещений
+                                        </h3>
+                                        {rooms.length > 0 ? (
+                                            <div className="bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
+                                                <table className="w-full text-left">
+                                                    <tbody className="divide-y divide-gray-200">
+                                                        {rooms.map((room: { name: string; area: string }, i: number) => (
+                                                            <tr key={i} className="hover:bg-white transition-colors">
+                                                                <td className="px-4 py-3 text-sm text-gray-700">{room.name}</td>
+                                                                <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">{room.area}</td>
+                                                            </tr>
+                                                        ))}
+                                                        <tr className="bg-green-50/50">
+                                                            <td className="px-4 py-3 font-bold text-sm text-gray-900">Итого:</td>
+                                                            <td className="px-4 py-3 text-right font-bold text-green-700">{targetProject.area}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        ) : (
+                                            <p className="text-gray-500 italic text-sm">Детальная экспликация комнат предоставляется по запросу.</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
 
-                    {/* === ПРАВАЯ КОЛОНКА: Информация + Таблица комнат + Цена === */}
-                    <div className="flex flex-col h-full justify-start pt-0 lg:pt-2">
-                        {/* Бейджи */}
-                        <div className="flex flex-wrap items-center gap-2 mb-4 md:mb-5">
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent text-white font-bold text-xs md:text-sm shadow-lg shadow-accent/20">
-                                ✅ Ипотека от 6%
-                            </div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-semibold text-xs md:text-sm border border-gray-200">
-                                Стиль {targetStyle.name}
-                            </div>
-                            {targetProject.tags?.map((tag: string, i: number) => (
-                                <div key={i} className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider border
-                                    ${i === 0 ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white shadow-sm text-gray-600 border-gray-200'}`}>
-                                    {tag}
+                    {/* === ПРАВАЯ КОЛОНКА: Стики-виджет цены === */}
+                    <div className="lg:col-span-4 lg:sticky lg:top-24 mt-8 lg:mt-0">
+                        <div className="bg-white p-6 rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-gray-100">
+                            <div className="mb-6">
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Итоговая стоимость от</p>
+                                <div className="text-4xl font-display font-bold text-gray-900 leading-none">
+                                    {formattedPrice} <span className="text-2xl text-gray-400 font-medium">₽</span>
                                 </div>
-                            ))}
-                        </div>
-
-                        {/* Название проекта */}
-                        <h1 className="text-3xl md:text-5xl font-bold font-serif text-gray-900 mb-3 md:mb-4 tracking-tight">
-                            Проект «{targetProject.name}»
-                        </h1>
-
-                        {/* Описание */}
-                        <p className="text-base md:text-lg text-gray-600 mb-5 md:mb-6 leading-relaxed">
-                            {targetProject.description}
-                        </p>
-
-                        {/* Характеристики */}
-                        <div className="grid grid-cols-2 gap-3 mb-5 md:mb-6">
-                            {[
-                                { icon: Maximize, label: "Площадь", value: targetProject.area },
-                                { icon: Ruler, label: "Габариты", value: targetProject.dimensions },
-                                { icon: Layers, label: "Этажность", value: targetProject.floors },
-                                { icon: Clock, label: "Срок сборки", value: targetProject.time }
-                            ].map((stat, i) => (
-                                <div key={i} className="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-                                    <div className="bg-green-50 text-green-600 p-2 rounded-xl flex-shrink-0">
-                                        <stat.icon className="w-5 h-5" />
-                                    </div>
-                                    <div className="min-w-0">
-                                        <div className="text-[10px] md:text-xs text-gray-500 font-medium mb-0.5 truncate">{stat.label}</div>
-                                        <div className="text-sm md:text-base font-bold text-gray-900 truncate">{stat.value}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Таблица комнат (интегрированная из LayoutSection) */}
-                        {rooms.length > 0 ? (
-                            <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm bg-gray-50/30 mb-5 md:mb-6">
-                                <div className="px-4 py-3 bg-gray-100/60 border-b border-gray-200">
-                                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-widest flex items-center gap-2">
-                                        <Grid className="w-4 h-4 text-green-600" /> Экспликация помещений
-                                    </h3>
-                                </div>
-                                <table className="w-full text-left border-collapse">
-                                    <tbody className="divide-y divide-gray-100">
-                                        {rooms.map((room: { name: string; area: string }, i: number) => (
-                                            <tr key={i} className="hover:bg-white transition-colors">
-                                                <td className="px-4 py-2.5 text-sm text-gray-800 font-medium">{room.name}</td>
-                                                <td className="px-4 py-2.5 text-right text-sm font-bold text-gray-900">{room.area}</td>
-                                            </tr>
-                                        ))}
-                                        <tr className="bg-green-50/50">
-                                            <td className="px-4 py-2.5 font-bold text-sm text-gray-900">Итого полезная:</td>
-                                            <td className="px-4 py-2.5 text-right font-bold text-green-700 text-base">{targetProject.area}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <p className="text-sm text-gray-500 mt-2">Комплектация: Теплый контур</p>
                             </div>
-                        ) : (
-                            <div className="px-5 py-4 rounded-2xl border-2 border-dashed border-gray-200 text-center mb-5 md:mb-6">
-                                <p className="text-sm text-gray-500 italic mb-2">Детальная экспликация помещений готовится по запросу.</p>
-                                <span className="text-xs font-bold text-green-600 uppercase tracking-widest bg-green-50 px-3 py-1.5 rounded-full">Общая площадь: {targetProject.area}</span>
-                            </div>
-                        )}
 
-                        {/* Блок цены (скрыт на мобилках — есть липкая панель) */}
-                        <div className="hidden md:flex bg-white p-6 lg:p-8 rounded-3xl border border-green-200 shadow-xl shadow-green-900/5 justify-between items-center gap-6 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-bl-full opacity-10 blur-2xl"></div>
-                            <div>
-                                <div className="mb-1.5 text-gray-500 text-xs font-semibold uppercase tracking-wider">
-                                    Стоимость под ключ
-                                </div>
-                                <div className="text-3xl lg:text-4xl font-bold font-serif text-gray-900 tracking-tight">
-                                    {formattedPrice} <span className="text-xl font-medium text-gray-400">₽</span>
-                                </div>
-                            </div>
-                            <a href="#order-form" className="bg-accent hover:bg-accent-hover text-white px-6 py-3.5 rounded-xl font-bold text-base text-center transition-all shadow-lg shadow-accent/20 hover:-translate-y-1 relative z-10 flex items-center justify-center gap-2">
-                                Получить смету
-                            </a>
+                            <ul className="space-y-3 mb-8">
+                                <li className="flex items-center gap-3 text-sm text-gray-700">
+                                    <div className="w-2 h-2 rounded-full bg-green-500"></div> Ипотека: Семейная от 6%
+                                </li>
+                                <li className="flex items-center gap-3 text-sm text-gray-700">
+                                    <div className="w-2 h-2 rounded-full bg-green-500"></div> Срок службы: более 50 лет
+                                </li>
+                                <li className="flex items-center gap-3 text-sm text-gray-700">
+                                    <div className="w-2 h-2 rounded-full bg-green-500"></div> Расширенная гарантия 5 лет!
+                                </li>
+                            </ul>
+
+                            <button onClick={() => document.getElementById('order-form')?.scrollIntoView({ behavior: 'smooth' })} className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-green-900/20 active:scale-[0.98] flex justify-center items-center gap-2 text-lg mb-3">
+                                Получить точную смету
+                            </button>
+                            
+                            <p className="text-xs text-center text-gray-400">
+                                Пришлем на WhatsApp в течение 5 минут. Это бесплатно.
+                            </p>
                         </div>
                     </div>
                 </div>
+
+                {/* Модалка галереи */}
+                {activeImage && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4" onClick={() => setActiveImage(null)}>
+                        <button className="absolute top-6 right-6 text-white/50 hover:text-white" onClick={() => setActiveImage(null)}>
+                            ✕ Закрыть
+                        </button>
+                        <img src={activeImage} alt="Fullscreen View" className="max-w-full max-h-full object-contain rounded-xl" onClick={(e) => e.stopPropagation()} />
+                    </div>
+                )}
 
                 {/* Баннер "Нужна подробная смета?" — остается под объединённым блоком */}
                 <div className="mb-12 md:mb-16 bg-gradient-to-br from-green-600 to-green-700 p-6 md:p-8 rounded-[2rem] text-white flex flex-col sm:flex-row shadow-xl shadow-green-900/10 items-center justify-between gap-6 relative overflow-hidden group">

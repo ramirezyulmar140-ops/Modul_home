@@ -749,7 +749,10 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     else if (params.ceilingFinish === 'imitationWood') finishPassport.push('Отделка потолка имитацией бруса');
     else if (params.ceilingFinish === 'stretchCeiling') finishPassport.push('Отделка потолка — натяжной потолок');
 
-    if (params.isPainted) finishPassport.push('Покраска стен и потолка в 2 слоя');
+    if (params.isPainted) {
+        const hasPaintedCeiling = params.ceilingFinish !== 'stretchCeiling';
+        finishPassport.push(hasPaintedCeiling ? 'Покраска стен и потолка в 2 слоя' : 'Покраска стен в 2 слоя');
+    }
 
     sections.push({
         name: 'Внутренняя отделка',
