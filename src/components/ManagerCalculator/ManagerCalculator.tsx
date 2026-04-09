@@ -239,7 +239,7 @@ export default function ManagerCalculator() {
                                     <CounterInput label="Окна (% от стен)" name="windowsPercent" value={params.windowsPercent} onChange={handleChange} />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <CounterInput label="Входные двери, шт" name="doorsCount" value={params.doorsCount} onChange={handleChange} />
+                                    <CounterInput label="Двери на террасу, шт" name="doorsCount" value={params.doorsCount} onChange={handleChange} />
                                     <CounterInput label="Межкомн. двери, шт" name="interiorDoorsCount" value={params.interiorDoorsCount} onChange={handleChange} />
                                 </div>
                                 <div className="pt-2 border-t">
@@ -286,8 +286,6 @@ export default function ManagerCalculator() {
                                             <label className="block text-xs font-medium text-gray-700 mb-1">Потолок</label>
                                             <select name="ceilingFinish" value={params.ceilingFinish} onChange={handleChange} className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
                                                 <option value="imitationWood">Имитация бруса</option>
-                                                <option value="woodLining">Вагонка "Штиль"</option>
-                                                <option value="drywall">Гипсокартон</option>
                                                 <option value="stretchCeiling">Натяжной</option>
                                                 <option value="plywood">Фанера</option>
                                             </select>

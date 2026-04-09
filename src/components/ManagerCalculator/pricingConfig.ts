@@ -24,12 +24,12 @@ export const PRICING_CONFIG = {
     quartzVinyl: 1500, // Кварцвинил (материал)
     floorBoardPine: 1000,  // Половая доска (Хвоя)
     floorBoardLarch: 1600, // Половая доска (Лиственница)
-    imitationWood: 780, // Имитация бруса
-    woodLining: 490,   // Вагонка Штиль
+    imitationWood: 970, // Имитация бруса
+    woodLining: 780,   // Вагонка Штиль
     blockHouse: 990,   // Блок хаус
     drywall: 1350,     // ГКЛ + профили + серпянка
     plywoodInterior: 450, // Березовая фанера (стены/потолок)
-    stretchCeiling: 750, // ПВХ полотно для натяжного потолка
+    stretchCeiling: 850, // ПВХ полотно для натяжного потолка
     underlayment: 150, // Подложка под ламинат/кварцвинил
     proflistRoof: 590, // Профлист Кровля
     metalTile: 690,    // Металлочерепица Кровля
