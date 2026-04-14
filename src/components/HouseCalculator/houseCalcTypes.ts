@@ -7,6 +7,7 @@ export interface HouseModel {
     basePrice: number;
     description: string;
     features: string[];
+    modulesCount: number;
 }
 
 export interface ServiceEntry {
@@ -29,7 +30,7 @@ export interface CustomItem {
 
 
 
-export type TabId = 'house' | 'finish' | 'bathroom' | 'engineering' | 'frame' | 'windows' | 'exterior' | 'terrace' | 'services' | 'kp';
+export type TabId = 'house' | 'finish' | 'bathroom' | 'engineering' | 'frame' | 'windows' | 'exterior' | 'terrace' | 'services' | 'delivery' | 'kp';
 
 export interface HouseCalcState {
     // Выбранный дом
@@ -105,6 +106,12 @@ export interface HouseCalcState {
     addFoundation: boolean;
     pileLength: '2500' | '3000' | '3500';
     addAssembly: boolean;
+
+    // Доставка
+    useDeliveryMap: boolean;
+    deliveryAddress: string;
+    deliveryDistance: number;
+    deliveryPrice: number;
 
     // КП
     clientName: string;

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { HouseCalcState, TabId, CustomItem, ServiceEntry, HouseModelId } from './houseCalcTypes';
 import { calculateHouseEstimate } from './houseCalcEngine';
+import { DeliveryMap } from './DeliveryMap';
 import {
     HOUSE_MODELS,
     FRAME_OPTIONS,
@@ -77,6 +78,10 @@ const INITIAL_STATE: HouseCalcState = {
     addFoundation: false,
     pileLength: '2500',
     addAssembly: false,
+    useDeliveryMap: false,
+    deliveryAddress: '',
+    deliveryDistance: 0,
+    deliveryPrice: 0,
     clientName: '', managerName: '', kpNumber: '',
     kpDate: new Date().toLocaleDateString('ru-RU'),
     discountPercent: 0, markupAmount: 0, customItems: [],
@@ -93,6 +98,7 @@ const TABS: { id: TabId; label: string }[] = [
     { id: 'exterior', label: 'Фасад' },
     { id: 'terrace', label: 'Терраса' },
     { id: 'services', label: 'Услуги' },
+    { id: 'delivery', label: 'Доставка' },
     { id: 'kp', label: 'КП' },
 ];
 
@@ -586,6 +592,11 @@ export default function HouseCalculator() {
                                     })}
                                 </div>
                             </div>
+                        )}
+
+                        {/* ──── TAB: DELIVERY ──── */}
+                        {activeTab === 'delivery' && (
+                            <DeliveryMap state={state} onChange={set} />
                         )}
 
                         {/* ──── TAB: KP ──── */}
