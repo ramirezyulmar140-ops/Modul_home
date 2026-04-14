@@ -141,6 +141,7 @@ export const WINDOW_OPTIONS = {
     win600x500: { name: 'Дополнительное окно 600×500 мм', price: 30000, unit: 'шт' },
     win1500x500: { name: 'Дополнительное окно 1500×500 мм', price: 40000, unit: 'шт' },
     windowLamination: { name: 'Ламинация окон снаружи в RAL7024', price: 40000 },
+    windowLaminationInside: { name: 'Ламинация окон внутри', price: 40000 },
 };
 
 // ==========================================

@@ -66,7 +66,8 @@ const INITIAL_STATE: HouseCalcState = {
     panoramicTrapezoidCount: 0, extraPanoramicSection: false,
     extraWindow1000x2000: 0, extraWindow500x2000: 0,
     extraWindow600x500: 0, extraWindow1500x500: 0,
-    windowLamination: false, extraInteriorDoorCount: 0,
+    windowLamination: false, windowLaminationInside: false,
+    extraInteriorDoorCount: 0,
     facadePlanken: false, gutterPlastic: false, gutterMetal: false,
     plinthPlankenArea: 0,
     terraceCloseSideCount: 0, porchCanopy: false,
@@ -416,7 +417,11 @@ export default function HouseCalculator() {
                                     <Counter label="Окно 600×500 (шт)" name="extraWindow600x500" value={state.extraWindow600x500} onChange={set} />
                                     <Counter label="Окно 1500×500 (шт)" name="extraWindow1500x500" value={state.extraWindow1500x500} onChange={set} />
                                 </div>
-                                <Check label="Ламинация окон снаружи RAL7024" checked={state.windowLamination} onChange={set} name="windowLamination" price="40 000 ₽" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <Check label="Ламинация окон снаружи RAL7024" checked={state.windowLamination} onChange={set} name="windowLamination" price={WINDOW_OPTIONS.windowLamination.price} />
+                                    <Check label="Ламинация окон внутри" checked={state.windowLaminationInside} onChange={set} name="windowLaminationInside" price={WINDOW_OPTIONS.windowLaminationInside.price} />
+                                </div>
+
                             </div>
                         )}
 

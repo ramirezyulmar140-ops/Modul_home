@@ -81,6 +81,7 @@ export interface HouseCalcState {
     extraWindow600x500: number;
     extraWindow1500x500: number;
     windowLamination: boolean;
+    windowLaminationInside: boolean;
     extraInteriorDoorCount: number;
 
     // Внешняя отделка

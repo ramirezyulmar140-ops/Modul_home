@@ -327,6 +327,10 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         addFixed(winItems, WINDOW_OPTIONS.windowLamination.name, WINDOW_OPTIONS.windowLamination.price);
         winPassport.push('Декоративная ламинация оконных профилей (цвет Anthracit/RAL7024).');
     }
+    if (state.windowLaminationInside) {
+        addFixed(winItems, WINDOW_OPTIONS.windowLaminationInside.name, WINDOW_OPTIONS.windowLaminationInside.price);
+        winPassport.push('Ламинация оконного профиля внутри.');
+    }
 
     if (winItems.length > 0 || winPassport.length > 0) {
         sections.push({ 
