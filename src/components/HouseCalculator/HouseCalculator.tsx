@@ -340,6 +340,31 @@ export default function HouseCalculator() {
                         {activeTab === 'engineering' && (
                             <div className="space-y-5 animate-fadeIn">
                                 <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Инженерные элементы</h2>
+                                
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Отопление (Тёплый пол)</label>
+                                        <select value={state.heatingSystem} onChange={e => set('heatingSystem', e.target.value)}
+                                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
+                                            className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
+                                            <option value="none">Без тёплого пола (в базе)</option>
+                                            <option value="electric">Тёплый пол электрический модульный ЗЕБРА ЭВО-300 WF</option>
+                                            <option value="water">Водяной тёплый пол (котёл, коллектор, трубы, ЭППС)</option>
+                                        </select>
+                                    </div>
+                                    {state.heatingSystem !== 'none' && (
+                                        <div className="bg-amber-50 p-6 rounded-[24px] border border-amber-100 space-y-4">
+                                            <Counter label="Площадь теплого пола (м²)" name="warmFloorArea" value={state.warmFloorArea} onChange={set} />
+                                            <Counter 
+                                                label={`Терморегуляторы к ${state.heatingSystem === 'electric' ? 'электро' : 'водяному'} ТП (${state.heatingSystem === 'electric' ? '3 000' : '15 000'} ₽/шт)`} 
+                                                name="warmFloorThermostats" 
+                                                value={state.warmFloorThermostats} 
+                                                onChange={set} 
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
                                 <div className="grid grid-cols-2 gap-3">
                                     <Counter label="Вывод кабеля осв. (шт)" name="lightingCableCount" value={state.lightingCableCount} onChange={set} />
                                     <Counter label="Тёплый кран (шт)" name="warmTapCount" value={state.warmTapCount} onChange={set} />
@@ -355,27 +380,6 @@ export default function HouseCalculator() {
                                     <Counter label="Бризер ASP-100 CO₂ (шт)" name="breezer100Count" value={state.breezer100Count} onChange={set} />
                                 </div>
                                 <Check label="Разрыв мокрой точки (кухня далеко)" checked={state.wetPointSplit} onChange={set} name="wetPointSplit" price="60 000 ₽" />
-                                <div>
-                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Отопление (Тёплый пол)</label>
-                                    <select value={state.heatingSystem} onChange={e => set('heatingSystem', e.target.value)}
-                                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
-                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
-                                        <option value="none">Без тёплого пола (в базе)</option>
-                                        <option value="electric">Тёплый пол электрический модульный ЗЕБРА ЭВО-300 WF</option>
-                                        <option value="water">Водяной тёплый пол (котёл, коллектор, трубы, ЭППС)</option>
-                                    </select>
-                                </div>
-                                {state.heatingSystem !== 'none' && (
-                                    <div className="bg-amber-50 p-3 rounded-lg border border-amber-100 mt-3 space-y-3">
-                                        <Counter label="Площадь теплого пола (м²)" name="warmFloorArea" value={state.warmFloorArea} onChange={set} />
-                                        <Counter 
-                                            label={`Терморегуляторы к ${state.heatingSystem === 'electric' ? 'электро' : 'водяному'} ТП (${state.heatingSystem === 'electric' ? '3 000' : '15 000'} ₽/шт)`} 
-                                            name="warmFloorThermostats" 
-                                            value={state.warmFloorThermostats} 
-                                            onChange={set} 
-                                        />
-                                    </div>
-                                )}
                             </div>
                         )}
 
