@@ -1,4 +1,5 @@
-import type { HouseModel, HouseModelId, ServiceEntry, DeliveryVehicle } from './houseCalcTypes';
+import type { HouseModel, HouseModelId, ServiceEntry, DeliveryVehicle, DeliveryVehicleEntry } from './houseCalcTypes';
+export type { DeliveryVehicleEntry };
 
 // ==========================================
 // 1. ТИПОВЫЕ ДОМА

@@ -5,7 +5,7 @@ import { DELIVERY_VEHICLES } from './houseCalculatorData';
 
 interface DeliveryMapProps {
     state: HouseCalcState;
-    onChange: (key: keyof HouseCalcState, value: any) => void;
+    onChange: (key: keyof HouseCalcState, value: string | number | boolean | DeliveryVehicleEntry[]) => void;
 }
 
 // Считает ставку за км для конкретной машины на конкретную дистанцию
@@ -25,8 +25,8 @@ const CRANE_SERVICES_PRICE = 30000; // фиксировано, не зависи
 export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => {
     const BASE_ADDRESS = 'Свердловская обл., пгт. Верхнее Дуброво, ул. Малиновая, 6';
 
-    const [ymapsInstance, setYmapsInstance] = useState<any>(null);
-    const [mapInstance, setMapInstance] = useState<any>(null);
+    const [ymapsInstance, setYmapsInstance] = useState<unknown>(null);
+    const [mapInstance, setMapInstance] = useState<unknown>(null);
     const [searchQuery, setSearchQuery] = useState(state.deliveryAddress || '');
     const [isCalculating, setIsCalculating] = useState(false);
     const [routeError, setRouteError] = useState('');
@@ -76,15 +76,15 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
         updateVehicles(vehicles.filter((_, i) => i !== idx));
     };
 
-    const changeVehicleType = (idx: number, vehicleId: string) => {
+    const handleVehicleChange = (index: number, vehicleId: string) => {
         const list = [...vehicles];
-        list[idx] = { ...list[idx], vehicleId };
+        list[index] = { ...list[index], vehicleId };
         updateVehicles(list);
     };
 
-    const changeVehicleQty = (idx: number, qty: number) => {
+    const handleQtyChange = (index: number, qty: number) => {
         const list = [...vehicles];
-        list[idx] = { ...list[idx], qty: Math.max(1, qty) };
+        list[index] = { ...list[index], qty: Math.max(1, qty) };
         updateVehicles(list);
     };
 
@@ -95,12 +95,20 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
         if (!ymapsInstance || !mapInstance || !searchQuery) return;
         setIsCalculating(true);
         setRouteError('');
-        mapInstance.geoObjects.removeAll();
+        (mapInstance as { geoObjects: { removeAll: () => void } }).geoObjects.removeAll();
 
         try {
+            interface YMapsRoute { 
+                geocode: (s: string) => Promise<{ geoObjects: { get: (i: number) => { geometry: { getCoordinates: () => number[] } } } }>;
+                route: (coords: number[][], options: { routingMode: string }) => Promise<{ 
+                    getLength: () => number, 
+                    getWayPoints: () => { getBounds: () => unknown } 
+                }>;
+            }
+            const ymaps = ymapsInstance as YMapsRoute;
             const [resA, resB] = await Promise.all([
-                ymapsInstance.geocode(BASE_ADDRESS),
-                ymapsInstance.geocode(searchQuery)
+                ymaps.geocode(BASE_ADDRESS),
+                ymaps.geocode(searchQuery)
             ]);
 
             const objA = resA.geoObjects.get(0);
@@ -112,17 +120,22 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
             const coordsA = objA.geometry.getCoordinates();
             const coordsB = objB.geometry.getCoordinates();
 
-            ymapsInstance.route([coordsA, coordsB], { routingMode: 'auto' }).then((route: any) => {
-                mapInstance.geoObjects.add(route);
+            ymaps.route([coordsA, coordsB], { routingMode: 'auto' }).then((route) => {
+                interface MapInstance { 
+                    geoObjects: { add: (r: unknown) => void };
+                    setBounds: (b: unknown, o: { checkZoomRange: boolean }) => void;
+                }
+                const map = mapInstance as MapInstance;
+                map.geoObjects.add(route);
                 const distanceKm = Math.round(route.getLength() / 1000);
 
                 onChange('deliveryAddress', searchQuery);
                 onChange('deliveryDistance', distanceKm);
                 onChange('deliveryPrice', computeDeliveryPrice(distanceKm, vehicles, state.needLoadingCrane));
 
-                mapInstance.setBounds(route.getWayPoints().getBounds(), { checkZoomRange: true });
+                map.setBounds(route.getWayPoints().getBounds(), { checkZoomRange: true });
                 setIsCalculating(false);
-            }).catch((err: any) => {
+            }).catch((err: unknown) => {
                 console.error('Ошибка маршрутизации:', err);
                 setRouteError('Координаты найдены, но Яндекс не может проложить маршрут. Проверьте услугу «Маршрутизация» в кабинете Яндекса.');
                 setIsCalculating(false);
@@ -187,14 +200,16 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 defaultState={{ center: [56.761001, 61.054366], zoom: 9 }}
                                 width="100%"
                                 height="100%"
-                                onLoad={(ymaps: any) => {
+                                onLoad={(ymaps: unknown) => {
                                     setYmapsInstance(ymaps);
+                                    interface YMapsSuggest { SuggestView: new (id: string) => { events: { add: (n: string, cb: (e: { get: (k: string) => { value: string } }) => void) => void } } }
+                                    const y = ymaps as YMapsSuggest;
                                     if (document.getElementById('suggest-input') && !document.getElementById('suggest-input-ready')) {
-                                        const suggestView = new ymaps.SuggestView('suggest-input');
+                                        const suggestView = new y.SuggestView('suggest-input');
                                         const hiddenMarker = document.createElement('div');
                                         hiddenMarker.id = 'suggest-input-ready';
                                         document.body.appendChild(hiddenMarker);
-                                        suggestView.events.add('select', (e: any) => {
+                                        suggestView.events.add('select', (e) => {
                                             const item = e.get('item');
                                             if (item) setSearchQuery(item.value);
                                         });
@@ -225,7 +240,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                     <div key={idx} className="flex flex-col md:flex-row md:items-center gap-3 bg-gray-50 border border-gray-200 rounded p-3">
                                         <select
                                             value={entry.vehicleId}
-                                            onChange={(e) => changeVehicleType(idx, e.target.value)}
+                                            onChange={(e) => handleVehicleChange(idx, e.target.value)}
                                             className="w-full md:flex-1 bg-white border border-gray-300 rounded py-2.5 px-3 text-sm focus:ring-amber-500 focus:border-amber-500"
                                         >
                                             {DELIVERY_VEHICLES.map(dv => (
@@ -234,7 +249,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                         </select>
                                         <div className="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
                                             <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden shadow-sm h-[38px]">
-                                                <button onClick={() => changeVehicleQty(idx, entry.qty - 1)}
+                                                <button onClick={() => handleQtyChange(idx, entry.qty - 1)}
                                                     className="w-10 h-full flex items-center justify-center text-gray-700 bg-gray-100 hover:bg-gray-200 font-bold transition-colors">
                                                     −
                                                 </button>
@@ -242,7 +257,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                                 <input type="text" value={entry.qty} readOnly
                                                     className="w-12 h-full text-center text-sm font-bold focus:outline-none text-gray-800" />
                                                 <div className="w-px h-full bg-gray-300"></div>
-                                                <button onClick={() => changeVehicleQty(idx, entry.qty + 1)}
+                                                <button onClick={() => handleQtyChange(idx, entry.qty + 1)}
                                                     className="w-10 h-full flex items-center justify-center text-gray-700 bg-gray-100 hover:bg-gray-200 font-bold transition-colors">
                                                     +
                                                 </button>

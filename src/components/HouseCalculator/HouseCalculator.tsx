@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { HouseCalcState, TabId, CustomItem, ServiceEntry, HouseModelId } from './houseCalcTypes';
+import type { HouseCalcState, TabId, CustomItem, ServiceEntry, HouseModelId, DeliveryVehicleEntry } from './houseCalcTypes';
 import { calculateHouseEstimate } from './houseCalcEngine';
 import { DeliveryMap } from './DeliveryMap';
 import {
@@ -15,7 +15,7 @@ import {
     EXTERIOR_OPTIONS
 } from './houseCalculatorData';
 
-const Counter = ({ label, value, onChange, name, min = 0, step = 1 }: any) => (
+const Counter = ({ label, value, onChange, name, min = 0, step = 1 }: { label: string, value: number, onChange: (n: keyof HouseCalcState, v: number) => void, name: keyof HouseCalcState, min?: number, step?: number }) => (
     <div className="bg-white p-6 rounded-[24px] border border-gray-100/80 shadow-sm flex flex-col gap-4 items-start group hover:border-gray-200 transition-all">
         <label className="text-sm font-bold text-gray-700 leading-tight">{label}</label>
         <div className="flex items-center space-x-1 bg-gray-50 p-2 rounded-[20px] border border-gray-100">
@@ -34,7 +34,7 @@ const Counter = ({ label, value, onChange, name, min = 0, step = 1 }: any) => (
 );
 
 // ─── Checkbox Option ────────────────────────────
-const Check = ({ label, checked, onChange, name, disabled, price }: any) => (
+const Check = ({ label, checked, onChange, name, disabled, price }: { label: string, checked: boolean, onChange: (n: keyof HouseCalcState, v: boolean) => void, name: keyof HouseCalcState, disabled?: boolean, price?: string | number }) => (
     <label className={`flex items-center space-x-4 p-6 rounded-[24px] border cursor-pointer transition-all duration-300 ${disabled ? 'opacity-40 cursor-not-allowed bg-gray-50/50 border-gray-100' : checked ? 'bg-[#F2F8F4] border-[#4BD16F]/30 shadow-sm' : 'bg-white border-gray-100/80 hover:border-gray-200 hover:shadow-sm'}`}>
         <div className={`relative flex items-center justify-center w-6 h-6 rounded-md border-2 transition-colors ${checked ? 'border-[#4BD16F] bg-[#4BD16F]' : 'border-gray-300 bg-white'}`}>
             <input type="checkbox" checked={checked} disabled={disabled}
@@ -123,7 +123,7 @@ export default function HouseCalculator() {
 
     useEffect(() => { localStorage.setItem('house_calc_state', JSON.stringify(state)); }, [state]);
 
-    const set = (name: string, value: any) => {
+    const set = (name: keyof HouseCalcState, value: string | number | boolean | DeliveryVehicleEntry[]) => {
         setState(prev => {
             const newState = { ...prev, [name]: value };
             const currentModel = HOUSE_MODELS.find(m => m.id === newState.selectedHouse);
@@ -428,7 +428,7 @@ export default function HouseCalculator() {
                         {activeTab === 'frame' && (
                             <div className="space-y-5 animate-fadeIn">
                                 <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Каркас</h2>
-                                {isAvailable(Object.keys(FRAME_OPTIONS.moduleExtend.priceByModel) as any) && (
+                                {isAvailable(Object.keys(FRAME_OPTIONS.moduleExtend.priceByModel)) && (
                                     <Counter label="Увеличение модуля +60 см (шт)" name="moduleExtendCount" value={state.moduleExtendCount} onChange={set} />
                                 )}
                                 <Check label="Сетка от грызунов" checked={state.mouseMesh} onChange={set} name="mouseMesh" price={`${(FRAME_OPTIONS.mouseMesh.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
@@ -754,7 +754,7 @@ export default function HouseCalculator() {
                                             <div className="space-y-3 mt-4 pl-6 mb-4">
                                                 {section.items.map((item, i) => (
                                                     <div key={i} className="flex justify-between items-start text-sm text-gray-500 py-1">
-                                                        <span className="pr-4 leading-tight py-0.5 flex-1">
+                                                        <span className="pr-4 leading-tight py-0.5 flex-1 transition-all whitespace-pre-line">
                                                             {item.name} {item.quantity > 1 && <span className="text-gray-400 font-medium">({item.quantity} {item.unit})</span>}
                                                         </span>
                                                         <span className="whitespace-nowrap font-semibold py-0.5">{item.total.toLocaleString('ru-RU')} ₽</span>
@@ -827,11 +827,15 @@ export default function HouseCalculator() {
                                         <tr className="bg-gray-50/80 border-b border-t font-semibold print:bg-white print:border-none">
                                             <td className="px-6 py-3 text-gray-900 print:text-sm print:pb-1 print:pt-4 print:font-bold">{section.name}</td>
                                             <td colSpan={3} className="print:hidden"></td>
-                                            <td className="px-6 py-3 text-right text-gray-900 print:hidden">{section.total.toLocaleString('ru-RU')} ₽</td>
+                                            <td className="px-6 py-4 text-right print:px-6 print:py-1 print:text-sm">
+                        <span className="font-bold text-gray-900 border-b-2 border-green-200">
+                            {section.total.toLocaleString('ru-RU')} ₽
+                        </span>
+                    </td>
                                         </tr>
                                         {section.items.map((item, iIdx) => (
                                             <tr key={iIdx} className={`border-b last:border-none hover:bg-gray-50/50 print:border-gray-50 ${section.hideItems ? 'print:hidden' : ''}`}>
-                                                <td className="px-6 py-2.5 text-gray-700 print:px-10 print:py-1 print:italic print:text-sm">
+                                                <td className="px-6 py-2.5 text-gray-700 print:px-10 print:py-1 print:italic print:text-sm whitespace-pre-line">
                                                     <span className="hidden print:inline">• </span>
                                                     {item.name}
                                                 </td>

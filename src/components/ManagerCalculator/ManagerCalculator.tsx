@@ -1,14 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { type HouseParams, type EstimateItem, calculateEstimate } from './calculations';
+import { type HouseParams, calculateEstimate } from './calculations';
 
 // Reusable Numeric Input with +/- buttons
-const CounterInput = ({ label, value, onChange, name, step = 1, min = 0 }: any) => (
+const CounterInput = ({ label, value, onChange, name, step = 1, min = 0, max }: { label: string, value: number, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void, name: keyof HouseParams, step?: number, min?: number, max?: number }) => (
     <div>
         <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
         <div className="flex items-center space-x-1">
             <button
                 type="button"
-                onClick={() => onChange({ target: { name, value: Math.max(min, parseFloat((value - step).toFixed(2))), type: 'number' } })}
+                onClick={() => onChange({ target: { name, value: Math.max(min, parseFloat((value - step).toFixed(2))), type: 'number' } } as unknown as React.ChangeEvent<HTMLInputElement>)}
                 className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 text-gray-600 font-bold"
             >
                 -
@@ -22,7 +22,7 @@ const CounterInput = ({ label, value, onChange, name, step = 1, min = 0 }: any) 
             />
             <button
                 type="button"
-                onClick={() => onChange({ target: { name, value: parseFloat((value + step).toFixed(2)), type: 'number' } })}
+                onClick={() => onChange({ target: { name, value: Math.min(max ?? Infinity, parseFloat((value + step).toFixed(2))), type: 'number' } } as unknown as React.ChangeEvent<HTMLInputElement>)}
                 className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 text-gray-600 font-bold"
             >
                 +
@@ -89,7 +89,7 @@ const INITIAL_PARAMS: HouseParams = {
     optTerraceStepCount: 0,
     discountPercent: 0,
     markupAmount: 0,
-    materialPercent: 50, // Доля материалов в цене дома (50%)
+    materialPercent: 50,
     customItems: [],
     clientName: '',
     managerName: '',
@@ -107,9 +107,8 @@ export default function ManagerCalculator() {
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                // Объединяем со значениями по умолчанию, чтобы новые поля (marginPercent и т.д.) не были undefined
                 return { ...INITIAL_PARAMS, ...parsed };
-            } catch (e) {
+            } catch {
                 return INITIAL_PARAMS;
             }
         }
@@ -124,29 +123,25 @@ export default function ManagerCalculator() {
         localStorage.setItem('manager_calc_params', JSON.stringify(params));
     }, [params]);
 
-    const handleChange = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
 
-        if (type === 'checkbox') {
-            const checked = (e.target as HTMLInputElement).checked;
-            setParams(prev => ({
+        setParams(prev => {
+            const next = {
                 ...prev,
-                [name]: checked
-            }));
-        } else {
-            setParams(prev => ({
-                ...prev,
-                [name]: (type === 'number' || type === 'range') ? parseFloat(value) || 0 : value
-            }));
-        }
+                [name]: (type === 'number' || type === 'range') ? parseFloat(value) || 0 : (type === 'checkbox' ? (e.target as HTMLInputElement).checked : value)
+            };
+
+            if (name === 'heatingType' && next.heatingType === 'electricFloor') {
+                if (next.floorFinish !== 'laminate' && next.floorFinish !== 'laminateWaterproof') {
+                    next.floorFinish = 'laminate';
+                }
+            }
+            
+            return next;
+        });
     };
 
-    // Auto-set laminate when electric floor is selected
-    useEffect(() => {
-        if (params.heatingType === 'electricFloor' && params.floorFinish !== 'laminate' && params.floorFinish !== 'laminateWaterproof') {
-            setParams(prev => ({ ...prev, floorFinish: 'laminate' }));
-        }
-    }, [params.heatingType, params.floorFinish]);
 
     const addCustomItem = () => {
         if (!newCustomItem.name) return;
@@ -196,9 +191,7 @@ export default function ManagerCalculator() {
 
             <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                {/* ЛЕВАЯ КОЛОНКА - ВВОД ПАРАМЕТРОВ */}
                 <div className="lg:col-span-4 space-y-6 print:hidden">
-                    {/* ТАБЫ */}
                     <div className="flex flex-wrap bg-white p-1 rounded-xl shadow-sm border border-gray-100 mb-4">
                         {[
                             { id: 'geo', label: 'Чертеж' },
@@ -210,7 +203,7 @@ export default function ManagerCalculator() {
                         ].map(tab => (
                             <button
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
+                                onClick={() => setActiveTab(tab.id as 'geo' | 'finish' | 'bathroom' | 'eng' | 'extra' | 'finance')}
                                 className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all ${activeTab === tab.id ? 'bg-[#6b8e23] text-white shadow-md' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
                             >
                                 {tab.label}
@@ -219,7 +212,6 @@ export default function ManagerCalculator() {
                     </div>
 
                     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 min-h-[500px]">
-                        {/* TAB: GEOMETRY */}
                         {activeTab === 'geo' && (
                             <div className="space-y-6 animate-fadeIn">
                                 <h2 className="text-lg font-bold border-b pb-2">Габариты и Конструктив</h2>
@@ -258,7 +250,6 @@ export default function ManagerCalculator() {
                             </div>
                         )}
 
-                        {/* TAB: FINISH */}
                         {activeTab === 'finish' && (
                             <div className="space-y-6 animate-fadeIn">
                                 <h2 className="text-lg font-bold border-b pb-2">Отделка и Утепление</h2>
@@ -336,7 +327,6 @@ export default function ManagerCalculator() {
                             </div>
                         )}
 
-                        {/* TAB: BATHROOM */}
                         {activeTab === 'bathroom' && (
                             <div className="space-y-6 animate-fadeIn">
                                 <h2 className="text-lg font-bold border-b pb-2">Отделка Санузла</h2>
@@ -442,7 +432,6 @@ export default function ManagerCalculator() {
                             </div>
                         )}
 
-                        {/* TAB: EXTRA OPTIONS */}
                         {activeTab === 'extra' && (
                             <div className="space-y-6 animate-fadeIn">
                                 <h2 className="text-lg font-bold border-b pb-2">Доп. строения и опции</h2>
@@ -475,7 +464,6 @@ export default function ManagerCalculator() {
                             </div>
                         )}
 
-                        {/* TAB: FINANCE & CLIENT */}
                         {activeTab === 'finance' && (
                             <div className="space-y-6 animate-fadeIn">
                                 <h2 className="text-lg font-bold border-b pb-2">Клиент и Финансы</h2>
@@ -504,11 +492,10 @@ export default function ManagerCalculator() {
                                         <CounterInput label="Скидка, %" name="discountPercent" value={params.discountPercent} onChange={handleChange} max={50} />
                                         <CounterInput label="Наценка, ₽" name="markupAmount" value={params.markupAmount} onChange={handleChange} step={5000} />
                                     </div>
-                                    
                                     <div className="pt-4 border-t">
                                         <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">Произвольные позиции</h3>
                                         <div className="space-y-2 mb-3">
-                                            {params.customItems.map((item: EstimateItem, idx: number) => (
+                                            {params.customItems.map((item, idx) => (
                                                 <div key={idx} className="flex items-center justify-between text-xs bg-gray-50 p-2 rounded border border-gray-100">
                                                     <span className="truncate flex-1 font-medium">{item.name} ({item.quantity} {item.unit})</span>
                                                     <span className="font-bold text-gray-900 mx-2">{item.total.toLocaleString()} ₽</span>

@@ -1,7 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Calculator, ArrowRight, CheckCircle2, Home, Wrench, Key } from 'lucide-react';
 
 type PackageType = 'warm' | 'whitebox' | 'turnkey';
+
+const PRICES: Record<PackageType, number> = {
+    warm: 35000,
+    whitebox: 55000,
+    turnkey: 65000
+};
+
+const TERRACE_PRICE = 150000;
+const FOUNDATION_PRICE_SQM = 3000;
+const DELIVERY_PRICE_KM = 300;
+const SEPTIC_PRICE = 150000;
+const WARM_FLOOR_PRICE_SQM = 1800;
 
 export default function CostCalculator() {
     const [area, setArea] = useState(45);
@@ -9,34 +21,19 @@ export default function CostCalculator() {
     const [hasTerrace, setHasTerrace] = useState(false);
     const [hasFoundation, setHasFoundation] = useState(false);
     const [distance, setDistance] = useState(20);
-    const [totalPrice, setTotalPrice] = useState(0);
 
     // New Options
     const [hasSeptic, setHasSeptic] = useState(false);
     const [hasWarmFloor, setHasWarmFloor] = useState(false);
 
-    // Pricing logic
-    const PRICES = {
-        warm: 35000,
-        whitebox: 55000,
-        turnkey: 65000
-    };
-
-    const TERRACE_PRICE = 150000;
-    const FOUNDATION_PRICE_SQM = 3000;
-    const DELIVERY_PRICE_KM = 300;
-    const SEPTIC_PRICE = 150000;
-    const WARM_FLOOR_PRICE_SQM = 1800;
-
-    useEffect(() => {
+    const totalPrice = useMemo(() => {
         let price = area * PRICES[packageType];
         if (hasTerrace) price += TERRACE_PRICE;
         if (hasFoundation) price += area * FOUNDATION_PRICE_SQM;
         if (hasSeptic) price += SEPTIC_PRICE;
         if (hasWarmFloor) price += area * WARM_FLOOR_PRICE_SQM;
         price += distance * DELIVERY_PRICE_KM;
-
-        setTotalPrice(price);
+        return price;
     }, [area, packageType, hasTerrace, hasFoundation, hasSeptic, hasWarmFloor, distance]);
 
     const formatPrice = (price: number) => {

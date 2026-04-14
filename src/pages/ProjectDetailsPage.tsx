@@ -11,11 +11,41 @@ export default function ProjectDetailsPage() {
     const { projectId } = useParams();
     const [activeImage, setActiveImage] = useState<string | null>(null);
 
-    // Ищем нужный проект и его родительский стиль
-    let targetProject = null;
-    let targetStyle = null;
+    interface Room {
+        name: string;
+        area: string;
+    }
 
-    for (const style of catalogData) {
+    interface Layout {
+        id: string;
+        name: string;
+        type: string;
+        area: string;
+        dimensions: string;
+        floors: string;
+        time: string;
+        price: string;
+        description: string;
+        image: string;
+        images?: string[];
+        floorPlan?: string;
+        features: string[];
+        popular?: boolean;
+        tags?: string[];
+        rooms?: Room[];
+    }
+
+    interface Style {
+        id: string;
+        name: string;
+        layouts: Layout[];
+    }
+
+    // Ищем нужный проект и его родительский стиль
+    let targetProject: Layout | null = null;
+    let targetStyle: Style | null = null;
+
+    for (const style of (catalogData as unknown as Style[])) {
         const found = style.layouts.find(l => l.id === projectId || l.id === projectId?.replace('-mirror', '').replace('-pro', ''));
         if (found) {
             if (projectId?.includes('-mirror')) {
@@ -34,13 +64,12 @@ export default function ProjectDetailsPage() {
     // Определяем нужный набор комплектации
     const inclusions = targetStyle?.id === 'plywood' ? PLYWOOD_INCLUSIONS : STANDARD_INCLUSIONS;
 
-    const rooms = (targetProject as any)?.rooms || [];
-    const images: string[] = (targetProject as any)?.images || (targetProject ? [targetProject.image] : []);
-    const floorPlanImage = (targetProject as any)?.floorPlan || targetProject?.image;
+    const rooms = targetProject?.rooms || [];
+    const images: string[] = targetProject?.images || (targetProject ? [targetProject.image] : []);
+    const floorPlanImage = (targetProject?.floorPlan || targetProject?.image) || undefined;
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        setActiveImage(null);
     }, [projectId]);
 
     if (!targetProject || !targetStyle) {
@@ -57,7 +86,7 @@ export default function ProjectDetailsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-0">
+        <div key={projectId} className="min-h-screen bg-gray-50 pb-0">
             {/* Навигация */}
             <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
@@ -85,7 +114,7 @@ export default function ProjectDetailsPage() {
                             <div className="flex flex-wrap items-center gap-2 mb-3">
                                 <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Стиль {targetStyle.name}</span>
                                 {targetProject.popular && <span className="bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">ХИТ ПРОДАЖ</span>}
-                                {targetProject.tags?.slice(0, 2).map((tag: string, i: number) => (
+                                {targetProject.tags?.slice(0, 2).map((tag, i) => (
                                     <span key={i} className="bg-white border border-gray-200 text-gray-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">{tag}</span>
                                 ))}
                             </div>
@@ -152,7 +181,7 @@ export default function ProjectDetailsPage() {
                             <h2 className="text-2xl font-bold font-serif mb-6 text-gray-900">Планировочное решение</h2>
                             <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
                                 <div className="flex flex-col md:flex-row gap-8 items-center">
-                                    <div className="md:w-1/2 w-full bg-gray-50 rounded-2xl p-4 aspect-square flex items-center justify-center border border-gray-100 relative group cursor-pointer" onClick={() => setActiveImage(floorPlanImage)}>
+                                    <div className="md:w-1/2 w-full bg-gray-50 rounded-2xl p-4 aspect-square flex items-center justify-center border border-gray-100 relative group cursor-pointer" onClick={() => setActiveImage(floorPlanImage || null)}>
                                         <img src={floorPlanImage} alt="Планировка" className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply" />
                                         <div className="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow backdrop-blur-sm text-gray-600 group-hover:text-green-600 transition-colors">
                                             <Maximize className="w-5 h-5" />
@@ -166,7 +195,7 @@ export default function ProjectDetailsPage() {
                                             <div className="bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
                                                 <table className="w-full text-left">
                                                     <tbody className="divide-y divide-gray-200">
-                                                        {rooms.map((room: { name: string; area: string }, i: number) => (
+                                                        {rooms.map((room, i) => (
                                                             <tr key={i} className="hover:bg-white transition-colors">
                                                                 <td className="px-4 py-3 text-sm text-gray-700">{room.name}</td>
                                                                 <td className="px-4 py-3 text-right text-sm font-bold text-gray-900">{room.area}</td>
