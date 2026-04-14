@@ -688,7 +688,7 @@ export default function HouseCalculator() {
                                         </div>
                                         {/* Развернутые предметы из раздела */}
                                         {section.items.length > 0 && (
-                                            <div className="space-y-1.5 mt-2 hidden group-hover:block pl-6 mb-2">
+                                            <div className="space-y-1.5 mt-2 pl-6 mb-2">
                                                 {section.items.map((item, i) => (
                                                     <div key={i} className="flex justify-between items-start text-xs text-gray-500">
                                                         <span className="pr-4 leading-tight py-0.5 flex-1">
