@@ -15,8 +15,8 @@ import {
 } from './houseCalculatorData';
 
 const Counter = ({ label, value, onChange, name, min = 0, step = 1 }: any) => (
-    <div className="bg-white p-6 rounded-[24px] border border-gray-100/80 shadow-sm flex items-center justify-between group hover:border-gray-200 transition-all">
-        <label className="text-sm font-bold text-gray-700 leading-tight pr-4">{label}</label>
+    <div className="bg-white p-6 rounded-[24px] border border-gray-100/80 shadow-sm flex flex-col gap-4 items-start group hover:border-gray-200 transition-all">
+        <label className="text-sm font-bold text-gray-700 leading-tight">{label}</label>
         <div className="flex items-center space-x-1 bg-gray-50 p-2 rounded-[20px] border border-gray-100">
             <button onClick={() => onChange(name, Math.max(min, value - step))}
                 className="w-12 h-12 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-[#F2F8F4] hover:text-[#4BD16F] hover:border-[#4BD16F]/30 transition-all shadow-sm active:scale-95">
