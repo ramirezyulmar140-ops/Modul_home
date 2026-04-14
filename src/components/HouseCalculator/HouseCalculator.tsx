@@ -772,7 +772,7 @@ export default function HouseCalculator() {
                                     <th className="px-4 py-3 text-center print:hidden">Кол-во</th>
                                     <th className="px-4 py-3 text-center print:hidden">Ед.</th>
                                     <th className="px-4 py-3 text-right print:hidden">Цена</th>
-                                    <th className="px-6 py-3 text-right rounded-tr-lg">Сумма</th>
+                                    <th className="px-6 py-3 text-right rounded-tr-lg print:hidden">Сумма</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -781,7 +781,7 @@ export default function HouseCalculator() {
                                         <tr className="bg-gray-50/80 border-b border-t font-semibold">
                                             <td className="px-6 py-3 text-gray-900">{idx + 1}. {section.name}</td>
                                             <td colSpan={3} className="print:hidden"></td>
-                                            <td className="px-6 py-3 text-right text-gray-900">{section.total.toLocaleString('ru-RU')} ₽</td>
+                                            <td className="px-6 py-3 text-right text-gray-900 print:hidden">{section.total.toLocaleString('ru-RU')} ₽</td>
                                         </tr>
                                         {section.items.map((item, iIdx) => (
                                             <tr key={iIdx} className={`border-b last:border-none hover:bg-gray-50/50 ${section.hideItems ? 'print:hidden' : ''}`}>
@@ -793,9 +793,8 @@ export default function HouseCalculator() {
                                                 </td>
                                                 <td className="px-4 py-2.5 text-center text-gray-500 print:hidden">{item.unit}</td>
                                                 <td className="px-4 py-2.5 text-right text-gray-500 print:hidden">{item.price.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}</td>
-                                                <td className="px-6 py-2.5 text-right font-medium">
+                                                <td className="px-6 py-2.5 text-right font-medium print:hidden">
                                                     <span className="print:hidden">{item.total.toLocaleString('ru-RU')} ₽</span>
-                                                    <span className="hidden print:inline">—</span>
                                                 </td>
                                             </tr>
                                         ))}
