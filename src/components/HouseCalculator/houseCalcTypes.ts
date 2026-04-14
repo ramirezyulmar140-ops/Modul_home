@@ -11,6 +11,11 @@ export interface DeliveryVehicle {
     priceTier3?: number; // >200km
 }
 
+export interface DeliveryVehicleEntry {
+    vehicleId: string;
+    qty: number;
+}
+
 export interface HouseModel {
     id: HouseModelId;
     name: string;
@@ -123,7 +128,7 @@ export interface HouseCalcState {
     deliveryAddress: string;
     deliveryDistance: number;
     deliveryPrice: number;
-    deliveryVehicleId: string;
+    deliveryVehicles: DeliveryVehicleEntry[];
     needLoadingCrane: boolean;
 
     // КП

@@ -57,10 +57,13 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     }
     if (state.addAssembly) {
         if (state.useDeliveryMap && state.deliveryDistance > 0) {
-            const vehicle = DELIVERY_VEHICLES.find(v => v.id === state.deliveryVehicleId) || DELIVERY_VEHICLES[0];
-            let desc = `Монтаж и сборка дома. Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). Расстояние: ${state.deliveryDistance} км. Техника: ${vehicle.name} (${model.modulesCount} шт.) + Негабарит 3.4м.`;
-            if (vehicle.type === 'trawl' && state.needLoadingCrane) {
-                desc += ` Вкл. услуги погрузки и монтажа краном 25т.`;
+            const vehicleDescs = (state.deliveryVehicles || []).map(entry => {
+                const v = DELIVERY_VEHICLES.find(d => d.id === entry.vehicleId);
+                return `${v?.name || '?'} ×${entry.qty}`;
+            }).join(', ');
+            let desc = `Монтаж и сборка дома. Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). Расстояние: ${state.deliveryDistance} км. Техника: ${vehicleDescs}. + Негабарит 3.4м.`;
+            if (state.needLoadingCrane) {
+                desc += ` Вкл. услуги крана 25т (погрузка/монтаж).`;
             }
             addFixed(foundationItems, desc, foundationData.assemblyPrice + state.deliveryPrice);
         } else {
