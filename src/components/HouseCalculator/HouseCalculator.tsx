@@ -220,7 +220,7 @@ export default function HouseCalculator() {
             {/* ═══════ MAIN CONTENT ═══════ */}
             <main className="flex-1 w-full mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start h-screen overflow-y-auto print:h-auto print:overflow-visible">
                 {/* Content Area */}
-                <div className="lg:col-span-7 xl:col-span-8 space-y-6 print:hidden max-w-4xl">
+                <div className="lg:col-span-6 space-y-6 print:hidden">
                     <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100 min-h-[600px]">
                         {/* ──── TAB: HOUSE ──── */}
                         {activeTab === 'house' && (
@@ -645,7 +645,7 @@ export default function HouseCalculator() {
                 </div>
 
                 {/* ═══════ RIGHT COLUMN — TOTAL + ESTIMATE TABLE ═══════ */}
-                <div className="lg:col-span-5 xl:col-span-4 space-y-6 print:hidden">
+                <div className="lg:col-span-6 space-y-6 print:hidden">
                     {/* ─── STICKY TOTAL ─── */}
                     <div className="sticky top-8 z-10 space-y-6">
                         {/* FINAI Dark Total Card */}
