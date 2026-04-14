@@ -19,6 +19,7 @@ import Footer from './components/Footer'
 import StyleProjectsPage from './pages/StyleProjectsPage'
 import ProjectDetailsPage from './pages/ProjectDetailsPage'
 import ManagerCalculator from './components/ManagerCalculator/ManagerCalculator'
+import HouseCalculator from './components/HouseCalculator/HouseCalculator'
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -77,6 +78,7 @@ function App() {
         <Route path="/project/:projectId" element={<ProjectDetailsPage />} />
         {/* Скрытый роут для менеджеров */}
         <Route path="/manager-calculator" element={<ManagerCalculator />} />
+        <Route path="/house-calculator" element={<HouseCalculator />} />
       </Routes>
     </BrowserRouter>
   )
