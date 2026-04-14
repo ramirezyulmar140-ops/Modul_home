@@ -75,7 +75,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
             name: 'Фундамент и монтаж', 
             items: foundationItems, 
             total: sumItems(foundationItems),
-            hideItems: true
+            hideItems: false
         });
     }
 
@@ -119,7 +119,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     }
 
     if (finishItems.length > 0) {
-        sections.push({ name: 'Внутренняя отделка', items: finishItems, total: sumItems(finishItems), hideItems: true });
+        sections.push({ name: 'Внутренняя отделка', items: finishItems, total: sumItems(finishItems), hideItems: false });
     }
 
     // ─── 3. Санузел ──────────────────
@@ -138,7 +138,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         }
     }
     if (bathItems.length > 0) {
-        sections.push({ name: 'Санузел', items: bathItems, total: sumItems(bathItems), hideItems: true });
+        sections.push({ name: 'Санузел', items: bathItems, total: sumItems(bathItems), hideItems: false });
     }
 
     // ─── 4. Инженерные элементы ──────────────────
@@ -164,7 +164,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     }
 
     if (engItems.length > 0) {
-        sections.push({ name: 'Инженерные решения', items: engItems, total: sumItems(engItems), hideItems: true });
+        sections.push({ name: 'Инженерные решения', items: engItems, total: sumItems(engItems), hideItems: false });
     }
 
     // ─── 5. Каркас и доп. опции ──────────────────
@@ -175,7 +175,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.removePartition) addFixed(frameItems, FRAME_OPTIONS.removePartition.name, FRAME_OPTIONS.removePartition.price);
     if (state.extraPartitionLength > 0 && FRAME_OPTIONS.extraPartition.availableFor.includes(modelId)) addItem(frameItems, FRAME_OPTIONS.extraPartition.name, state.extraPartitionLength, 'м.п.', FRAME_OPTIONS.extraPartition.price);
     if (frameItems.length > 0) {
-        sections.push({ name: 'Конструктив и каркас', items: frameItems, total: sumItems(frameItems), hideItems: true });
+        sections.push({ name: 'Конструктив и каркас', items: frameItems, total: sumItems(frameItems), hideItems: false });
     }
 
     // ─── 6. Окна и проемы ──────────────────
@@ -191,7 +191,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.windowLamination) addFixed(winItems, WINDOW_OPTIONS.windowLamination.name, WINDOW_OPTIONS.windowLamination.price);
     if (state.windowLaminationInside) addFixed(winItems, WINDOW_OPTIONS.windowLaminationInside.name, WINDOW_OPTIONS.windowLaminationInside.price);
     if (winItems.length > 0) {
-        sections.push({ name: 'Окна и проемы', items: winItems, total: sumItems(winItems), hideItems: true });
+        sections.push({ name: 'Окна и проемы', items: winItems, total: sumItems(winItems), hideItems: false });
     }
 
     // ─── 7. Внешняя отделка ──────────────────
@@ -201,7 +201,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.gutterMetal) addFixed(extItems, EXTERIOR_OPTIONS.gutterMetal.name, EXTERIOR_OPTIONS.gutterMetal.priceByModel[modelId]);
     if (state.plinthPlankenArea > 0) addItem(extItems, EXTERIOR_OPTIONS.plinthPlanken.name, state.plinthPlankenArea, 'м²', EXTERIOR_OPTIONS.plinthPlanken.price);
     if (extItems.length > 0) {
-        sections.push({ name: 'Фасадные решения', items: extItems, total: sumItems(extItems), hideItems: true });
+        sections.push({ name: 'Фасадные решения', items: extItems, total: sumItems(extItems), hideItems: false });
     }
 
     // ─── 8. Терраса / Крыльцо ──────────────────
@@ -211,7 +211,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.railingsPlankenLength > 0) addItem(terItems, TERRACE_OPTIONS.railingsPlanken.name, state.railingsPlankenLength, 'п.м.', TERRACE_OPTIONS.railingsPlanken.price);
     if (state.railingsCrossLength > 0) addItem(terItems, TERRACE_OPTIONS.railingsCross.name, state.railingsCrossLength, 'п.м.', TERRACE_OPTIONS.railingsCross.price);
     if (terItems.length > 0) {
-        sections.push({ name: 'Террасы и малые формы', items: terItems, total: sumItems(terItems), hideItems: true });
+        sections.push({ name: 'Террасы и малые формы', items: terItems, total: sumItems(terItems), hideItems: false });
     }
 
     // ─── 9. Доп. услуги ──────────────────
