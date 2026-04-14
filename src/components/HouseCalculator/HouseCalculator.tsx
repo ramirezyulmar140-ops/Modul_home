@@ -192,7 +192,7 @@ export default function HouseCalculator() {
                     <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-1">Калькулятор модулей</p>
                 </div>
 
-                <div className="space-y-1.5 flex-1">
+                <div className="space-y-1.5 mb-8">
                     <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 pl-2">Настройка</div>
                     {TABS.map(tab => {
                         const isActive = activeTab === tab.id;
@@ -208,7 +208,7 @@ export default function HouseCalculator() {
                     })}
                 </div>
 
-                <div className="mt-auto space-y-3 pt-8 border-t border-gray-200/50">
+                <div className="space-y-3 pt-4 border-t border-gray-200/50">
                     <button onClick={resetAll}
                         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-gray-500 hover:bg-white transition-colors">
                         Сбросить всё
