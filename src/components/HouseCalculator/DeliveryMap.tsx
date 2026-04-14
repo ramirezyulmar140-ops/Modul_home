@@ -275,7 +275,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 }}
                                 className="w-5 h-5 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
                             />
-                            <span className="ml-3 text-base font-medium text-gray-800 group-hover:text-amber-700">
+                            <span className="ml-3 text-sm font-medium text-gray-800 group-hover:text-amber-700">
                                 Услуги крана 25т — Погрузка + Монтаж ({CRANE_SERVICES_PRICE.toLocaleString()} ₽)
                             </span>
                         </label>
