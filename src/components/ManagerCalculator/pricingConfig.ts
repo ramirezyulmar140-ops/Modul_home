@@ -36,7 +36,7 @@ export const PRICING_CONFIG = {
     clickfalz: 1100,   // Кликфальц Кровля
     proflistWall: 590, // Профлист Стены
     planken: 1250,     // Скошенный планкен лиственница
-    keramogranit: 2500, // Керамогранит (материал)
+    keramogranit: 9000, // Керамогранит (материал)
 
     // Утеплитель и пленки
     insulationRockwool: 4950, // Утеплитель 1 куб
