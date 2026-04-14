@@ -216,7 +216,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     }
     if (state.acPrepCount > 0) {
         addItem(engItems, ENGINEERING_OPTIONS.acPrep.name, state.acPrepCount, 'шт', ENGINEERING_OPTIONS.acPrep.price);
-        engPassport.push(`Подготовка под кондиционеры (трасса + эл-во): ${state.acPrepCount} шт.`);
+        engPassport.push(`Подготовка под конд.: ${state.acPrepCount} шт.`);
     }
     if (state.wetPointSplit) {
         addFixed(engItems, ENGINEERING_OPTIONS.wetPointSplit.name, ENGINEERING_OPTIONS.wetPointSplit.price);

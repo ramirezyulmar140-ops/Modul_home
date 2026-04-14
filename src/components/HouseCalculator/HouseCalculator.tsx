@@ -372,7 +372,7 @@ export default function HouseCalculator() {
                                     <Counter label="Доп. розетки (шт)" name="extraSocketCount" value={state.extraSocketCount} onChange={set} />
                                     <Counter label="Точечный свет (шт)" name="spotlightCount" value={state.spotlightCount} onChange={set} />
                                     <Counter label="Уличный свет (шт)" name="streetLightCount" value={state.streetLightCount} onChange={set} />
-                                    <Counter label="Трассы конд. (шт)" name="acPrepCount" value={state.acPrepCount} onChange={set} />
+                                    <Counter label="Подготовка под конд. (шт)" name="acPrepCount" value={state.acPrepCount} onChange={set} />
                                     <Counter label="Конвекторы (шт)" name="convectorCount" value={state.convectorCount} onChange={set} />
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">

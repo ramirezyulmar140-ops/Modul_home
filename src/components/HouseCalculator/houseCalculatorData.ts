@@ -66,7 +66,7 @@ export const ENGINEERING_OPTIONS = {
     extraSocket: { name: 'Дополнительная розетка', price: 4000, unit: 'шт' },
     spotlight: { name: 'Дополнительный точечный светильник', price: 4000, unit: 'шт' },
     streetLight: { name: 'Дополнительный уличный светильник', price: 8000, unit: 'шт' },
-    acPrep: { name: 'Подготовка под кондиционер', price: 10000, unit: 'шт' },
+    acPrep: { name: 'Подготовка под конд.', price: 10000, unit: 'шт' },
     wetPointSplit: { name: 'Разрыв мокрой точки (кухня не примыкает к СУ)', price: 60000 },
     convector: { name: 'Внутрипольный конвектор 1600–1800', price: 60000, unit: 'шт' },
     breezer80: { name: 'Бризер Ballu ONEAIR ASP-80', price: 30000, unit: 'шт' },
