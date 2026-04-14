@@ -27,15 +27,7 @@ export interface CustomItem {
     total: number;
 }
 
-export interface DeliveryRoute {
-    region: string;
-    rateOversizePerKm: number;
-    rateStandardPerKm: number;
-    distance: number;
-    priceStandard1Tral: number;
-    priceOversize1Tral: number;
-    priceOversize2Tral: number;
-}
+
 
 export type TabId = 'house' | 'finish' | 'bathroom' | 'engineering' | 'frame' | 'windows' | 'exterior' | 'terrace' | 'services' | 'kp';
 
@@ -49,7 +41,7 @@ export interface HouseCalcState {
     paintWalls: boolean;
     paintCeiling: boolean;
     // Пол — per m² pricing
-    floorFinish: 'none' | 'laminate' | 'laminateWP' | 'quartzVinyl' | 'linoleum' | 'boardPine' | 'boardLarch';
+    floorFinish: 'none' | 'laminateWP' | 'quartzVinyl' | 'linoleum' | 'boardPine' | 'boardLarch';
 
     // Санузел
     bathroomFloorArea: number;

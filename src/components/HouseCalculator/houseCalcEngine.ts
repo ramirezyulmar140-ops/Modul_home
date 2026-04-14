@@ -17,12 +17,12 @@ function getModel(id: HouseModelId) {
 }
 
 function addItem(items: EstimateLineItem[], name: string, quantity: number, unit: string, price: number) {
-    if (quantity <= 0 || price <= 0) return;
+    if (quantity <= 0 || price === 0) return;
     items.push({ name, quantity, unit, price, total: Math.round(quantity * price) });
 }
 
 function addFixed(items: EstimateLineItem[], name: string, price: number) {
-    if (price <= 0) return;
+    if (price === 0) return;
     items.push({ name, quantity: 1, unit: 'компл.', price, total: price });
 }
 
@@ -123,9 +123,9 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         if (floorDef) {
             const floorArea = model.area - (state.bathroomFloorArea || 0);
             if (floorArea > 0) {
-                const upgradePrice = Math.max(0, floorDef.price - 700);
-                if (upgradePrice > 0) {
-                    addItem(finishItems, `Напольное покрытие — ${floorDef.name} (доплата)`, floorArea, 'м²', upgradePrice);
+                const upgradePrice = floorDef.price - 700;
+                if (upgradePrice !== 0) {
+                    addItem(finishItems, `Напольное покрытие — ${floorDef.name} (${upgradePrice > 0 ? 'доплата' : 'экономия'})`, floorArea, 'м²', upgradePrice);
                 }
             }
             finishPassport.push(`Напольное покрытие: ${floorDef.name}`);
@@ -140,13 +140,15 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         finishPassport.push(`Доп. межкомнатные двери: ${state.extraInteriorDoorCount} шт.`);
     }
 
-    sections.push({ 
-        name: 'Внутренняя отделка', 
-        items: finishItems, 
-        total: sumItems(finishItems),
-        passportItems: finishPassport,
-        hideItems: true
-    });
+    if (finishItems.length > 0 || finishPassport.length > 0) {
+        sections.push({ 
+            name: 'Внутренняя отделка', 
+            items: finishItems, 
+            total: sumItems(finishItems),
+            passportItems: finishPassport.length > 0 ? finishPassport : undefined,
+            hideItems: true
+        });
+    }
 
     // ─── 3. Санузел ──────────────────
     const bathItems: EstimateLineItem[] = [];
@@ -156,18 +158,18 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         bathPassport.push(`Площадь санузла: ${state.bathroomFloorArea} м²`);
         if (state.bathroomFloorFinish !== 'none') {
             const bathFloor = BATHROOM_PRICES.floor[state.bathroomFloorFinish as keyof typeof BATHROOM_PRICES.floor];
-            const upgradePrice = Math.max(0, bathFloor.price - 1500);
-            if (upgradePrice > 0) {
-                addItem(bathItems, `Пол санузла — ${bathFloor.name} (доплата)`, state.bathroomFloorArea, 'м²', upgradePrice);
+            const upgradePrice = bathFloor.price - 1500;
+            if (upgradePrice !== 0) {
+                addItem(bathItems, `Пол санузла — ${bathFloor.name} (${upgradePrice > 0 ? 'доплата' : 'экономия'})`, state.bathroomFloorArea, 'м²', upgradePrice);
             }
             bathPassport.push(`Пол санузла: ${bathFloor.name}`);
         }
         if (state.bathroomWallFinish !== 'none') {
             const bathWallArea = Math.round(Math.sqrt(state.bathroomFloorArea) * 4 * 2.5 * 10) / 10;
             const bathWall = BATHROOM_PRICES.wall[state.bathroomWallFinish as keyof typeof BATHROOM_PRICES.wall];
-            const upgradePrice = Math.max(0, bathWall.price - 450);
-            if (upgradePrice > 0) {
-                addItem(bathItems, `Стены санузла — ${bathWall.name} (доплата)`, bathWallArea, 'м²', upgradePrice);
+            const upgradePrice = bathWall.price - 450;
+            if (upgradePrice !== 0) {
+                addItem(bathItems, `Стены санузла — ${bathWall.name} (${upgradePrice > 0 ? 'доплата' : 'экономия'})`, bathWallArea, 'м²', upgradePrice);
             }
             bathPassport.push(`Стены санузла: ${bathWall.name}`);
         }
@@ -242,16 +244,18 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         addItem(engItems, ENGINEERING_OPTIONS.warmFloorThermostat.name, state.warmFloorThermostats, 'шт', ENGINEERING_OPTIONS.warmFloorThermostat.price);
         engPassport.push(`Система отопления: водяной теплый пол (${state.warmFloorArea} м²) с котлом и автоматикой.`);
     } else {
-        engPassport.push('Система отопления: стандартные конвекторы (базовая комплектация).');
+        // Стандартная комплектация — описание уже в базовом разделе
     }
 
-    sections.push({ 
-        name: 'Инженерные решения', 
-        items: engItems, 
-        total: sumItems(engItems),
-        passportItems: engPassport,
-        hideItems: true
-    });
+    if (engItems.length > 0 || engPassport.length > 0) {
+        sections.push({ 
+            name: 'Инженерные решения', 
+            items: engItems, 
+            total: sumItems(engItems),
+            passportItems: engPassport.length > 0 ? engPassport : undefined,
+            hideItems: true
+        });
+    }
 
     // ─── 5. Каркас и доп. опции ──────────────────
     const frameItems: EstimateLineItem[] = [];
@@ -341,8 +345,6 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.facadePlanken) {
         addFixed(extItems, EXTERIOR_OPTIONS.facadePlanken.name, EXTERIOR_OPTIONS.facadePlanken.priceByModel[modelId]);
         extPassport.push('Фасад: полная отделка деревянным планкеном с покраской в 2 слоя.');
-    } else {
-        extPassport.push('Фасад: комбинированный (профлист + планкен на акцентных зонах).');
     }
     
     if (state.gutterPlastic) {

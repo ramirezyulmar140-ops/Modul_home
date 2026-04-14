@@ -9,7 +9,9 @@ import {
     SERVICE_CATALOG,
     BATHROOM_PRICES,
     FLOOR_PRICES,
-    FOUNDATION_ASSEMBLY_DATA
+    FOUNDATION_ASSEMBLY_DATA,
+    INTERIOR_FINISH_OPTIONS,
+    EXTERIOR_OPTIONS
 } from './houseCalculatorData';
 
 // ─── Reusable Counter Input ────────────────────────────
@@ -134,8 +136,17 @@ export default function HouseCalculator() {
 
     // Service constructor helpers
     const addService = (catalogItem: typeof SERVICE_CATALOG[0]) => {
-        const entry: ServiceEntry = { ...catalogItem, quantity: 1 };
-        setState(prev => ({ ...prev, services: [...prev.services, entry] }));
+        setState(prev => {
+            const existingIdx = prev.services.findIndex(s => s.id === catalogItem.id);
+            if (existingIdx >= 0) {
+                return {
+                    ...prev,
+                    services: prev.services.map((s, i) => i === existingIdx ? { ...s, quantity: s.quantity + 1 } : s)
+                };
+            }
+            const entry: ServiceEntry = { ...catalogItem, quantity: 1 };
+            return { ...prev, services: [...prev.services, entry] };
+        });
     };
     const updateServiceQty = (idx: number, qty: number) => {
         setState(prev => ({
@@ -268,8 +279,8 @@ export default function HouseCalculator() {
                                         ))}
                                     </select>
                                 </div>
-                                <Check label="Покраска стен (2 слоя Тиккурила)" checked={state.paintWalls} onChange={set} name="paintWalls" />
-                                <Check label="Покраска потолка (2 слоя Тиккурила)" checked={state.paintCeiling} onChange={set} name="paintCeiling" />
+                <Check label={`Покраска стен (2 слоя Тиккурила)`} checked={state.paintWalls} onChange={set} name="paintWalls" price={`${(INTERIOR_FINISH_OPTIONS.paintWalls.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
+                                <Check label={`Покраска потолка (2 слоя Тиккурила)`} checked={state.paintCeiling} onChange={set} name="paintCeiling" price={`${(INTERIOR_FINISH_OPTIONS.paintCeiling.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
                                 <Counter label="Доп. межкомнатная дверь (шт)" name="extraInteriorDoorCount" value={state.extraInteriorDoorCount} onChange={set} />
                             </div>
                         )}
@@ -395,8 +406,26 @@ export default function HouseCalculator() {
                                 <div className="pt-2 border-t">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Водосточная система</label>
                                     <div className="space-y-2">
-                                        <Check label="Водосточка (пластик)" checked={state.gutterPlastic} onChange={set} name="gutterPlastic" />
-                                        <Check label="Водосточка (металл)" checked={state.gutterMetal} onChange={set} name="gutterMetal" />
+                                        <label className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${!state.gutterPlastic && !state.gutterMetal ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
+                                            <input type="radio" name="gutter" checked={!state.gutterPlastic && !state.gutterMetal}
+                                                onChange={() => { set('gutterPlastic', false); set('gutterMetal', false); }}
+                                                className="w-5 h-5 text-amber-600 border-gray-300" />
+                                            <span className="text-xs font-medium text-gray-700 flex-1">Без водосточки</span>
+                                        </label>
+                                        <label className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${state.gutterPlastic ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
+                                            <input type="radio" name="gutter" checked={state.gutterPlastic}
+                                                onChange={() => { set('gutterPlastic', true); set('gutterMetal', false); }}
+                                                className="w-5 h-5 text-amber-600 border-gray-300" />
+                                            <span className="text-xs font-medium text-gray-700 flex-1">Водосточка (пластик)</span>
+                                            <span className="text-xs font-semibold text-amber-700 whitespace-nowrap">{(EXTERIOR_OPTIONS.gutterPlastic.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽</span>
+                                        </label>
+                                        <label className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${state.gutterMetal ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
+                                            <input type="radio" name="gutter" checked={state.gutterMetal}
+                                                onChange={() => { set('gutterPlastic', false); set('gutterMetal', true); }}
+                                                className="w-5 h-5 text-amber-600 border-gray-300" />
+                                            <span className="text-xs font-medium text-gray-700 flex-1">Водосточка (металл)</span>
+                                            <span className="text-xs font-semibold text-amber-700 whitespace-nowrap">{(EXTERIOR_OPTIONS.gutterMetal.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽</span>
+                                        </label>
                                     </div>
                                 </div>
                                 <Counter label="Обшивка цоколя планкеном (м²)" name="plinthPlankenArea" value={state.plinthPlankenArea} onChange={set} />

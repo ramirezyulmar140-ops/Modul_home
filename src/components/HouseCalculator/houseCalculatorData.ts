@@ -1,4 +1,4 @@
-import type { HouseModel, HouseModelId, DeliveryRoute, ServiceEntry } from './houseCalcTypes';
+import type { HouseModel, HouseModelId, ServiceEntry } from './houseCalcTypes';
 
 // ==========================================
 // 1. ТИПОВЫЕ ДОМА
@@ -53,93 +53,8 @@ export const FOUNDATION_ASSEMBLY_DATA: Record<HouseModelId, { piles: number; ass
     dom77: { piles: 28, assemblyPrice: 160000 },
     dom77o: { piles: 28, assemblyPrice: 160000 },
 };
-export const PILE_PRICE = 6950;
 
-// ==========================================
-// СТАНДАРТНАЯ КОМПЛЕКТАЦИЯ (Паспорт объекта)
-// Всё что входит в базовую цену дома
-// ==========================================
-export interface SpecSection {
-    title: string;
-    items: { label: string; value: string }[];
-}
 
-export const STANDARD_SPECS: SpecSection[] = [
-    {
-        title: 'Пол (изнутри → наружу)',
-        items: [
-            { label: 'Напольное покрытие', value: 'Ламинат KREAFORTA 33 класс, толщина 8 мм (бюджет ~700 ₽/м²)' },
-            { label: 'Напольное покрытие санузла', value: 'Кварц-винил 1 500 ₽/м²' },
-            { label: 'Подоснова', value: 'Фанера 18 мм' },
-            { label: 'Утеплитель', value: 'Knauf Insulation 037 Aquastatic, 150 мм' },
-            { label: 'Лаги', value: '145×45 мм, доски камерной сушки, калиброванные' },
-            { label: 'Ветрозащита', value: 'ONDUTISS PRO AM' },
-        ],
-    },
-    {
-        title: 'Стены (изнутри → наружу)',
-        items: [
-            { label: 'Внутренняя отделка', value: 'Фанера шлифованная 12 мм (без покраски)' },
-            { label: 'Отделка санузла', value: 'Кварц-винил серый' },
-            { label: 'Каркас', value: '145×45 мм, доски камерной сушки, калиброванные' },
-            { label: 'Утеплитель', value: 'Knauf Insulation 037 Aquastatic, 150 мм' },
-            { label: 'Ветрозащита', value: 'ONDUTISS PRO AM' },
-            { label: 'Контробрешётка', value: '20×45 мм, брусок камерной сушки' },
-            { label: 'Обрешётка / вентзазор', value: '20×90 мм, доски камерной сушки' },
-            { label: 'Внешняя отделка', value: 'Полимерное покрытие Vimatt (цвет: Палисандр)' },
-            { label: 'Отделка террасы и торцов спален', value: 'Планкен 90×18, сосна/ель, покраска 2 слоя DUFA Wood Protect' },
-        ],
-    },
-    {
-        title: 'Окна и двери',
-        items: [
-            { label: 'Профиль окон', value: 'ПВХ REHAU, профиль 70 мм, стеклопакет 40 мм' },
-            { label: 'Тип окон в спальне', value: 'Горизонтальные' },
-            { label: 'Внешняя ламинация окон', value: 'Нет (опция)' },
-            { label: 'Межкомнатные двери', value: 'Albero vinyl Рим' },
-        ],
-    },
-    {
-        title: 'Кровля (изнутри → наружу)',
-        items: [
-            { label: 'Внутренняя отделка потолка', value: 'Фанера (без покраски)' },
-            { label: 'Каркас', value: '145×45 мм, доски камерной сушки, калиброванные' },
-            { label: 'Утеплитель', value: 'Knauf Insulation 037 Aquastatic, 150 мм' },
-            { label: 'Ветрозащита', value: 'ONDUTISS PRO AM' },
-            { label: 'Контробрешётка', value: '45×45 мм, брусок камерной сушки' },
-            { label: 'Обрешётка', value: '25×100 мм, доски камерной сушки' },
-            { label: 'Кровельное покрытие', value: 'Профлист МП-20, толщина 0,45 мм, RAL 7024' },
-        ],
-    },
-    {
-        title: 'Коммуникации и оборудование',
-        items: [
-            { label: 'Электрика', value: 'Полный комплект' },
-            { label: 'Светильники внутренние', value: 'Встроенные GX53 Феррон — 18 шт' },
-            { label: 'Светильники террасы', value: 'Встроенные GX53 Феррон' },
-            { label: 'Розетки одинарные', value: 'Lezard Vesna, чёрные — 8 шт' },
-            { label: 'Розетки двойные', value: 'Lezard Vesna, чёрные — 6 шт' },
-            { label: 'Выключатели', value: 'Lezard Vesna, чёрные — 2 двухклав. + 2 одноклав.' },
-            { label: 'Вентиляция', value: 'Приточный клапан 100 мм, вытяжной вентилятор 100 мм, 4 отверстия' },
-            { label: 'Канализация', value: 'Труба 40–110 мм' },
-            { label: 'Водоснабжение', value: 'Армированный полипропилен 20 мм' },
-            { label: 'Кабель вводной', value: 'ВВГ НГ LS 5×6' },
-            { label: 'Кабель розеток', value: 'ВВГ НГ LS 3×2,5' },
-            { label: 'Кабель освещения', value: 'ВВГ НГ LS 2×1,5' },
-            { label: 'Распределительный щит', value: 'IEK' },
-            { label: 'Технический шкаф', value: 'Есть' },
-        ],
-    },
-    {
-        title: 'Дополнительно',
-        items: [
-            { label: 'Обработка террасы', value: 'Террасное масло Teknos Woodex Aqua Wood Oil, 2 слоя' },
-            { label: 'Сетка от грызунов', value: 'Установлена' },
-            { label: 'Лента для стыков', value: 'EUROVENT UNISAN' },
-            { label: 'Высота выводов воды (душ)', value: '1 200 мм' },
-        ],
-    },
-];
 
 // ==========================================
 // 2. ОПЦИИ — ИНЖЕНЕРНЫЕ ЭЛЕМЕНТЫ
@@ -401,60 +316,3 @@ export const SERVICE_CATALOG: Omit<ServiceEntry, 'quantity'>[] = [
     { id: 'module_install', category: 'Монтаж', name: 'Монтаж модуля (бани)', specs: '1 модуль', unit: 'шт', price: 5000 },
 ];
 
-// ==========================================
-// 10. ДОСТАВКА — маршруты из Берёзы
-// ==========================================
-export const DELIVERY_ROUTES: DeliveryRoute[] = [
-    { region: 'Свердловская', rateOversizePerKm: 500, rateStandardPerKm: 46, distance: 25, priceStandard1Tral: 1380, priceOversize1Tral: 15625, priceOversize2Tral: 31250 },
-    { region: 'Челябинская', rateOversizePerKm: 510, rateStandardPerKm: 222, distance: 224, priceStandard1Tral: 59674, priceOversize1Tral: 142800, priceOversize2Tral: 285600 },
-    { region: 'Курганская', rateOversizePerKm: 400, rateStandardPerKm: 160, distance: 380, priceStandard1Tral: 72960, priceOversize1Tral: 190000, priceOversize2Tral: 380000 },
-    { region: 'Тюменская', rateOversizePerKm: 400, rateStandardPerKm: 332, distance: 550, priceStandard1Tral: 219120, priceOversize1Tral: 275000, priceOversize2Tral: 550000 },
-    { region: 'Пермский край', rateOversizePerKm: 450, rateStandardPerKm: 380, distance: 576, priceStandard1Tral: 262656, priceOversize1Tral: 324000, priceOversize2Tral: 648000 },
-    { region: 'Башкортостан', rateOversizePerKm: 320, rateStandardPerKm: 160, distance: 590, priceStandard1Tral: 113280, priceOversize1Tral: 236000, priceOversize2Tral: 472000 },
-    { region: 'Удмуртская', rateOversizePerKm: 270, rateStandardPerKm: 160, distance: 700, priceStandard1Tral: 134400, priceOversize1Tral: 236250, priceOversize2Tral: 472500 },
-    { region: 'Кировская', rateOversizePerKm: 280, rateStandardPerKm: 210, distance: 870, priceStandard1Tral: 219240, priceOversize1Tral: 304500, priceOversize2Tral: 609000 },
-    { region: 'Оренбургская', rateOversizePerKm: 250, rateStandardPerKm: 95, distance: 930, priceStandard1Tral: 106020, priceOversize1Tral: 290625, priceOversize2Tral: 581250 },
-    { region: 'Татарстан', rateOversizePerKm: 270, rateStandardPerKm: 95, distance: 930, priceStandard1Tral: 106020, priceOversize1Tral: 313875, priceOversize2Tral: 627750 },
-    { region: 'Самарская', rateOversizePerKm: 235, rateStandardPerKm: 120, distance: 980, priceStandard1Tral: 141120, priceOversize1Tral: 287875, priceOversize2Tral: 575750 },
-    { region: 'Омская', rateOversizePerKm: 200, rateStandardPerKm: 140, distance: 1000, priceStandard1Tral: 168000, priceOversize1Tral: 250000, priceOversize2Tral: 500000 },
-    { region: 'Чувашская Республика', rateOversizePerKm: 250, rateStandardPerKm: 190, distance: 1050, priceStandard1Tral: 239400, priceOversize1Tral: 328125, priceOversize2Tral: 656250 },
-    { region: 'ХМАО', rateOversizePerKm: 230, rateStandardPerKm: 190, distance: 1100, priceStandard1Tral: 261250, priceOversize1Tral: 316250, priceOversize2Tral: 632500 },
-    { region: 'Ульяновская', rateOversizePerKm: 240, rateStandardPerKm: 100, distance: 1200, priceStandard1Tral: 144000, priceOversize1Tral: 360000, priceOversize2Tral: 720000 },
-    { region: 'Мордовия', rateOversizePerKm: 230, rateStandardPerKm: 85, distance: 1300, priceStandard1Tral: 132600, priceOversize1Tral: 373750, priceOversize2Tral: 747500 },
-    { region: 'Нижегородская', rateOversizePerKm: 210, rateStandardPerKm: 100, distance: 1310, priceStandard1Tral: 157200, priceOversize1Tral: 343875, priceOversize2Tral: 687750 },
-    { region: 'Саратовская', rateOversizePerKm: 190, rateStandardPerKm: 85, distance: 1350, priceStandard1Tral: 137700, priceOversize1Tral: 320625, priceOversize2Tral: 641250 },
-    { region: 'Владимирская', rateOversizePerKm: 190, rateStandardPerKm: 100, distance: 1520, priceStandard1Tral: 182400, priceOversize1Tral: 361000, priceOversize2Tral: 722000 },
-    { region: 'Ивановская', rateOversizePerKm: 210, rateStandardPerKm: 100, distance: 1560, priceStandard1Tral: 187200, priceOversize1Tral: 409500, priceOversize2Tral: 819000 },
-    { region: 'Новосибирская', rateOversizePerKm: 200, rateStandardPerKm: 140, distance: 1580, priceStandard1Tral: 265440, priceOversize1Tral: 395000, priceOversize2Tral: 790000 },
-    { region: 'Ярославская', rateOversizePerKm: 200, rateStandardPerKm: 100, distance: 1580, priceStandard1Tral: 189600, priceOversize1Tral: 395000, priceOversize2Tral: 790000 },
-    { region: 'Тамбовская', rateOversizePerKm: 210, rateStandardPerKm: 160, distance: 1630, priceStandard1Tral: 312960, priceOversize1Tral: 427875, priceOversize2Tral: 855750 },
-    { region: 'Рязанская', rateOversizePerKm: 190, rateStandardPerKm: 100, distance: 1700, priceStandard1Tral: 204000, priceOversize1Tral: 403750, priceOversize2Tral: 807500 },
-    { region: 'ЯНАО', rateOversizePerKm: 210, rateStandardPerKm: 140, distance: 1700, priceStandard1Tral: 285600, priceOversize1Tral: 446250, priceOversize2Tral: 892500 },
-    { region: 'Волгоградская', rateOversizePerKm: 220, rateStandardPerKm: 120, distance: 1750, priceStandard1Tral: 252000, priceOversize1Tral: 481250, priceOversize2Tral: 962500 },
-    { region: 'Калужская', rateOversizePerKm: 190, rateStandardPerKm: 120, distance: 1810, priceStandard1Tral: 260640, priceOversize1Tral: 429875, priceOversize2Tral: 859750 },
-    { region: 'МО (Москва)', rateOversizePerKm: 190, rateStandardPerKm: 100, distance: 1810, priceStandard1Tral: 217200, priceOversize1Tral: 429875, priceOversize2Tral: 859750 },
-    { region: 'Тульская', rateOversizePerKm: 190, rateStandardPerKm: 100, distance: 1840, priceStandard1Tral: 220800, priceOversize1Tral: 437000, priceOversize2Tral: 874000 },
-    { region: 'Томская', rateOversizePerKm: 220, rateStandardPerKm: 160, distance: 1860, priceStandard1Tral: 357120, priceOversize1Tral: 511500, priceOversize2Tral: 1023000 },
-    { region: 'Липецкая', rateOversizePerKm: 210, rateStandardPerKm: 160, distance: 1870, priceStandard1Tral: 359040, priceOversize1Tral: 490875, priceOversize2Tral: 981750 },
-    { region: 'Воронежская', rateOversizePerKm: 190, rateStandardPerKm: 120, distance: 1910, priceStandard1Tral: 275040, priceOversize1Tral: 453625, priceOversize2Tral: 907250 },
-    { region: 'Алтайский край', rateOversizePerKm: 210, rateStandardPerKm: 0, distance: 2020, priceStandard1Tral: 0, priceOversize1Tral: 530250, priceOversize2Tral: 1060500 },
-    { region: 'Тверская', rateOversizePerKm: 200, rateStandardPerKm: 100, distance: 2100, priceStandard1Tral: 252000, priceOversize1Tral: 525000, priceOversize2Tral: 1050000 },
-    { region: 'Кемеровская', rateOversizePerKm: 200, rateStandardPerKm: 140, distance: 2130, priceStandard1Tral: 357840, priceOversize1Tral: 532500, priceOversize2Tral: 1065000 },
-    { region: 'Белгородская', rateOversizePerKm: 210, rateStandardPerKm: 0, distance: 2170, priceStandard1Tral: 0, priceOversize1Tral: 569625, priceOversize2Tral: 1139250 },
-    { region: 'Курская', rateOversizePerKm: 200, rateStandardPerKm: 120, distance: 2250, priceStandard1Tral: 324000, priceOversize1Tral: 562500, priceOversize2Tral: 1125000 },
-    { region: 'Ростовская', rateOversizePerKm: 190, rateStandardPerKm: 110, distance: 2270, priceStandard1Tral: 299640, priceOversize1Tral: 539125, priceOversize2Tral: 1078250 },
-    { region: 'ЛО (Ленингр. обл.)', rateOversizePerKm: 180, rateStandardPerKm: 120, distance: 2280, priceStandard1Tral: 328320, priceOversize1Tral: 513000, priceOversize2Tral: 1026000 },
-    { region: 'Брянская', rateOversizePerKm: 210, rateStandardPerKm: 140, distance: 2300, priceStandard1Tral: 386400, priceOversize1Tral: 603750, priceOversize2Tral: 1207500 },
-    { region: 'Красноярский край', rateOversizePerKm: 200, rateStandardPerKm: 140, distance: 2350, priceStandard1Tral: 394800, priceOversize1Tral: 587500, priceOversize2Tral: 1175000 },
-    { region: 'Смоленская', rateOversizePerKm: 180, rateStandardPerKm: 100, distance: 2400, priceStandard1Tral: 288000, priceOversize1Tral: 540000, priceOversize2Tral: 1080000 },
-    { region: 'Крым', rateOversizePerKm: 210, rateStandardPerKm: 110, distance: 2410, priceStandard1Tral: 318120, priceOversize1Tral: 632625, priceOversize2Tral: 1265250 },
-    { region: 'Ставропольский край', rateOversizePerKm: 200, rateStandardPerKm: 110, distance: 2440, priceStandard1Tral: 322080, priceOversize1Tral: 610000, priceOversize2Tral: 1220000 },
-    { region: 'Республика Сев. Осетия', rateOversizePerKm: 235, rateStandardPerKm: 140, distance: 2570, priceStandard1Tral: 431760, priceOversize1Tral: 754938, priceOversize2Tral: 1509875 },
-    { region: 'Хакасия', rateOversizePerKm: 200, rateStandardPerKm: 140, distance: 2590, priceStandard1Tral: 435120, priceOversize1Tral: 647500, priceOversize2Tral: 1295000 },
-    { region: 'Краснодарский край', rateOversizePerKm: 210, rateStandardPerKm: 110, distance: 2600, priceStandard1Tral: 343200, priceOversize1Tral: 682500, priceOversize2Tral: 1365000 },
-    { region: 'Дагестан', rateOversizePerKm: 250, rateStandardPerKm: 160, distance: 2700, priceStandard1Tral: 518400, priceOversize1Tral: 843750, priceOversize2Tral: 1687500 },
-    { region: 'Мурманская', rateOversizePerKm: 220, rateStandardPerKm: 120, distance: 3100, priceStandard1Tral: 446400, priceOversize1Tral: 852500, priceOversize2Tral: 1705000 },
-    { region: 'Иркутская', rateOversizePerKm: 210, rateStandardPerKm: 110, distance: 3800, priceStandard1Tral: 501600, priceOversize1Tral: 997500, priceOversize2Tral: 1995000 },
-    { region: 'Хабаровский', rateOversizePerKm: 170, rateStandardPerKm: 110, distance: 6600, priceStandard1Tral: 871200, priceOversize1Tral: 1402500, priceOversize2Tral: 2805000 },
-    { region: 'Приморский', rateOversizePerKm: 170, rateStandardPerKm: 110, distance: 8400, priceStandard1Tral: 1108800, priceOversize1Tral: 1785000, priceOversize2Tral: 3570000 },
-];
