@@ -55,13 +55,10 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         addItem(foundationItems, `Свайно-винтовой фундамент (d=73мм, L=${state.pileLength}мм)`, foundationData.piles, 'шт', pilePrice);
     }
     if (state.addAssembly) {
-        if (state.useDeliveryMap && state.deliveryDistance > 50) {
-            const extraKm = state.deliveryDistance - 50;
-            addFixed(foundationItems, `Монтаж и сборка дома. Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). Расстояние: ${state.deliveryDistance} км (Перепробег: ${extraKm} км х ${model.modulesCount} мод.)`, foundationData.assemblyPrice + state.deliveryPrice);
-        } else if (state.useDeliveryMap && state.deliveryDistance > 0) {
-            addFixed(foundationItems, `Монтаж и сборка дома. Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). Расстояние: ${state.deliveryDistance} км (в пределах лимита)`, foundationData.assemblyPrice);
+        if (state.useDeliveryMap && state.deliveryDistance > 0) {
+            addFixed(foundationItems, `Монтаж и сборка дома. Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). Расстояние: ${state.deliveryDistance} км (Расчет: ${state.deliveryDistance} км х ${model.modulesCount} мод.)`, foundationData.assemblyPrice + state.deliveryPrice);
         } else {
-            addFixed(foundationItems, `Монтаж дома на участке (удаленность до 50 км)`, foundationData.assemblyPrice);
+            addFixed(foundationItems, `Монтаж дома на участке`, foundationData.assemblyPrice);
         }
     }
     if (foundationItems.length > 0) {

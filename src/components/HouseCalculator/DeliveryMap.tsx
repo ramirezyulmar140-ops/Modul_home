@@ -14,7 +14,6 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
 
     // Базовые настройки
     const BASE_ADDRESS = 'Свердловская обл., пгт. Верхнее Дуброво, ул. Малиновая, 6';
-    const FREE_DISTANCE_KM = 50; 
     const PRICE_PER_KM_PER_MODULE = 100; // руб/км за модуль (можно будет скорректировать)
 
     const [ymapsInstance, setYmapsInstance] = useState<any>(null);
@@ -66,11 +65,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                 onChange('deliveryAddress', searchQuery);
                 onChange('deliveryDistance', distanceKm);
                 
-                let price = 0;
-                if (distanceKm > FREE_DISTANCE_KM) {
-                    const extraKm = distanceKm - FREE_DISTANCE_KM;
-                    price = extraKm * PRICE_PER_KM_PER_MODULE * modulesCount;
-                }
+                const price = distanceKm * PRICE_PER_KM_PER_MODULE * modulesCount;
                 onChange('deliveryPrice', price);
                 
                 mapInstance.setBounds(route.getWayPoints().getBounds(), { checkZoomRange: true });
@@ -138,7 +133,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 defaultState={{ center: [56.761001, 61.054366], zoom: 9 }}
                                 width="100%"
                                 height="100%"
-                                onLoad={(ymaps) => {
+                                onLoad={(ymaps: any) => {
                                     setYmapsInstance(ymaps);
                                     // Инициализируем подсказки сразу при загрузке API
                                     if (document.getElementById('suggest-input') && !document.getElementById('suggest-input-ready')) {
@@ -177,15 +172,14 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 <div>
                                     <p className="text-gray-500 text-xs mb-1">Расстояние по трассе</p>
                                     <p className="font-bold text-amber-600 text-lg">{state.deliveryDistance} км</p>
-                                    <p className="text-xs text-gray-400">Включено: {FREE_DISTANCE_KM} км</p>
                                 </div>
                                 <div>
-                                    <p className="text-gray-500 text-xs mb-1">Стоимость доставки сверх лимита</p>
+                                    <p className="text-gray-500 text-xs mb-1">Стоимость доставки</p>
                                     <div className="flex items-baseline gap-2">
                                         <p className="font-bold text-gray-900 text-lg">{state.deliveryPrice.toLocaleString()} ₽</p>
                                     </div>
                                     <p className="text-xs text-gray-400">
-                                        ( {(Math.max(0, state.deliveryDistance - FREE_DISTANCE_KM))} км × {PRICE_PER_KM_PER_MODULE}₽ × {modulesCount} модуля )
+                                        ( {state.deliveryDistance} км × {PRICE_PER_KM_PER_MODULE}₽ × {modulesCount} модуля )
                                     </p>
                                 </div>
                             </div>
