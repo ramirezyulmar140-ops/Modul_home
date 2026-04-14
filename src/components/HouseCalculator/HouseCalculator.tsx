@@ -801,13 +801,22 @@ export default function HouseCalculator() {
                                         ))}
 
                                         {/* Object Passport (Descriptions) — visible only on print */}
-                                        {section.passportItems && section.passportItems.map((pItem, pIdx) => (
-                                            <tr key={`passport-${pIdx}`} className="hidden print:table-row border-b last:border-none">
-                                                <td className="px-10 py-1.5 text-gray-700 italic text-sm" colSpan={5}>
-                                                    • {pItem}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {section.passportItems && section.passportItems.map((pItem, pIdx) => {
+                                            const isHeader = pItem.startsWith('### ');
+                                            return (
+                                                <tr key={`passport-${pIdx}`} className="hidden print:table-row border-b border-gray-50 last:border-none">
+                                                    {isHeader ? (
+                                                        <td className="px-6 py-2 pb-1 pt-4 text-gray-900 font-bold text-sm" colSpan={5}>
+                                                            {pItem.replace('### ', '')}
+                                                        </td>
+                                                    ) : (
+                                                        <td className="px-10 py-1 text-gray-700 italic text-sm" colSpan={5}>
+                                                            • {pItem}
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            );
+                                        })}
                                     </React.Fragment>
                                 ))}
 
