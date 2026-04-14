@@ -222,31 +222,38 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                         <div className="space-y-3">
                             {vehicles.map((entry, idx) => {
                                 return (
-                                    <div key={idx} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded p-3">
+                                    <div key={idx} className="flex flex-col md:flex-row md:items-center gap-3 bg-gray-50 border border-gray-200 rounded p-3">
                                         <select
                                             value={entry.vehicleId}
                                             onChange={(e) => changeVehicleType(idx, e.target.value)}
-                                            className="flex-1 bg-white border border-gray-300 rounded py-2 px-3 text-sm focus:ring-amber-500 focus:border-amber-500"
+                                            className="w-full md:flex-1 bg-white border border-gray-300 rounded py-2.5 px-3 text-sm focus:ring-amber-500 focus:border-amber-500"
                                         >
                                             {DELIVERY_VEHICLES.map(dv => (
                                                 <option key={dv.id} value={dv.id}>{dv.name}</option>
                                             ))}
                                         </select>
-                                        <div className="flex items-center gap-1.5 bg-white border border-gray-300 rounded p-1">
-                                            <button onClick={() => changeVehicleQty(idx, entry.qty - 1)}
-                                                className="w-8 h-8 rounded text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 font-bold transition-colors">−</button>
-                                            <input type="number" value={entry.qty}
-                                                onChange={e => changeVehicleQty(idx, parseInt(e.target.value) || 1)}
-                                                className="w-12 text-center text-sm font-medium focus:outline-none" />
-                                            <button onClick={() => changeVehicleQty(idx, entry.qty + 1)}
-                                                className="w-8 h-8 rounded text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 font-bold transition-colors">+</button>
+                                        <div className="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
+                                            <div className="flex items-center border border-gray-300 rounded bg-white overflow-hidden shadow-sm h-[38px]">
+                                                <button onClick={() => changeVehicleQty(idx, entry.qty - 1)}
+                                                    className="w-10 h-full flex items-center justify-center text-gray-700 bg-gray-100 hover:bg-gray-200 font-bold transition-colors">
+                                                    −
+                                                </button>
+                                                <div className="w-px h-full bg-gray-300"></div>
+                                                <input type="text" value={entry.qty} readOnly
+                                                    className="w-12 h-full text-center text-sm font-bold focus:outline-none text-gray-800" />
+                                                <div className="w-px h-full bg-gray-300"></div>
+                                                <button onClick={() => changeVehicleQty(idx, entry.qty + 1)}
+                                                    className="w-10 h-full flex items-center justify-center text-gray-700 bg-gray-100 hover:bg-gray-200 font-bold transition-colors">
+                                                    +
+                                                </button>
+                                            </div>
+                                            {vehicles.length > 1 && (
+                                                <button onClick={() => removeVehicle(idx)}
+                                                    className="w-10 h-[38px] flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors text-lg border border-transparent hover:border-red-200" title="Удалить машину">
+                                                    ✕
+                                                </button>
+                                            )}
                                         </div>
-                                        {vehicles.length > 1 && (
-                                            <button onClick={() => removeVehicle(idx)}
-                                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors text-lg" title="Удалить машину">
-                                                ✕
-                                            </button>
-                                        )}
                                     </div>
                                 );
                             })}
