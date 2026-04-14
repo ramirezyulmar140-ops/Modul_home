@@ -36,16 +36,110 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     const model = getModel(state.selectedHouse);
     const modelId = state.selectedHouse;
 
-    // ─── 1. Базовая стоимость дома ──────────────────
-    const baseItems: EstimateLineItem[] = [];
-    addFixed(baseItems, `${model.name} — базовая комплектация`, model.basePrice);
-    sections.push({ 
-        name: 'Базовая стоимость дома', 
-        items: baseItems, 
-        total: model.basePrice,
-        passportItems: [], // Will be filled at the end
-        hideItems: true
-    });
+    // ─── Unified Specification (Passport) — now top-level sections ───
+    const spec: Record<number, { title: string; items: string[] }> = {
+        1: { title: 'Перекрытие пола', items: [] },
+        2: { title: 'Наружные стены', items: [] },
+        3: { title: 'Стены внутренние (Перегородки)', items: [] },
+        4: { title: 'Крыша', items: [] },
+        5: { title: 'Окна и Двери', items: [] },
+        6: { title: 'Внутренняя отделка', items: [] },
+        7: { title: 'Инженерные сети', items: [] },
+        8: { title: 'Расходные материалы', items: [] },
+    };
+
+    spec[1].items.push('Нижняя силовая обвязка из пакета 3-х досок 150×50 мм');
+    spec[1].items.push('Лаги пола из сухой строганой доски 150×50 мм');
+    spec[1].items.push('Черновой пол из плит OSB толщиной 22 мм');
+    spec[1].items.push('Утепление пола минеральным утеплителем толщиной 150 мм');
+    if (state.mouseMesh) spec[1].items.push('Металлическая защитная сетка от грызунов ЦПВС');
+    spec[1].items.push('Ветрозащитная мембрана по нижней части пола');
+
+    spec[2].items.push('Несущий каркас наружных стен из сухой строганой доски 150×50 мм');
+    spec[2].items.push(`Утепление наружных стен минеральным утеплителем толщиной ${state.extraInsulation ? 200 : 150} мм`);
+    if (state.facadePlanken) {
+        spec[2].items.push('Отделка фасада: полная отделка деревянным планкеном с покраской в 2 слоя');
+    } else {
+        spec[2].items.push('Отделка фронтонов фасадной доской планкен');
+        spec[2].items.push('Отделка боковых стен фасада металлическим профилированным листом');
+    }
+    spec[2].items.push('Ветрозащитная мембрана наружных стен');
+
+    spec[3].items.push('Каркас внутренних перегородок из сухой строганой доски 100×50 мм');
+    spec[3].items.push('Звукоизоляция внутренних перегородок толщиной 100 мм');
+    if (state.removePartition) spec[3].items.push('Свободная планировка: удаление межмодульных перегородок');
+    if (state.extraPartitionLength > 0) spec[3].items.push(`Доп. перегородки: ${state.extraPartitionLength} м.п.`);
+
+    spec[4].items.push('Стропильная система крыши из сухой строганой доски 150×50 мм');
+    spec[4].items.push('Обрешетка крыши из сухой строганой доски 100×25 мм');
+    spec[4].items.push('Кровельное покрытие из металлочерепицы или профилированного листа');
+    spec[4].items.push('Утепление кровли минеральным утеплителем толщиной 150 мм');
+    spec[4].items.push('Ветровлагозащитная мембрана кровли');
+    if (state.gutterPlastic) spec[4].items.push('Водосточная система: ПВХ Döcke (Premium)');
+    if (state.gutterMetal) spec[4].items.push('Водосточная система: металлическая Grand Line (Lux)');
+
+    let winDesc = 'Окна: ПВХ REHAU 70 мм, энергосберегающий стеклопакет 40 мм';
+    if (state.windowLamination) winDesc += ' (ламинация снаружи RAL7024)';
+    if (state.windowLaminationInside) winDesc += ' (ламинация внутри)';
+    spec[5].items.push(winDesc);
+    if (state.panoramicTrapezoidCount > 0) spec[5].items.push(`Панорамное остекление: трапециевидные окна (${state.panoramicTrapezoidCount} шт.)`);
+    if (state.extraPanoramicSection) spec[5].items.push('Доп. секция панорамного остекления в гостиной');
+    if (state.safeDoor) {
+        spec[5].items.push('Входная группа: сейф-дверь с терморазрывом + крыльцо со ступенями');
+    } else {
+        spec[5].items.push('Дверь на террасу (ПВХ с остеклением)');
+    }
+    spec[5].items.push(`Межкомнатные двери с фурнитурой${state.extraInteriorDoorCount > 0 ? ` (+${state.extraInteriorDoorCount} доп.)` : ''}`);
+
+    spec[6].items.push('Подложка под напольное покрытие');
+    if (state.floorFinish === 'none') {
+        spec[6].items.push('Финишное напольное покрытие: Ламинат 33 класс (стандарт)');
+    } else {
+        const floorDef = FLOOR_PRICES[state.floorFinish as keyof typeof FLOOR_PRICES];
+        spec[6].items.push(`Финишное напольное покрытие: ${floorDef?.name || state.floorFinish}`);
+    }
+    let bathFloor = 'кварцвинил';
+    if (state.bathroomFloorFinish !== 'none') {
+        const bf = BATHROOM_PRICES.floor[state.bathroomFloorFinish as keyof typeof BATHROOM_PRICES.floor];
+        bathFloor = bf?.name || state.bathroomFloorFinish;
+    }
+    spec[6].items.push(`Влагостойкое напольное покрытие санузла: ${bathFloor}`);
+    const wallMap: Record<string, string> = { none: 'шлифованная фанера (стандарт)', vagonka: 'вагонка штиль (хвоя)', imitBrus: 'имитация бруса', gipsokarton: 'подготовка под чистовую (ГКЛ)' };
+    spec[6].items.push(`Отделка стен: ${wallMap[state.wallFinish as keyof typeof wallMap] || state.wallFinish}${state.paintWalls ? ' + покраска в 2 слоя' : ''}`);
+    let bathWall = 'фанера + зона душевой из кварцвинила (стандарт)';
+    if (state.bathroomWallFinish !== 'none') {
+        const bw = BATHROOM_PRICES.wall[state.bathroomWallFinish as keyof typeof BATHROOM_PRICES.wall];
+        bathWall = bw?.name || state.bathroomWallFinish;
+    }
+    spec[6].items.push(`Отделка стен санузла: ${bathWall}`);
+    const ceilMap: Record<string, string> = { none: 'натяжной потолок белый матовый (стандарт)', fanera: 'премиальная фанера', imitBrus: 'имитация бруса / вагонка' };
+    spec[6].items.push(`Отделка потолка: ${ceilMap[state.ceilingFinish as keyof typeof ceilMap] || state.ceilingFinish}${state.paintCeiling && state.ceilingFinish !== 'none' ? ' + покраска в 2 слоя' : ''}`);
+
+    spec[7].items.push('Скрытая электроразводка, розетки, выключатели, светильники');
+    if (state.heatingSystem === 'electric') {
+        spec[7].items.push(`Система отопления: электрический теплый пол ЗЕБРА (${state.warmFloorArea} м²) + терморегуляторы`);
+    } else if (state.heatingSystem === 'water') {
+        spec[7].items.push(`Система отопления: водяной теплый пол (${state.warmFloorArea} м²) + котел и автоматика`);
+    } else {
+        spec[7].items.push('Система отопления: электрические конвекторы (стандарт)');
+    }
+    spec[7].items.push('Сантехника и скрытая разводка коммуникаций ХВС/ГВС/Канализация');
+    if (state.acPrepCount > 0) spec[7].items.push(`Подготовка под кондиционеры: ${state.acPrepCount} шт.`);
+    if (state.breezer80Count + state.breezer100Count > 0) spec[7].items.push(`Приточные установки Ballu: ${state.breezer80Count + state.breezer100Count} шт.`);
+
+    spec[8].items.push('Расходные и вспомогательные материалы для строительства и монтажа');
+
+    // Create sections for technical categories
+    for (const key of [1, 2, 3, 4, 5, 6, 7, 8]) {
+        const cat = spec[key];
+        sections.push({
+            name: cat.title,
+            items: key === 1 ? [{ name: `${model.name} — базовая комплектация`, quantity: 1, unit: 'компл.', price: model.basePrice, total: model.basePrice }] : [],
+            total: key === 1 ? model.basePrice : 0,
+            passportItems: cat.items,
+            hideItems: true
+        });
+    }
 
     // ─── 1.5. Фундамент и монтаж ──────────────────
     const foundationItems: EstimateLineItem[] = [];
@@ -235,103 +329,6 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (customItems.length > 0) {
         sections.push({ name: 'Дополнительные опции', items: customItems, total: sumItems(customItems), hideItems: false });
     }
-
-    // ─── Unified Specification (Passport) ───
-    const spec: Record<number, string[]> = {
-        1: ['### 1. Перекрытие пола'],
-        2: ['### 2. Наружные стены'],
-        3: ['### 3. Стены внутренние (Перегородки)'],
-        4: ['### 4. Крыша'],
-        5: ['### 5. Окна и Двери'],
-        6: ['### 6. Внутренняя отделка'],
-        7: ['### 7. Инженерные сети'],
-        8: ['### 8. Расходные материалы'],
-    };
-
-    spec[1].push('Нижняя силовая обвязка из пакета 3-х досок 150×50 мм');
-    spec[1].push('Лаги пола из сухой строганой доски 150×50 мм');
-    spec[1].push('Черновой пол из плит OSB толщиной 22 мм');
-    spec[1].push('Утепление пола минеральным утеплителем толщиной 150 мм');
-    if (state.mouseMesh) spec[1].push('Металлическая защитная сетка от грызунов ЦПВС');
-    spec[1].push('Ветрозащитная мембрана по нижней части пола');
-
-    spec[2].push('Несущий каркас наружных стен из сухой строганой доски 150×50 мм');
-    spec[2].push(`Утепление наружных стен минеральным утеплителем толщиной ${state.extraInsulation ? 200 : 150} мм`);
-    if (state.facadePlanken) {
-        spec[2].push('Отделка фасада: полная отделка деревянным планкеном с покраской в 2 слоя');
-    } else {
-        spec[2].push('Отделка фронтонов фасадной доской планкен');
-        spec[2].push('Отделка боковых стен фасада металлическим профилированным листом');
-    }
-    spec[2].push('Ветрозащитная мембрана наружных стен');
-
-    spec[3].push('Каркас внутренних перегородок из сухой строганой доски 100×50 мм');
-    spec[3].push('Звукоизоляция внутренних перегородок толщиной 100 мм');
-    if (state.removePartition) spec[3].push('Свободная планировка: удаление межмодульных перегородок');
-    if (state.extraPartitionLength > 0) spec[3].push(`Доп. перегородки: ${state.extraPartitionLength} м.п.`);
-
-    spec[4].push('Стропильная система крыши из сухой строганой доски 150×50 мм');
-    spec[4].push('Обрешетка крыши из сухой строганой доски 100×25 мм');
-    spec[4].push('Кровельное покрытие из металлочерепицы или профилированного листа');
-    spec[4].push('Утепление кровли минеральным утеплителем толщиной 150 мм');
-    spec[4].push('Ветровлагозащитная мембрана кровли');
-    if (state.gutterPlastic) spec[4].push('Водосточная система: ПВХ Döcke (Premium)');
-    if (state.gutterMetal) spec[4].push('Водосточная система: металлическая Grand Line (Lux)');
-
-    let winDesc = 'Окна: ПВХ REHAU 70 мм, энергосберегающий стеклопакет 40 мм';
-    if (state.windowLamination) winDesc += ' (ламинация снаружи RAL7024)';
-    if (state.windowLaminationInside) winDesc += ' (ламинация внутри)';
-    spec[5].push(winDesc);
-    if (state.panoramicTrapezoidCount > 0) spec[5].push(`Панорамное остекление: трапециевидные окна (${state.panoramicTrapezoidCount} шт.)`);
-    if (state.extraPanoramicSection) spec[5].push('Доп. секция панорамного остекления в гостиной');
-    if (state.safeDoor) {
-        spec[5].push('Входная группа: сейф-дверь с терморазрывом + крыльцо со ступенями');
-    } else {
-        spec[5].push('Дверь на террасу (ПВХ с остеклением)');
-    }
-    spec[5].push(`Межкомнатные двери с фурнитурой${state.extraInteriorDoorCount > 0 ? ` (+${state.extraInteriorDoorCount} доп.)` : ''}`);
-
-    spec[6].push('Подложка под напольное покрытие');
-    if (state.floorFinish === 'none') {
-        spec[6].push('Финишное напольное покрытие: Ламинат 33 класс (стандарт)');
-    } else {
-        const floorDef = FLOOR_PRICES[state.floorFinish as keyof typeof FLOOR_PRICES];
-        spec[6].push(`Финишное напольное покрытие: ${floorDef?.name || state.floorFinish}`);
-    }
-    let bathFloor = 'кварцвинил';
-    if (state.bathroomFloorFinish !== 'none') {
-        const bf = BATHROOM_PRICES.floor[state.bathroomFloorFinish as keyof typeof BATHROOM_PRICES.floor];
-        bathFloor = bf?.name || state.bathroomFloorFinish;
-    }
-    spec[6].push(`Влагостойкое напольное покрытие санузла: ${bathFloor}`);
-    const wallMap: Record<string, string> = { none: 'шлифованная фанера (стандарт)', vagonka: 'вагонка штиль (хвоя)', imitBrus: 'имитация бруса', gipsokarton: 'подготовка под чистовую (ГКЛ)' };
-    spec[6].push(`Отделка стен: ${wallMap[state.wallFinish as keyof typeof wallMap] || state.wallFinish}${state.paintWalls ? ' + покраска в 2 слоя' : ''}`);
-    let bathWall = 'фанера + зона душевой из кварцвинила (стандарт)';
-    if (state.bathroomWallFinish !== 'none') {
-        const bw = BATHROOM_PRICES.wall[state.bathroomWallFinish as keyof typeof BATHROOM_PRICES.wall];
-        bathWall = bw?.name || state.bathroomWallFinish;
-    }
-    spec[6].push(`Отделка стен санузла: ${bathWall}`);
-    const ceilMap: Record<string, string> = { none: 'натяжной потолок белый матовый (стандарт)', fanera: 'премиальная фанера', imitBrus: 'имитация бруса / вагонка' };
-    spec[6].push(`Отделка потолка: ${ceilMap[state.ceilingFinish as keyof typeof ceilMap] || state.ceilingFinish}${state.paintCeiling && state.ceilingFinish !== 'none' ? ' + покраска в 2 слоя' : ''}`);
-
-    spec[7].push('Скрытая электроразводка, розетки, выключатели, светильники');
-    if (state.heatingSystem === 'electric') {
-        spec[7].push(`Система отопления: электрический теплый пол ЗЕБРА (${state.warmFloorArea} м²) + терморегуляторы`);
-    } else if (state.heatingSystem === 'water') {
-        spec[7].push(`Система отопления: водяной теплый пол (${state.warmFloorArea} м²) + котел и автоматика`);
-    } else {
-        spec[7].push('Система отопления: электрические конвекторы (стандарт)');
-    }
-    spec[7].push('Сантехника и скрытая разводка коммуникаций ХВС/ГВС/Канализация');
-    if (state.acPrepCount > 0) spec[7].push(`Подготовка под кондиционеры: ${state.acPrepCount} шт.`);
-    if (state.breezer80Count + state.breezer100Count > 0) spec[7].push(`Приточные установки Ballu: ${state.breezer80Count + state.breezer100Count} шт.`);
-
-    spec[8].push('Расходные и вспомогательные материалы для строительства и монтажа');
-
-    const unifiedPassport: string[] = [];
-    Object.values(spec).forEach(items => unifiedPassport.push(...items));
-    if (sections.length > 0) sections[0].passportItems = unifiedPassport;
 
     let grandTotal = sections.reduce((s, sec) => s + sec.total, 0);
     if (state.discountPercent > 0) grandTotal = grandTotal - Math.ceil(grandTotal * (state.discountPercent / 100));
