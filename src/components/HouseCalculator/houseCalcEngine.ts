@@ -2,7 +2,6 @@ import type { HouseCalcState, EstimateResult, EstimateSection, EstimateLineItem,
 import {
     HOUSE_MODELS,
     ENGINEERING_OPTIONS,
-    WARM_FLOOR_PRICES,
     FRAME_OPTIONS,
     WINDOW_OPTIONS,
     EXTERIOR_OPTIONS,
@@ -11,7 +10,6 @@ import {
     BATHROOM_PRICES,
     FLOOR_PRICES,
     FOUNDATION_ASSEMBLY_DATA,
-    PILE_PRICE,
 } from './houseCalculatorData';
 
 function getModel(id: HouseModelId) {

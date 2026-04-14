@@ -1,19 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import type { HouseCalcState, TabId, CustomItem, ServiceEntry } from './houseCalcTypes';
+import type { HouseCalcState, TabId, CustomItem, ServiceEntry, HouseModelId } from './houseCalcTypes';
 import { calculateHouseEstimate } from './houseCalcEngine';
 import {
     HOUSE_MODELS,
-    STANDARD_SPECS,
-    ENGINEERING_OPTIONS,
     FRAME_OPTIONS,
     WINDOW_OPTIONS,
-    EXTERIOR_OPTIONS,
     TERRACE_OPTIONS,
     SERVICE_CATALOG,
     BATHROOM_PRICES,
     FLOOR_PRICES,
-    FOUNDATION_ASSEMBLY_DATA,
-    PILE_PRICE
+    FOUNDATION_ASSEMBLY_DATA
 } from './houseCalculatorData';
 
 // ─── Reusable Counter Input ────────────────────────────
