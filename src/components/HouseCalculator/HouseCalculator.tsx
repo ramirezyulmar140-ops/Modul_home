@@ -266,7 +266,7 @@ export default function HouseCalculator() {
                                     <label className="block text-xs font-medium text-gray-700 mb-1">Отделка стен</label>
                                     <select value={state.wallFinish} onChange={e => set('wallFinish', e.target.value)}
                                         style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
-                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
+                                        className={`w-full border rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F] ${state.wallFinish !== 'none' ? 'bg-[#F2F8F4] border-[#4BD16F]' : 'bg-white border-gray-100'}`}>
                                         <option value="none">Фанера шлифованная 12 мм (в базе)</option>
                                         <option value="gipsokarton">Гипсокартон</option>
                                         <option value="vagonka">Вагонка штиль</option>
@@ -277,7 +277,7 @@ export default function HouseCalculator() {
                                     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Отделка потолка</label>
                                     <select value={state.ceilingFinish} onChange={e => set('ceilingFinish', e.target.value)}
                                         style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
-                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F]">
+                                        className={`w-full border rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F] ${state.ceilingFinish !== 'none' ? 'bg-[#F2F8F4] border-[#4BD16F]' : 'bg-white border-gray-100'}`}>
                                         <option value="none">Натяжной потолок (в базе)</option>
                                         <option value="fanera">Фанера</option>
                                         <option value="imitBrus">Имитация бруса / вагонка штиль</option>
@@ -287,7 +287,7 @@ export default function HouseCalculator() {
                                     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Напольное покрытие</label>
                                     <select value={state.floorFinish} onChange={e => set('floorFinish', e.target.value)}
                                         style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
-                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
+                                        className={`w-full border rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F] ${state.floorFinish !== 'none' ? 'bg-[#F2F8F4] border-[#4BD16F]' : 'bg-white border-gray-100'}`}>
                                         <option value="none">Ламинат KREAFORTA 33 кл. (в базе)</option>
                                         {Object.entries(FLOOR_PRICES).map(([key, val]) => (
                                             <option key={key} value={key}>{val.name} ({val.price} ₽/м²)</option>
@@ -345,7 +345,7 @@ export default function HouseCalculator() {
                                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Отопление (Тёплый пол)</label>
                                         <select value={state.heatingSystem} onChange={e => set('heatingSystem', e.target.value)}
                                             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
-                                            className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F]">
+                                            className={`w-full border rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F] ${state.heatingSystem !== 'none' ? 'bg-[#F2F8F4] border-[#4BD16F]' : 'bg-white border-gray-100'}`}>
                                             <option value="none">Без тёплого пола (в базе)</option>
                                             <option value="electric">Тёплый пол электрический модульный ЗЕБРА ЭВО-300 WF</option>
                                             <option value="water">Водяной тёплый пол (котёл, коллектор, трубы, ЭППС)</option>
@@ -555,7 +555,7 @@ export default function HouseCalculator() {
                                         return (
                                             <div key={cat} className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
                                                 <button onClick={() => toggleCategory(cat)}
-                                                    className={`w-full flex justify-between items-center p-6 text-base font-bold tracking-tight transition-colors ${isExpanded ? 'bg-[#4BD16F] text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
+                                                    className={`w-full flex justify-between items-center p-6 text-base font-bold tracking-tight transition-colors ${isExpanded ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
                                                     <span>{cat}</span>
                                                     <span className={`text-xl transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>▾</span>
                                                 </button>
