@@ -23,24 +23,11 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
     const [isCalculating, setIsCalculating] = useState(false);
     const [routeError, setRouteError] = useState('');
 
-    const handleCalculate = async (manualKm?: number) => {
-        if (!ymapsInstance || !mapInstance) return;
+    const handleCalculate = async () => {
+        if (!ymapsInstance || !mapInstance || !searchQuery) return;
         setIsCalculating(true);
         setRouteError('');
 
-        if (manualKm !== undefined) {
-            onChange('deliveryDistance', manualKm);
-            let price = 0;
-            if (manualKm > FREE_DISTANCE_KM) {
-                const extraKm = manualKm - FREE_DISTANCE_KM;
-                price = extraKm * PRICE_PER_KM_PER_MODULE * modulesCount;
-            }
-            onChange('deliveryPrice', price);
-            setIsCalculating(false);
-            return;
-        }
-
-        if (!searchQuery) return;
         mapInstance.geoObjects.removeAll();
 
         try {
@@ -173,25 +160,6 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 <span className="text-sm font-medium text-gray-500 animate-pulse">Загрузка карты...</span>
                             </div>
                         )}
-                    </div>
-
-                    <div className="bg-amber-50 border border-amber-200 p-3 rounded text-xs flex items-center justify-between">
-                        <div>
-                            <p className="font-bold text-amber-800 mb-1">Ручной ввод (если карта не работает):</p>
-                            <div className="flex items-center gap-2">
-                                <span className="text-amber-700">Расстояние до участка:</span>
-                                <input 
-                                    type="number" 
-                                    value={state.deliveryDistance || ''} 
-                                    onChange={(e) => handleCalculate(parseInt(e.target.value) || 0)}
-                                    className="w-20 px-2 py-1 bg-white border border-amber-300 rounded"
-                                />
-                                <span className="text-amber-700">км</span>
-                            </div>
-                        </div>
-                        <div className="text-right text-gray-500 italic">
-                            {modulesCount} модуля
-                        </div>
                     </div>
 
                     {state.deliveryDistance > 0 && (
