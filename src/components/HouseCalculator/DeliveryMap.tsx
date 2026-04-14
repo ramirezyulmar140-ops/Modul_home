@@ -105,7 +105,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                     )}
 
                     <div className="h-[400px] bg-gray-200 rounded overflow-hidden relative">
-                        <YMaps query={{ apikey: 'fe2c78da-de5d-4513-ac0e-6e274b5a2bf4', load: 'package.full' }}>
+                        <YMaps query={{ apikey: 'a877be14-2fbd-43e8-a772-77b83dbbf6a1', load: 'package.full' }}>
                             <Map
                                 defaultState={{ center: [56.761001, 61.054366], zoom: 9 }}
                                 width="100%"
