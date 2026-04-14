@@ -543,7 +543,7 @@ export default function HouseCalculator() {
                                         return (
                                             <div key={cat} className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
                                                 <button onClick={() => toggleCategory(cat)}
-                                                    className={`w-full flex justify-between items-center p-4 text-sm font-bold tracking-tight transition-colors ${isExpanded ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
+                                                    className={`w-full flex justify-between items-center p-6 text-base font-bold tracking-tight transition-colors ${isExpanded ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
                                                     <span>{cat}</span>
                                                     <span className={`text-xl transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>▾</span>
                                                 </button>
@@ -551,7 +551,7 @@ export default function HouseCalculator() {
                                                     <div className="p-3 bg-white space-y-1.5 animate-fadeIn">
                                                         {items.map(item => (
                                                             <button key={item.id} onClick={() => addService(item)}
-                                                                className="w-full text-left text-xs p-3 rounded-lg border border-gray-50 hover:border-amber-200 hover:bg-amber-50/30 transition-all flex justify-between items-center group">
+                                                                className="w-full text-left text-xs p-4 rounded-lg border border-gray-50 hover:border-amber-200 hover:bg-amber-50/30 transition-all flex justify-between items-center group">
                                                                 <div className="flex-1">
                                                                     <div className="font-semibold text-gray-800 group-hover:text-amber-900">{item.name}</div>
                                                                     {item.specs && <div className="text-[10px] text-gray-400 group-hover:text-amber-600/60 font-medium uppercase tracking-wide mt-0.5">{item.specs}</div>}
@@ -677,7 +677,7 @@ export default function HouseCalculator() {
                             <h3 className="text-sm font-black text-gray-900 mb-5 flex items-center gap-2">
                                 Spending Overview
                             </h3>
-                            <div className="space-y-5">
+                            <div className="space-y-8">
                                 {sections.map((section, idx) => (
                                     <div key={idx} className="group">
                                         <div className="flex justify-between items-center text-sm mb-1 line-clamp-1">
@@ -688,9 +688,9 @@ export default function HouseCalculator() {
                                         </div>
                                         {/* Развернутые предметы из раздела */}
                                         {section.items.length > 0 && (
-                                            <div className="space-y-1.5 mt-2 pl-6 mb-2">
+                                            <div className="space-y-3 mt-4 pl-6 mb-4">
                                                 {section.items.map((item, i) => (
-                                                    <div key={i} className="flex justify-between items-start text-xs text-gray-500">
+                                                    <div key={i} className="flex justify-between items-start text-sm text-gray-500 py-1">
                                                         <span className="pr-4 leading-tight py-0.5 flex-1">
                                                             {item.name} {item.quantity > 1 && <span className="text-gray-400 font-medium">({item.quantity} {item.unit})</span>}
                                                         </span>
