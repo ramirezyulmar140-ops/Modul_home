@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { YMaps, Map } from '@pbe/react-yandex-maps';
 import type { HouseCalcState } from './houseCalcTypes';
-import { HOUSE_MODELS } from './houseCalculatorData';
+import { HOUSE_MODELS, DELIVERY_VEHICLES } from './houseCalculatorData';
 
 interface DeliveryMapProps {
     state: HouseCalcState;
@@ -14,7 +14,11 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
 
     // Базовые настройки
     const BASE_ADDRESS = 'Свердловская обл., пгт. Верхнее Дуброво, ул. Малиновая, 6';
-    const PRICE_PER_KM_PER_MODULE = 100; // руб/км за модуль (можно будет скорректировать)
+    const OVERSIZED_BASE_PRICE = 20000;
+    const OVERSIZED_KM_PRICE = 50;
+    const CRANE_SERVICES_PRICE = 30000; // 15к погрузка + 15к разгрузка
+
+    const selectedVehicle = DELIVERY_VEHICLES.find(v => v.id === state.deliveryVehicleId) || DELIVERY_VEHICLES[0];
 
     const [ymapsInstance, setYmapsInstance] = useState<any>(null);
     const [mapInstance, setMapInstance] = useState<any>(null);
@@ -65,7 +69,35 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                 onChange('deliveryAddress', searchQuery);
                 onChange('deliveryDistance', distanceKm);
                 
-                const price = distanceKm * PRICE_PER_KM_PER_MODULE * modulesCount;
+                let price = 0;
+                
+                // 1. Базовый тариф за пробег
+                let rate = 0;
+                if (selectedVehicle.type === 'manipulator') {
+                    rate = selectedVehicle.fixedKmPrice || 0;
+                } else {
+                    if (distanceKm <= 100) rate = selectedVehicle.priceTier1 || 0;
+                    else if (distanceKm <= 200) rate = selectedVehicle.priceTier2 || 0;
+                    else rate = selectedVehicle.priceTier3 || 0;
+                }
+                
+                price += distanceKm * rate * modulesCount;
+                
+                // 2. Негабарит (ширина 3.4м)
+                let oversizedCost = 0;
+                if (distanceKm > 0) {
+                    oversizedCost = OVERSIZED_BASE_PRICE * modulesCount;
+                    if (distanceKm > 50) {
+                        oversizedCost += (distanceKm - 50) * OVERSIZED_KM_PRICE * modulesCount;
+                    }
+                }
+                price += oversizedCost;
+
+                // 3. Услуги крана (только для трала, если включено)
+                if (selectedVehicle.type === 'trawl' && state.needLoadingCrane) {
+                    price += CRANE_SERVICES_PRICE * modulesCount;
+                }
+                
                 onChange('deliveryPrice', price);
                 
                 mapInstance.setBounds(route.getWayPoints().getBounds(), { checkZoomRange: true });
@@ -102,6 +134,43 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
             {state.useDeliveryMap && (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
                     
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-3 border rounded shadow-sm">
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">Тип техники</label>
+                            <select 
+                                value={state.deliveryVehicleId}
+                                onChange={(e) => {
+                                    onChange('deliveryVehicleId', e.target.value);
+                                    // Обнуляем дальность, чтобы пользователь нажал "Пересчитать"
+                                    onChange('deliveryDistance', 0);
+                                    onChange('deliveryPrice', 0);
+                                }}
+                                className="w-full bg-gray-50 border border-gray-300 rounded py-2 px-3 text-sm focus:ring-amber-500 focus:border-amber-500"
+                            >
+                                {DELIVERY_VEHICLES.map(v => (
+                                    <option key={v.id} value={v.id}>{v.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        {selectedVehicle.type === 'trawl' && (
+                            <div className="flex items-center mt-6">
+                                <label className="flex items-center cursor-pointer group">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={state.needLoadingCrane}
+                                        onChange={(e) => {
+                                            onChange('needLoadingCrane', e.target.checked);
+                                            onChange('deliveryDistance', 0);
+                                            onChange('deliveryPrice', 0);
+                                        }}
+                                        className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                                    />
+                                    <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-amber-700">Услуги крана (Погрузка + Монтаж)</span>
+                                </label>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex gap-2">
                         <div className="flex-1 relative">
                             <input 
@@ -164,22 +233,30 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 <div>
                                     <p className="text-gray-500 text-xs mb-1">Точка отправления (База)</p>
                                     <p className="font-medium text-gray-800">{BASE_ADDRESS}</p>
+                                    <p className="text-gray-500 text-xs mt-2 mb-1">Техника</p>
+                                    <p className="font-medium text-gray-800">{selectedVehicle.name}</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-xs mb-1">Точка назначения (Участок)</p>
                                     <p className="font-medium text-gray-800">{state.deliveryAddress}</p>
+                                    <p className="text-gray-500 text-xs mt-2 mb-1">Кол-во машин</p>
+                                    <p className="font-medium text-gray-800">{modulesCount} шт.</p>
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-xs mb-1">Расстояние по трассе</p>
                                     <p className="font-bold text-amber-600 text-lg">{state.deliveryDistance} км</p>
+                                    {state.deliveryDistance > 50 && (
+                                        <p className="text-[10px] text-red-500 italic">Свыше 50 км ({state.deliveryDistance - 50} км) применяется надбавка за негабарит.</p>
+                                    )}
                                 </div>
                                 <div>
-                                    <p className="text-gray-500 text-xs mb-1">Стоимость доставки</p>
+                                    <p className="text-gray-500 text-xs mb-1">Итоговая стоимость доставки</p>
                                     <div className="flex items-baseline gap-2">
                                         <p className="font-bold text-gray-900 text-lg">{state.deliveryPrice.toLocaleString()} ₽</p>
                                     </div>
-                                    <p className="text-xs text-gray-400">
-                                        ( {state.deliveryDistance} км × {PRICE_PER_KM_PER_MODULE}₽ × {modulesCount} модуля )
+                                    <p className="text-[10px] text-gray-400 mt-1">
+                                        Включая негабарит 3.4м 
+                                        {selectedVehicle.type === 'trawl' && state.needLoadingCrane ? ' и услуги крана' : ''}
                                     </p>
                                 </div>
                             </div>

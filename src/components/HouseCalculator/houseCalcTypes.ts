@@ -1,5 +1,16 @@
 export type HouseModelId = 'dom42' | 'dom49' | 'dom63' | 'dom77' | 'dom77o';
 
+export interface DeliveryVehicle {
+    id: string;
+    name: string;
+    type: 'trawl' | 'manipulator';
+    fixedKmPrice?: number;
+    perHourPrice?: number;
+    priceTier1?: number; // do 100km
+    priceTier2?: number; // 100-200km
+    priceTier3?: number; // >200km
+}
+
 export interface HouseModel {
     id: HouseModelId;
     name: string;
@@ -112,6 +123,8 @@ export interface HouseCalcState {
     deliveryAddress: string;
     deliveryDistance: number;
     deliveryPrice: number;
+    deliveryVehicleId: string;
+    needLoadingCrane: boolean;
 
     // КП
     clientName: string;

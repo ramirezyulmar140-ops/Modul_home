@@ -82,6 +82,8 @@ const INITIAL_STATE: HouseCalcState = {
     deliveryAddress: '',
     deliveryDistance: 0,
     deliveryPrice: 0,
+    deliveryVehicleId: 'manip_10_10',
+    needLoadingCrane: true,
     clientName: '', managerName: '', kpNumber: '',
     kpDate: new Date().toLocaleDateString('ru-RU'),
     discountPercent: 0, markupAmount: 0, customItems: [],

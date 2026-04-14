@@ -10,6 +10,7 @@ import {
     BATHROOM_PRICES,
     FLOOR_PRICES,
     FOUNDATION_ASSEMBLY_DATA,
+    DELIVERY_VEHICLES,
 } from './houseCalculatorData';
 
 function getModel(id: HouseModelId) {
@@ -56,7 +57,12 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     }
     if (state.addAssembly) {
         if (state.useDeliveryMap && state.deliveryDistance > 0) {
-            addFixed(foundationItems, `Монтаж и сборка дома. Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). Расстояние: ${state.deliveryDistance} км (Расчет: ${state.deliveryDistance} км х ${model.modulesCount} мод.)`, foundationData.assemblyPrice + state.deliveryPrice);
+            const vehicle = DELIVERY_VEHICLES.find(v => v.id === state.deliveryVehicleId) || DELIVERY_VEHICLES[0];
+            let desc = `Монтаж и сборка дома. Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). Расстояние: ${state.deliveryDistance} км. Техника: ${vehicle.name} (${model.modulesCount} шт.) + Негабарит 3.4м.`;
+            if (vehicle.type === 'trawl' && state.needLoadingCrane) {
+                desc += ` Вкл. услуги погрузки и монтажа краном 25т.`;
+            }
+            addFixed(foundationItems, desc, foundationData.assemblyPrice + state.deliveryPrice);
         } else {
             addFixed(foundationItems, `Монтаж дома на участке`, foundationData.assemblyPrice);
         }
