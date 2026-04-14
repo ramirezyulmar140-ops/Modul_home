@@ -173,6 +173,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
             }
             bathPassport.push(`Стены санузла: ${bathWall.name}`);
         }
+        bathPassport.push('Отделка санузла: фанера + зона душевой из кварцвинила (стандарт)');
         bathPassport.push('Скрытая разводка труб ХВС/ГВС и канализации');
         bathPassport.push('Выводы под сантехнику (унитаз, раковина, душ)');
     }
