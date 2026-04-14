@@ -277,7 +277,7 @@ export default function HouseCalculator() {
                                     <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Отделка потолка</label>
                                     <select value={state.ceilingFinish} onChange={e => set('ceilingFinish', e.target.value)}
                                         style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
-                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
+                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F]">
                                         <option value="none">Натяжной потолок (в базе)</option>
                                         <option value="fanera">Фанера</option>
                                         <option value="imitBrus">Имитация бруса / вагонка штиль</option>
@@ -345,7 +345,7 @@ export default function HouseCalculator() {
                                         <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Отопление (Тёплый пол)</label>
                                         <select value={state.heatingSystem} onChange={e => set('heatingSystem', e.target.value)}
                                             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
-                                            className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
+                                            className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F]">
                                             <option value="none">Без тёплого пола (в базе)</option>
                                             <option value="electric">Тёплый пол электрический модульный ЗЕБРА ЭВО-300 WF</option>
                                             <option value="water">Водяной тёплый пол (котёл, коллектор, трубы, ЭППС)</option>
@@ -498,7 +498,7 @@ export default function HouseCalculator() {
                                                     <div>
                                                         <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Длина сваи</label>
                                                         <select value={state.pileLength} onChange={e => set('pileLength', e.target.value)}
-                                                            className="w-full bg-white border border-amber-200 rounded px-2 py-1.5 text-xs focus:ring-amber-500 focus:border-amber-500 font-medium">
+                                                            className="w-full bg-white border border-[#4BD16F]/30 rounded px-2 py-1.5 text-xs focus:ring-[#4BD16F] focus:border-[#4BD16F] font-medium accent-[#4BD16F]">
                                                             <option value="2500">2500 мм (6 000 ₽)</option>
                                                             <option value="3000">3000 мм (6 800 ₽)</option>
                                                             <option value="3500">3500 мм (7 300 ₽)</option>
@@ -555,7 +555,7 @@ export default function HouseCalculator() {
                                         return (
                                             <div key={cat} className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
                                                 <button onClick={() => toggleCategory(cat)}
-                                                    className={`w-full flex justify-between items-center p-6 text-base font-bold tracking-tight transition-colors ${isExpanded ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
+                                                    className={`w-full flex justify-between items-center p-6 text-base font-bold tracking-tight transition-colors ${isExpanded ? 'bg-[#4BD16F] text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
                                                     <span>{cat}</span>
                                                     <span className={`text-xl transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>▾</span>
                                                 </button>
