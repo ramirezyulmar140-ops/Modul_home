@@ -14,30 +14,32 @@ import {
     EXTERIOR_OPTIONS
 } from './houseCalculatorData';
 
-// ─── Reusable Counter Input ────────────────────────────
 const Counter = ({ label, value, onChange, name, step = 1, min = 0 }: any) => (
     <div>
-        <label className="block text-xs font-bold text-gray-600 tracking-wide mb-1.5">{label}</label>
-        <div className="flex items-center space-x-1.5 max-w-[160px]">
+        <label className="block text-xs font-bold text-gray-500 tracking-wide mb-2">{label}</label>
+        <div className="flex items-center space-x-2 max-w-[160px] bg-gray-50/50 p-1 rounded-2xl border border-gray-100">
             <button type="button" onClick={() => onChange(name, Math.max(min, parseFloat((value - step).toFixed(2))))}
-                className="w-10 h-10 flex-shrink-0 items-center justify-center bg-gray-50 hover:bg-amber-100 hover:text-amber-700 rounded-lg border border-gray-300 text-gray-600 text-lg font-bold transition-colors">-</button>
+                className="w-10 h-10 flex-shrink-0 items-center justify-center bg-white shadow-sm hover:bg-green-50 hover:text-green-600 rounded-xl border border-gray-200 text-gray-500 text-lg font-bold transition-all">-</button>
             <input type="number" value={value}
                 onChange={(e) => onChange(name, Math.max(min, parseFloat(e.target.value) || 0))}
-                className="w-full bg-white border border-gray-300 rounded-lg px-2 py-2 text-sm font-semibold text-center focus:ring-amber-500 focus:border-amber-500" />
+                className="w-full bg-transparent border-none rounded-lg px-1 py-1 text-sm font-bold text-center focus:outline-none focus:ring-0 text-gray-800" />
             <button type="button" onClick={() => onChange(name, parseFloat((value + step).toFixed(2)))}
-                className="w-10 h-10 flex-shrink-0 items-center justify-center bg-gray-50 hover:bg-amber-100 hover:text-amber-700 rounded-lg border border-gray-300 text-gray-600 text-lg font-bold transition-colors">+</button>
+                className="w-10 h-10 flex-shrink-0 items-center justify-center bg-white shadow-sm hover:bg-green-50 hover:text-green-600 rounded-xl border border-gray-200 text-gray-500 text-lg font-bold transition-all">+</button>
         </div>
     </div>
 );
 
 // ─── Checkbox Option ────────────────────────────
 const Check = ({ label, checked, onChange, name, disabled, price }: any) => (
-    <label className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${disabled ? 'opacity-40 cursor-not-allowed bg-gray-50 border-gray-100' : checked ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
-        <input type="checkbox" checked={checked} disabled={disabled}
-            onChange={(e) => onChange(name, e.target.checked)}
-            className="w-5 h-5 text-amber-600 border-gray-300 rounded" />
-        <span className="text-xs font-medium text-gray-700 leading-tight flex-1">{label}</span>
-        {price && <span className="text-xs font-semibold text-amber-700 whitespace-nowrap">{typeof price === 'number' ? `${price.toLocaleString()} ₽` : price}</span>}
+    <label className={`flex items-center space-x-4 p-4 rounded-2xl border cursor-pointer transition-all duration-300 ${disabled ? 'opacity-40 cursor-not-allowed bg-gray-50/50 border-gray-100' : checked ? 'bg-[#F2F8F4] border-[#4BD16F]/30 shadow-sm' : 'bg-white border-gray-100/80 hover:border-gray-200 hover:shadow-sm'}`}>
+        <div className={`relative flex items-center justify-center w-6 h-6 rounded-md border-2 transition-colors ${checked ? 'border-[#4BD16F] bg-[#4BD16F]' : 'border-gray-300 bg-white'}`}>
+            <input type="checkbox" checked={checked} disabled={disabled}
+                onChange={(e) => onChange(name, e.target.checked)}
+                className="absolute opacity-0 w-full h-full cursor-pointer" />
+            {checked && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+        </div>
+        <span className={`text-sm font-semibold leading-tight flex-1 ${checked ? 'text-gray-900' : 'text-gray-600'}`}>{label}</span>
+        {price && <span className={`text-xs font-bold whitespace-nowrap ${checked ? 'text-[#4BD16F]' : 'text-gray-400'}`}>{typeof price === 'number' ? `${price.toLocaleString()} ₽` : price}</span>}
     </label>
 );
 
@@ -179,65 +181,73 @@ export default function HouseCalculator() {
     const beforeDiscount = sections.reduce((s, sec) => s + sec.total, 0);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-            {/* Header */}
-            <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center print:hidden">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Калькулятор типовых домов</h1>
-                    <p className="text-sm text-gray-500">Выбор модели → опции → смета → КП</p>
+        <div className="min-h-screen bg-[#F2F4F0] flex font-sans">
+            {/* ═══════ LEFT SIDEBAR ═══════ */}
+            <aside className="w-[280px] bg-[#F2F4F0] flex-shrink-0 flex flex-col py-8 px-6 print:hidden border-r border-gray-200/50">
+                <div className="mb-10 pl-2">
+                    <h1 className="text-2xl font-black text-[#1A1C19] tracking-tight">Best<span className="text-[#4BD16F]">Town</span></h1>
+                    <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest mt-1">Калькулятор модулей</p>
                 </div>
-                <div className="flex items-center gap-4">
+
+                <div className="space-y-1.5 flex-1">
+                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 pl-2">Настройка</div>
+                    {TABS.map(tab => {
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                                className={`w-full flex items-center py-3.5 px-4 text-sm font-bold rounded-2xl transition-all duration-300 ${isActive 
+                                    ? 'bg-[#1A1C19] text-[#4BD16F] shadow-lg shadow-black/5' 
+                                    : 'text-gray-500 hover:bg-white/60 hover:text-gray-900'}`}>
+                                <span className="truncate w-full text-left">{tab.label}</span>
+                                {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#4BD16F] ml-auto shadow-[0_0_8px_#4BD16F]" />}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                <div className="mt-auto space-y-3 pt-8 border-t border-gray-200/50">
                     <button onClick={resetAll}
-                        className="text-xs py-2 px-4 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:text-red-600 transition-colors uppercase tracking-wider font-medium">
-                        Сброс
+                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-gray-500 hover:bg-white transition-colors">
+                        Сбросить всё
                     </button>
                     <button onClick={() => window.print()}
-                        className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-lg font-medium transition-colors">
-                        🖨️ Печать КП
+                        className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold bg-white border border-gray-200/80 text-[#1A1C19] shadow-sm hover:border-[#4BD16F]/30 hover:shadow-md transition-all">
+                        🖨️ Сохранить КП
                     </button>
                 </div>
-            </header>
+            </aside>
 
-            <main className="flex-1 w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-                {/* ═══════ LEFT COLUMN (1/2) ═══════ */}
-                <div className="lg:col-span-6 space-y-4 print:hidden">
-                    {/* Tabs */}
-                    <div className="grid grid-cols-5 gap-1.5 bg-white p-1.5 rounded-xl shadow-sm border border-gray-100">
-                        {TABS.map(tab => (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                                className={`py-3 px-1 text-xs font-bold rounded-lg transition-all border ${activeTab === tab.id 
-                                    ? 'bg-amber-600 text-white border-amber-600 shadow-sm scale-[1.02]' 
-                                    : 'text-gray-600 bg-white border-gray-100 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-200'}`}>
-                                <span className="truncate w-full text-center uppercase tracking-wider">{tab.label}</span>
-                            </button>
-                        ))}
-                    </div>
-
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 min-h-[500px]">
+            {/* ═══════ MAIN CONTENT ═══════ */}
+            <main className="flex-1 w-full mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start h-screen overflow-y-auto print:h-auto print:overflow-visible">
+                {/* Content Area */}
+                <div className="lg:col-span-7 xl:col-span-8 space-y-6 print:hidden max-w-4xl">
+                    <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100 min-h-[600px]">
                         {/* ──── TAB: HOUSE ──── */}
                         {activeTab === 'house' && (
                             <div className="space-y-4 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Выбор модели дома</h2>
-                                <div className="space-y-3">
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Выбор модели дома</h2>
+                                <div className="grid grid-cols-1 gap-4">
                                     {HOUSE_MODELS.map(m => (
                                         <button key={m.id}
                                             onClick={() => set('selectedHouse', m.id)}
-                                            className={`w-full text-left p-4 rounded-xl border-2 transition-all ${state.selectedHouse === m.id ? 'border-amber-500 bg-amber-50 shadow-md ring-1 ring-amber-500' : 'border-gray-100 hover:border-amber-200 hover:bg-gray-50'}`}>
+                                            className={`w-full text-left p-6 rounded-[24px] border-2 transition-all duration-300 ${state.selectedHouse === m.id ? 'border-[#4BD16F] bg-[#F2F8F4] shadow-md' : 'border-gray-100/80 bg-white hover:border-gray-200 hover:shadow-sm'}`}>
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                    <h3 className={`font-bold text-base ${state.selectedHouse === m.id ? 'text-amber-900' : 'text-gray-900'}`}>{m.name}</h3>
-                                                    <p className="text-xs text-gray-500 mt-1">{m.description}</p>
-                                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                                    <h3 className={`font-black text-lg tracking-tight ${state.selectedHouse === m.id ? 'text-[#1A1C19]' : 'text-gray-800'}`}>{m.name}</h3>
+                                                    <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">{m.description}</p>
+                                                    <div className="flex flex-wrap gap-2 mt-4">
                                                         {m.features.map((f, i) => (
-                                                            <span key={i} className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{f}</span>
+                                                            <span key={i} className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${state.selectedHouse === m.id ? 'bg-[#4BD16F]/10 text-[#2C8B46]' : 'bg-gray-100 text-gray-500'}`}>{f}</span>
                                                         ))}
                                                     </div>
                                                 </div>
-                                                <div className="text-right ml-4 flex-shrink-0">
-                                                    <div className={`text-lg font-bold ${state.selectedHouse === m.id ? 'text-amber-700' : 'text-gray-900'}`}>
+                                                <div className="text-right ml-6 flex-shrink-0">
+                                                    <div className={`text-xl font-bold tracking-tight ${state.selectedHouse === m.id ? 'text-[#4BD16F]' : 'text-gray-900'}`}>
                                                         {m.basePrice.toLocaleString()} ₽
                                                     </div>
-                                                    <div className="text-[10px] text-gray-400">{m.area} м²</div>
+                                                    <div className="text-xs font-bold text-gray-400 mt-1 bg-white px-2 py-0.5 rounded-md inline-block border border-gray-100">
+                                                        {m.area} м²
+                                                    </div>
                                                 </div>
                                             </div>
                                         </button>
@@ -249,7 +259,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: FINISH ──── */}
                         {activeTab === 'finish' && (
                             <div className="space-y-5 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Внутренняя отделка</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Внутренняя отделка</h2>
                                 <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">Отделка стен</label>
                                     <select value={state.wallFinish} onChange={e => set('wallFinish', e.target.value)}
@@ -288,7 +298,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: BATHROOM ──── */}
                         {activeTab === 'bathroom' && (
                             <div className="space-y-5 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Отделка санузла</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Отделка санузла</h2>
                                 <Counter label="Площадь пола санузла, м²" name="bathroomFloorArea" value={state.bathroomFloorArea} onChange={set} />
                                 {state.bathroomFloorArea > 0 && (
                                     <>
@@ -321,7 +331,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: ENGINEERING ──── */}
                         {activeTab === 'engineering' && (
                             <div className="space-y-5 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Инженерные элементы</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Инженерные элементы</h2>
                                 <div className="grid grid-cols-2 gap-3">
                                     <Counter label="Вывод кабеля осв. (шт)" name="lightingCableCount" value={state.lightingCableCount} onChange={set} />
                                     <Counter label="Тёплый кран (шт)" name="warmTapCount" value={state.warmTapCount} onChange={set} />
@@ -363,7 +373,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: FRAME ──── */}
                         {activeTab === 'frame' && (
                             <div className="space-y-5 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Каркас</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Каркас</h2>
                                 {isAvailable(Object.keys(FRAME_OPTIONS.moduleExtend.priceByModel) as any) && (
                                     <Counter label="Увеличение модуля +60 см (шт)" name="moduleExtendCount" value={state.moduleExtendCount} onChange={set} />
                                 )}
@@ -379,7 +389,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: WINDOWS ──── */}
                         {activeTab === 'windows' && (
                             <div className="space-y-5 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Окна и Двери</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Окна и Двери</h2>
                                 {isAvailable(WINDOW_OPTIONS.safeDoor.availableFor) && (
                                     <Check label="Входная сейф-дверь + крыльцо + 3 ступени" checked={state.safeDoor} onChange={set} name="safeDoor" price="115 000 ₽" />
                                 )}
@@ -401,7 +411,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: EXTERIOR ──── */}
                         {activeTab === 'exterior' && (
                             <div className="space-y-5 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Внешняя отделка</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Внешняя отделка</h2>
                                 <Check label="Фасад — планкен 90×18, покраска 2 слоя" checked={state.facadePlanken} onChange={set} name="facadePlanken" />
                                 <div className="pt-2 border-t">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Водосточная система</label>
@@ -435,7 +445,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: TERRACE ──── */}
                         {activeTab === 'terrace' && (
                             <div className="space-y-5 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Терраса / Крыльцо</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Терраса / Крыльцо</h2>
                                 <Counter label="Закрытие проёма террасы (шт)" name="terraceCloseSideCount" value={state.terraceCloseSideCount} onChange={set} />
                                 {isAvailable(TERRACE_OPTIONS.porchCanopy.availableFor) && (
                                     <Check label="Навес над крыльцом" checked={state.porchCanopy} onChange={set} name="porchCanopy" price="65 000 ₽" />
@@ -454,7 +464,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: SERVICES ──── */}
                         {activeTab === 'services' && (
                             <div className="space-y-4 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Доп. услуги (конструктор)</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Доп. услуги (конструктор)</h2>
                                 
                                 <div className="space-y-3 mb-6 bg-amber-50/50 p-4 rounded-xl border border-amber-100">
                                     <h3 className="text-sm font-bold text-gray-800 flex justify-between items-center">
@@ -564,7 +574,7 @@ export default function HouseCalculator() {
                         {/* ──── TAB: KP ──── */}
                         {activeTab === 'kp' && (
                             <div className="space-y-5 animate-fadeIn">
-                                <h2 className="text-lg font-bold border-b pb-2">Данные для КП</h2>
+                                <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Данные для КП</h2>
 
                                 {/* Client */}
                                 <div className="grid grid-cols-2 gap-3">
@@ -634,66 +644,79 @@ export default function HouseCalculator() {
                     </div>
                 </div>
 
-                {/* ═══════ RIGHT COLUMN (1/2) — TOTAL + ESTIMATE TABLE ═══════ */}
-                <div className="lg:col-span-6 space-y-4 print:hidden">
+                {/* ═══════ RIGHT COLUMN — TOTAL + ESTIMATE TABLE ═══════ */}
+                <div className="lg:col-span-5 xl:col-span-4 space-y-6 print:hidden">
                     {/* ─── STICKY TOTAL ─── */}
-                    <div className="sticky top-4 z-10 space-y-4">
-                        <div className="bg-gray-900 text-white p-5 rounded-xl shadow-lg border border-gray-800">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="text-gray-400 text-xs uppercase tracking-wider font-medium">Итоговая стоимость</div>
-                                <div className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">
+                    <div className="sticky top-8 z-10 space-y-6">
+                        {/* FINAI Dark Total Card */}
+                        <div className="bg-[#1A1C19] text-white p-7 rounded-[32px] shadow-2xl shadow-black/10 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#4BD16F] opacity-20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                            <div className="flex items-center justify-between mb-4 relative z-10">
+                                <div className="text-gray-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                                    Total Balance
+                                </div>
+                                <div className="text-[10px] font-bold text-[#1A1C19] bg-[#4BD16F] px-2.5 py-1 rounded-full uppercase tracking-wider">
                                     {Math.round(grandTotal / model.area).toLocaleString('ru-RU')} ₽/м²
                                 </div>
                             </div>
-                            <div className="text-3xl font-bold text-amber-400">{grandTotal.toLocaleString('ru-RU')} ₽</div>
-                            <div className="mt-3 pt-3 border-t border-gray-700 text-xs text-gray-400">
-                                Модель: <span className="text-gray-300 font-medium">{model.name}</span> · {model.area} м²
+                            <div className="text-[40px] font-black text-white tracking-tight mb-2 relative z-10 flex items-end gap-1">
+                                <span className="text-[#4BD16F] opacity-90 text-2xl mb-2">₽</span>
+                                {grandTotal.toLocaleString('ru-RU')}
+                            </div>
+                            <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between text-xs text-gray-400 relative z-10">
+                                <span className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-[#4BD16F]"></span>
+                                    <strong className="text-white font-bold tracking-wide">{model.name.toUpperCase()}</strong>
+                                </span>
+                                <span className="font-bold bg-white/10 text-white px-2.5 py-1 rounded-lg">{model.area} м²</span>
                             </div>
                         </div>
 
-                        {/* Подробная смета по разделам */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
-                                <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Подробная смета</h3>
-                            </div>
-                            <div className="divide-y divide-gray-100">
+                        {/* Spending Overview */}
+                        <div className="bg-white rounded-[24px] shadow-sm border border-gray-100/80 p-6 overflow-hidden">
+                            <h3 className="text-sm font-black text-gray-900 mb-5 flex items-center gap-2">
+                                Spending Overview
+                            </h3>
+                            <div className="space-y-5">
                                 {sections.map((section, idx) => (
-                                    <div key={idx} className="px-4 py-3 hover:bg-gray-50/30 transition-colors">
-                                        <div className="flex justify-between items-center text-xs mb-1.5">
-                                            <span className="font-bold text-gray-800">{idx + 1}. {section.name}</span>
-                                            <span className="font-bold text-amber-700 tabular-nums">{section.total.toLocaleString('ru-RU')} ₽</span>
+                                    <div key={idx} className="group">
+                                        <div className="flex justify-between items-center text-sm mb-1 line-clamp-1">
+                                            <span className="font-bold text-gray-700 flex items-center gap-2">
+                                                <span className="text-xs text-gray-400">{idx + 1}.</span> {section.name}
+                                            </span>
+                                            <span className="font-black text-gray-900 tabular-nums whitespace-nowrap pl-2">{section.total.toLocaleString('ru-RU')} ₽</span>
                                         </div>
                                         {/* Развернутые предметы из раздела */}
                                         {section.items.length > 0 && (
-                                            <div className="space-y-1">
+                                            <div className="space-y-1.5 mt-2 hidden group-hover:block pl-6 mb-2">
                                                 {section.items.map((item, i) => (
-                                                    <div key={i} className="flex justify-between items-start text-[10px] text-gray-500 pl-3">
-                                                        <span className="pr-2 leading-tight py-0.5 flex-1">
-                                                            · {item.name} {item.quantity > 1 && <span className="text-gray-400">({item.quantity} {item.unit})</span>}
+                                                    <div key={i} className="flex justify-between items-start text-xs text-gray-500">
+                                                        <span className="pr-4 leading-tight py-0.5 flex-1">
+                                                            {item.name} {item.quantity > 1 && <span className="text-gray-400 font-medium">({item.quantity} {item.unit})</span>}
                                                         </span>
-                                                        <span className="whitespace-nowrap tabular-nums font-medium py-0.5">{item.total.toLocaleString('ru-RU')} ₽</span>
+                                                        <span className="whitespace-nowrap font-semibold py-0.5">{item.total.toLocaleString('ru-RU')} ₽</span>
                                                     </div>
                                                 ))}
                                             </div>
                                         )}
+                                        <div className="h-1.5 w-full bg-gray-100 rounded-full mt-2.5 overflow-hidden">
+                                            <div className="h-full bg-[#4BD16F] rounded-full transition-all duration-500" style={{ width: `${Math.max(1, (section.total / grandTotal) * 100)}%` }}></div>
+                                        </div>
                                     </div>
                                 ))}
+
                                 {state.discountPercent > 0 && (
-                                    <div className="px-4 py-2.5 flex justify-between items-center text-xs text-green-700 bg-green-50/30">
+                                    <div className="pt-4 mt-4 border-t border-gray-100 flex justify-between items-center text-xs font-bold text-[#4BD16F] bg-[#F2F8F4] p-3 rounded-xl">
                                         <span>Скидка ({state.discountPercent}%)</span>
-                                        <span className="font-semibold">-{Math.ceil(beforeDiscount * (state.discountPercent / 100)).toLocaleString()} ₽</span>
+                                        <span>-{Math.ceil(beforeDiscount * (state.discountPercent / 100)).toLocaleString()} ₽</span>
                                     </div>
                                 )}
                                 {state.markupAmount !== 0 && (
-                                    <div className="px-4 py-2.5 flex justify-between items-center text-xs text-gray-700 bg-gray-50/50">
+                                    <div className="pt-4 mt-4 border-t border-gray-100 flex justify-between items-center text-xs font-bold text-gray-700 bg-gray-50 p-3 rounded-xl">
                                         <span>Корректировка</span>
-                                        <span className="font-semibold">{state.markupAmount > 0 ? '+' : ''}{state.markupAmount.toLocaleString()} ₽</span>
+                                        <span>{state.markupAmount > 0 ? '+' : ''}{state.markupAmount.toLocaleString()} ₽</span>
                                     </div>
                                 )}
-                            </div>
-                            <div className="px-4 py-3 bg-gray-900 text-white flex justify-between items-center">
-                                <span className="text-xs font-bold uppercase tracking-wider">ИТОГО</span>
-                                <span className="text-lg font-bold text-amber-400">{grandTotal.toLocaleString('ru-RU')} ₽</span>
                             </div>
                         </div>
                     </div>
