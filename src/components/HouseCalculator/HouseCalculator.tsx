@@ -791,14 +791,17 @@ export default function HouseCalculator() {
                             <tbody>
                                 {sections.map((section, idx) => (
                                     <React.Fragment key={`sec-${idx}`}>
-                                        <tr className="bg-gray-50/80 border-b border-t font-semibold">
-                                            <td className="px-6 py-3 text-gray-900">{idx + 1}. {section.name}</td>
+                                        <tr className="bg-gray-50/80 border-b border-t font-semibold print:bg-white print:border-none">
+                                            <td className="px-6 py-3 text-gray-900 print:text-sm print:pb-1 print:pt-4 print:font-bold">{idx + 1}. {section.name}</td>
                                             <td colSpan={3} className="print:hidden"></td>
                                             <td className="px-6 py-3 text-right text-gray-900 print:hidden">{section.total.toLocaleString('ru-RU')} ₽</td>
                                         </tr>
                                         {section.items.map((item, iIdx) => (
-                                            <tr key={iIdx} className={`border-b last:border-none hover:bg-gray-50/50 ${section.hideItems ? 'print:hidden' : ''}`}>
-                                                <td className="px-6 py-2.5 text-gray-700">{item.name}</td>
+                                            <tr key={iIdx} className={`border-b last:border-none hover:bg-gray-50/50 print:border-gray-50 ${section.hideItems ? 'print:hidden' : ''}`}>
+                                                <td className="px-6 py-2.5 text-gray-700 print:px-10 print:py-1 print:italic print:text-sm">
+                                                    <span className="hidden print:inline">• </span>
+                                                    {item.name}
+                                                </td>
                                                 <td className="px-4 py-2.5 text-center print:hidden">
                                                     {typeof item.quantity === 'number'
                                                         ? (['м²', 'м.п.', 'п.м.'].includes(item.unit) ? item.quantity.toFixed(1) : Math.round(item.quantity))
