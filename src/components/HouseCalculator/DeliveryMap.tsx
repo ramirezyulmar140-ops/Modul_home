@@ -23,42 +23,69 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
     const [isCalculating, setIsCalculating] = useState(false);
     const [routeError, setRouteError] = useState('');
 
-    const handleCalculate = () => {
+    const handleCalculate = async () => {
         if (!ymapsInstance || !mapInstance || !searchQuery) return;
         setIsCalculating(true);
         setRouteError('');
 
         mapInstance.geoObjects.removeAll();
 
-        ymapsInstance.route([BASE_ADDRESS, searchQuery], {
-            routingMode: 'auto',
-        }).then((route: any) => {
-            mapInstance.geoObjects.add(route);
-            
-            const lengthMeters = route.getLength();
-            const distanceKm = Math.round(lengthMeters / 1000);
-            
-            onChange('deliveryAddress', searchQuery);
-            onChange('deliveryDistance', distanceKm);
-            
-            let price = 0;
-            if (distanceKm > FREE_DISTANCE_KM) {
-                const extraKm = distanceKm - FREE_DISTANCE_KM;
-                price = extraKm * PRICE_PER_KM_PER_MODULE * modulesCount;
+        try {
+            // 1. Геокодируем обе точки, чтобы получить координаты
+            const [resA, resB] = await Promise.all([
+                ymapsInstance.geocode(BASE_ADDRESS),
+                ymapsInstance.geocode(searchQuery)
+            ]);
+
+            const objA = resA.geoObjects.get(0);
+            const objB = resB.geoObjects.get(0);
+
+            if (!objA) {
+                setRouteError('Не удалось найти адрес вашего производства. Проверьте BASE_ADDRESS в коде.');
+                setIsCalculating(false);
+                return;
             }
-            onChange('deliveryPrice', price);
-            
-            // Масштабируем карту под маршрут
-            mapInstance.setBounds(route.getWayPoints().getBounds(), { checkZoomRange: true });
-            
+            if (!objB) {
+                setRouteError('Адрес участка не найден. Попробуйте ввести более точно (город, улица, дом).');
+                setIsCalculating(false);
+                return;
+            }
+
+            const coordsA = objA.geometry.getCoordinates();
+            const coordsB = objB.geometry.getCoordinates();
+
+            // 2. Строим маршрут по координатам
+            ymapsInstance.route([coordsA, coordsB], {
+                routingMode: 'auto',
+            }).then((route: any) => {
+                mapInstance.geoObjects.add(route);
+                
+                const lengthMeters = route.getLength();
+                const distanceKm = Math.round(lengthMeters / 1000);
+                
+                onChange('deliveryAddress', searchQuery);
+                onChange('deliveryDistance', distanceKm);
+                
+                let price = 0;
+                if (distanceKm > FREE_DISTANCE_KM) {
+                    const extraKm = distanceKm - FREE_DISTANCE_KM;
+                    price = extraKm * PRICE_PER_KM_PER_MODULE * modulesCount;
+                }
+                onChange('deliveryPrice', price);
+                
+                mapInstance.setBounds(route.getWayPoints().getBounds(), { checkZoomRange: true });
+                setIsCalculating(false);
+            }).catch((err: any) => {
+                console.error('Ошибка маршрутизации:', err);
+                setRouteError('Координаты найдены, но Яндекс не может проложить маршрут между ними. Проверьте, включена ли услуга "МАРШРУТИЗАЦИЯ" в кабинете Яндекса.');
+                setIsCalculating(false);
+            });
+
+        } catch (err) {
+            console.error('Ошибка геокодирования:', err);
+            setRouteError('Ошибка API карт (scriptError). Проверьте: 1. Активен ли ключ. 2. Включен ли "Геокодер". 3. Нет ли ограничений по домену (referer).');
             setIsCalculating(false);
-        }).catch((err: any) => {
-            console.error('Ошибка маршрута:', err);
-            setRouteError('Не удалось проложить маршрут. Проверьте правильность адреса.');
-            onChange('deliveryDistance', 0);
-            onChange('deliveryPrice', 0);
-            setIsCalculating(false);
-        });
+        }
     };
 
     return (
@@ -105,7 +132,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                     )}
 
                     <div className="h-[400px] bg-gray-200 rounded overflow-hidden relative">
-                        <YMaps query={{ apikey: 'a877be14-2fbd-43e8-a772-77b83dbbf6a1', load: 'package.full' }}>
+                        <YMaps query={{ apikey: 'f4c83d98-a425-447b-89e2-55e8a208ca6b', load: 'package.full' }}>
                             <Map
                                 defaultState={{ center: [56.761001, 61.054366], zoom: 9 }}
                                 width="100%"
