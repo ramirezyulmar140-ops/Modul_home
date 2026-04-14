@@ -98,7 +98,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     
     // Потолок
     if (state.ceilingFinish === 'none') {
-        finishPassport.push('Отделка потолка: шлифованная фанера (стандарт)');
+        finishPassport.push('Отделка потолка: натяжной потолок белый матовый (стандарт)');
     } else if (state.ceilingFinish === 'fanera') {
         addFixed(finishItems, INTERIOR_FINISH_OPTIONS.ceilingFanera.name, INTERIOR_FINISH_OPTIONS.ceilingFanera.priceByModel[modelId]);
         finishPassport.push('Отделка потолка: премиальная фанера');
@@ -112,7 +112,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         addFixed(finishItems, INTERIOR_FINISH_OPTIONS.paintWalls.name, INTERIOR_FINISH_OPTIONS.paintWalls.priceByModel[modelId]);
         finishPassport.push('Покраска стен: профессиональная покраска в 2 слоя (цвет на выбор)');
     }
-    if (state.paintCeiling) {
+    if (state.paintCeiling && state.ceilingFinish !== 'none') {
         addFixed(finishItems, INTERIOR_FINISH_OPTIONS.paintCeiling.name, INTERIOR_FINISH_OPTIONS.paintCeiling.priceByModel[modelId]);
         finishPassport.push('Покраска потолка: профессиональная покраска в 2 слоя (цвет на выбор)');
     }

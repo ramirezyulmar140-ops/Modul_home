@@ -296,7 +296,7 @@ export default function HouseCalculator() {
                                     </select>
                                 </div>
                 <Check label={`Покраска стен (2 слоя Тиккурила)`} checked={state.paintWalls} onChange={set} name="paintWalls" price={`${(INTERIOR_FINISH_OPTIONS.paintWalls.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
-                                <Check label={`Покраска потолка (2 слоя Тиккурила)`} checked={state.paintCeiling} onChange={set} name="paintCeiling" price={`${(INTERIOR_FINISH_OPTIONS.paintCeiling.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
+                                <Check label={`Покраска потолка (2 слоя Тиккурила)`} checked={state.paintCeiling} onChange={set} name="paintCeiling" price={`${(INTERIOR_FINISH_OPTIONS.paintCeiling.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} disabled={state.ceilingFinish === 'none'} />
                                 <Counter label="Доп. межкомнатная дверь (шт)" name="extraInteriorDoorCount" value={state.extraInteriorDoorCount} onChange={set} />
                             </div>
                         )}
