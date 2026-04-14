@@ -386,8 +386,8 @@ export default function HouseCalculator() {
                                 {isAvailable(Object.keys(FRAME_OPTIONS.moduleExtend.priceByModel) as any) && (
                                     <Counter label="Увеличение модуля +60 см (шт)" name="moduleExtendCount" value={state.moduleExtendCount} onChange={set} />
                                 )}
-                                <Check label="Сетка от грызунов" checked={state.mouseMesh} onChange={set} name="mouseMesh" />
-                                <Check label="Доп. утепление стен до 200 мм" checked={state.extraInsulation} onChange={set} name="extraInsulation" />
+                                <Check label="Сетка от грызунов" checked={state.mouseMesh} onChange={set} name="mouseMesh" price={`${(FRAME_OPTIONS.mouseMesh.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
+                                <Check label="Доп. утепление стен до 200 мм" checked={state.extraInsulation} onChange={set} name="extraInsulation" price={`${(FRAME_OPTIONS.extraInsulation.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
                                 <Check label="Убрать перегородку (опен спейс)" checked={state.removePartition} onChange={set} name="removePartition" price="120 000 ₽" />
                                 {isAvailable(FRAME_OPTIONS.extraPartition.availableFor) && (
                                     <Counter label="Доп. перегородка (м.п.)" name="extraPartitionLength" value={state.extraPartitionLength} onChange={set} />
@@ -421,7 +421,7 @@ export default function HouseCalculator() {
                         {activeTab === 'exterior' && (
                             <div className="space-y-5 animate-fadeIn">
                                 <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Внешняя отделка</h2>
-                                <Check label="Фасад — планкен 90×18, покраска 2 слоя" checked={state.facadePlanken} onChange={set} name="facadePlanken" />
+                                <Check label="Фасад — планкен 90×18, покраска 2 слоя" checked={state.facadePlanken} onChange={set} name="facadePlanken" price={`${(EXTERIOR_OPTIONS.facadePlanken.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
                                 <div className="pt-2 border-t">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Водосточная система</label>
                                     <div className="space-y-2">
