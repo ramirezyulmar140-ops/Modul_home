@@ -237,7 +237,6 @@ export default function HouseCalculator() {
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <h3 className={`font-black text-lg tracking-tight ${state.selectedHouse === m.id ? 'text-[#1A1C19]' : 'text-gray-800'}`}>{m.name}</h3>
-                                                    <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">{m.description}</p>
                                                     <div className="flex flex-wrap gap-2 mt-4">
                                                         {m.features.map((f, i) => (
                                                             <span key={i} className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${state.selectedHouse === m.id ? 'bg-[#4BD16F]/10 text-[#2C8B46]' : 'bg-gray-100 text-gray-500'}`}>{f}</span>
