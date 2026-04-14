@@ -133,7 +133,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     const unifiedPassport: string[] = [];
     for (const key of [1, 2, 3, 4, 5, 6, 7, 8]) {
         const cat = spec[key];
-        unifiedPassport.push(`### ${key}. ${cat.title}`);
+        unifiedPassport.push(`### ${cat.title}`);
         cat.items.forEach(item => unifiedPassport.push(item));
     }
 

@@ -145,6 +145,39 @@ export default function HouseCalculator() {
     const estimate = useMemo(() => calculateHouseEstimate(state), [state]);
     const { sections, grandTotal } = estimate;
 
+    // PDF specific: Merge house-related sections into the first section
+    // but keep sidebar categorized as requested
+    const printSections = useMemo(() => {
+        if (sections.length === 0) return [];
+        
+        const houseRelatedNames = [
+            'Базовая комплектация дома',
+            'Внутренняя отделка',
+            'Санузел',
+            'Инженерные решения',
+            'Конструктив и каркас',
+            'Окна и проемы',
+            'Фасадные решения',
+            'Террасы и малые формы'
+        ];
+
+        const houseSections = sections.filter(s => houseRelatedNames.includes(s.name));
+        const otherSections = sections.filter(s => !houseRelatedNames.includes(s.name));
+
+        if (houseSections.length === 0) return sections;
+
+        // Create unified house section
+        const unifiedHouseSection = {
+            name: 'Базовая комплектация и опции дома',
+            items: houseSections.flatMap(s => s.items),
+            total: houseSections.reduce((acc, s) => acc + s.total, 0),
+            passportItems: houseSections[0].passportItems, // Already contains unified spec
+            hideItems: true
+        };
+
+        return [unifiedHouseSection, ...otherSections];
+    }, [sections]);
+
     const model = HOUSE_MODELS.find(m => m.id === state.selectedHouse)!;
     const isAvailable = (availableFor?: string[]) => !availableFor || availableFor.includes(state.selectedHouse);
 
@@ -712,7 +745,7 @@ export default function HouseCalculator() {
                                     <div key={idx} className="group">
                                         <div className="flex justify-between items-center text-sm mb-1 line-clamp-1">
                                             <span className="font-bold text-gray-700 flex items-center gap-2">
-                                                <span className="text-xs text-gray-400">{idx + 1}.</span> {section.name}
+                                                {section.name}
                                             </span>
                                             <span className="font-black text-gray-900 tabular-nums whitespace-nowrap pl-2">{section.total.toLocaleString('ru-RU')} ₽</span>
                                         </div>
@@ -789,10 +822,10 @@ export default function HouseCalculator() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {sections.map((section, idx) => (
+                                {printSections.map((section, idx) => (
                                     <React.Fragment key={`sec-${idx}`}>
                                         <tr className="bg-gray-50/80 border-b border-t font-semibold print:bg-white print:border-none">
-                                            <td className="px-6 py-3 text-gray-900 print:text-sm print:pb-1 print:pt-4 print:font-bold">{idx + 1}. {section.name}</td>
+                                            <td className="px-6 py-3 text-gray-900 print:text-sm print:pb-1 print:pt-4 print:font-bold">{section.name}</td>
                                             <td colSpan={3} className="print:hidden"></td>
                                             <td className="px-6 py-3 text-right text-gray-900 print:hidden">{section.total.toLocaleString('ru-RU')} ₽</td>
                                         </tr>
