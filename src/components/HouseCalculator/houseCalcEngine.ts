@@ -220,7 +220,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         if (svc.quantity > 0) addItem(svcItems, `${svc.name}${svc.specs ? ` (${svc.specs})` : ''}`, svc.quantity, svc.unit, svc.price);
     }
     if (svcItems.length > 0) {
-        sections.push({ name: 'Дополнительные услуги', items: svcItems, total: sumItems(svcItems), hideItems: true });
+        sections.push({ name: 'Дополнительные услуги', items: svcItems, total: sumItems(svcItems), hideItems: false });
     }
 
     // ─── 11. Custom Items ──────────────────
