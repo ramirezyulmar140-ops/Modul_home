@@ -30,6 +30,19 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
 
         mapInstance.geoObjects.removeAll();
 
+        // Инициализируем подсказки, если еще нет
+        if (ymapsInstance && !document.getElementById('suggest-input-ready')) {
+            const suggestView = new ymapsInstance.SuggestView('suggest-input');
+            const hiddenMarker = document.createElement('div');
+            hiddenMarker.id = 'suggest-input-ready';
+            document.body.appendChild(hiddenMarker);
+            
+            suggestView.events.add('select', (e: any) => {
+                const item = e.get('item');
+                if (item) setSearchQuery(item.value);
+            });
+        }
+
         try {
             // 1. Геокодируем обе точки, чтобы получить координаты
             const [resA, resB] = await Promise.all([
@@ -110,6 +123,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                     <div className="flex gap-2">
                         <div className="flex-1 relative">
                             <input 
+                                id="suggest-input"
                                 type="text" 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -132,7 +146,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                     )}
 
                     <div className="h-[400px] bg-gray-200 rounded overflow-hidden relative">
-                        <YMaps query={{ apikey: '341481f1-976f-4208-893b-868e5f953b10', load: 'package.full' }}>
+                        <YMaps query={{ apikey: '341481f1-976f-4208-893b-868e5f953b10', load: 'package.full', lang: 'ru_RU' }}>
                             <Map
                                 defaultState={{ center: [56.761001, 61.054366], zoom: 9 }}
                                 width="100%"
