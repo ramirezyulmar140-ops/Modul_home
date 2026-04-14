@@ -61,11 +61,15 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
                 const v = DELIVERY_VEHICLES.find(d => d.id === entry.vehicleId);
                 return `${v?.name || '?'} ×${entry.qty}`;
             }).join(', ');
-            let desc = `Монтаж и сборка дома. Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). Расстояние: ${state.deliveryDistance} км. Техника: ${vehicleDescs}. + Негабарит 3.4м.`;
+            
+            foundationItems.push({ name: 'Монтаж и сборка дома.', quantity: 1, unit: 'компл.', price: 0, total: 0 });
+            foundationItems.push({ name: `Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}).`, quantity: 1, unit: 'адрес', price: 0, total: 0 });
+            
+            let techLine = `Расстояние: ${state.deliveryDistance} км. Техника: ${vehicleDescs}.`;
             if (state.needLoadingCrane) {
-                desc += ` Вкл. услуги крана 25т (погрузка/монтаж).`;
+                techLine += ` Вкл. услуги крана 25т (погрузка/монтаж).`;
             }
-            addFixed(foundationItems, desc, foundationData.assemblyPrice + state.deliveryPrice);
+            addFixed(foundationItems, techLine, foundationData.assemblyPrice + state.deliveryPrice);
         } else {
             addFixed(foundationItems, `Монтаж дома на участке`, foundationData.assemblyPrice);
         }
