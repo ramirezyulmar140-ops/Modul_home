@@ -129,17 +129,21 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
 
     spec[8].items.push('Расходные и вспомогательные материалы для строительства и монтажа');
 
-    // Create sections for technical categories
+    // Create unified passport for the first section
+    const unifiedPassport: string[] = [];
     for (const key of [1, 2, 3, 4, 5, 6, 7, 8]) {
         const cat = spec[key];
-        sections.push({
-            name: cat.title,
-            items: key === 1 ? [{ name: `${model.name} — базовая комплектация`, quantity: 1, unit: 'компл.', price: model.basePrice, total: model.basePrice }] : [],
-            total: key === 1 ? model.basePrice : 0,
-            passportItems: cat.items,
-            hideItems: true
-        });
+        unifiedPassport.push(`### ${key}. ${cat.title}`);
+        cat.items.forEach(item => unifiedPassport.push(item));
     }
+
+    sections.push({
+        name: 'Базовая комплектация дома',
+        items: [{ name: `${model.name} — базовая комплектация`, quantity: 1, unit: 'компл.', price: model.basePrice, total: model.basePrice }],
+        total: model.basePrice,
+        passportItems: unifiedPassport,
+        hideItems: true
+    });
 
     // ─── 1.5. Фундамент и монтаж ──────────────────
     const foundationItems: EstimateLineItem[] = [];
