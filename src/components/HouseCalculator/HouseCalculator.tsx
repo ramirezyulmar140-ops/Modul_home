@@ -14,24 +14,27 @@ import {
     EXTERIOR_OPTIONS
 } from './houseCalculatorData';
 
-const Counter = ({ label, value, onChange, name, step = 1, min = 0 }: any) => (
-    <div>
-        <label className="block text-xs font-bold text-gray-500 tracking-wide mb-2">{label}</label>
-        <div className="flex items-center space-x-2 max-w-[160px] bg-gray-50/50 p-1 rounded-2xl border border-gray-100">
-            <button type="button" onClick={() => onChange(name, Math.max(min, parseFloat((value - step).toFixed(2))))}
-                className="w-10 h-10 flex-shrink-0 items-center justify-center bg-white shadow-sm hover:bg-green-50 hover:text-green-600 rounded-xl border border-gray-200 text-gray-500 text-lg font-bold transition-all">-</button>
-            <input type="number" value={value}
-                onChange={(e) => onChange(name, Math.max(min, parseFloat(e.target.value) || 0))}
-                className="w-full bg-transparent border-none rounded-lg px-1 py-1 text-sm font-bold text-center focus:outline-none focus:ring-0 text-gray-800" />
-            <button type="button" onClick={() => onChange(name, parseFloat((value + step).toFixed(2)))}
-                className="w-10 h-10 flex-shrink-0 items-center justify-center bg-white shadow-sm hover:bg-green-50 hover:text-green-600 rounded-xl border border-gray-200 text-gray-500 text-lg font-bold transition-all">+</button>
+const Counter = ({ label, value, onChange, name, min = 0, step = 1 }: any) => (
+    <div className="bg-white p-6 rounded-[24px] border border-gray-100/80 shadow-sm flex items-center justify-between group hover:border-gray-200 transition-all">
+        <label className="text-sm font-bold text-gray-700 leading-tight pr-4">{label}</label>
+        <div className="flex items-center space-x-1 bg-gray-50 p-2 rounded-[20px] border border-gray-100">
+            <button onClick={() => onChange(name, Math.max(min, value - step))}
+                className="w-12 h-12 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-[#F2F8F4] hover:text-[#4BD16F] hover:border-[#4BD16F]/30 transition-all shadow-sm active:scale-95">
+                <span className="text-xl font-bold">−</span>
+            </button>
+            <input type="number" value={value} readOnly
+                className="w-16 text-center bg-transparent font-black text-gray-900 border-none focus:ring-0 text-lg tabular-nums" />
+            <button onClick={() => onChange(name, value + step)}
+                className="w-12 h-12 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-[#F2F8F4] hover:text-[#4BD16F] hover:border-[#4BD16F]/30 transition-all shadow-sm active:scale-95">
+                <span className="text-xl font-bold">+</span>
+            </button>
         </div>
     </div>
 );
 
 // ─── Checkbox Option ────────────────────────────
 const Check = ({ label, checked, onChange, name, disabled, price }: any) => (
-    <label className={`flex items-center space-x-4 p-4 rounded-2xl border cursor-pointer transition-all duration-300 ${disabled ? 'opacity-40 cursor-not-allowed bg-gray-50/50 border-gray-100' : checked ? 'bg-[#F2F8F4] border-[#4BD16F]/30 shadow-sm' : 'bg-white border-gray-100/80 hover:border-gray-200 hover:shadow-sm'}`}>
+    <label className={`flex items-center space-x-4 p-6 rounded-[24px] border cursor-pointer transition-all duration-300 ${disabled ? 'opacity-40 cursor-not-allowed bg-gray-50/50 border-gray-100' : checked ? 'bg-[#F2F8F4] border-[#4BD16F]/30 shadow-sm' : 'bg-white border-gray-100/80 hover:border-gray-200 hover:shadow-sm'}`}>
         <div className={`relative flex items-center justify-center w-6 h-6 rounded-md border-2 transition-colors ${checked ? 'border-[#4BD16F] bg-[#4BD16F]' : 'border-gray-300 bg-white'}`}>
             <input type="checkbox" checked={checked} disabled={disabled}
                 onChange={(e) => onChange(name, e.target.checked)}
@@ -263,7 +266,8 @@ export default function HouseCalculator() {
                                 <div>
                                     <label className="block text-xs font-medium text-gray-700 mb-1">Отделка стен</label>
                                     <select value={state.wallFinish} onChange={e => set('wallFinish', e.target.value)}
-                                        className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
+                                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
+                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
                                         <option value="none">Фанера шлифованная 12 мм (в базе)</option>
                                         <option value="gipsokarton">Гипсокартон</option>
                                         <option value="vagonka">Вагонка штиль</option>
@@ -271,18 +275,20 @@ export default function HouseCalculator() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Отделка потолка</label>
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Отделка потолка</label>
                                     <select value={state.ceilingFinish} onChange={e => set('ceilingFinish', e.target.value)}
-                                        className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
+                                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
+                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
                                         <option value="none">Натяжной потолок (в базе)</option>
                                         <option value="fanera">Фанера</option>
                                         <option value="imitBrus">Имитация бруса / вагонка штиль</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Напольное покрытие</label>
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Напольное покрытие</label>
                                     <select value={state.floorFinish} onChange={e => set('floorFinish', e.target.value)}
-                                        className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
+                                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
+                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
                                         <option value="none">Ламинат KREAFORTA 33 кл. (в базе)</option>
                                         {Object.entries(FLOOR_PRICES).map(([key, val]) => (
                                             <option key={key} value={key}>{val.name} ({val.price} ₽/м²)</option>
@@ -303,9 +309,10 @@ export default function HouseCalculator() {
                                 {state.bathroomFloorArea > 0 && (
                                     <>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1">Пол санузла</label>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Пол санузла</label>
                                             <select value={state.bathroomFloorFinish} onChange={e => set('bathroomFloorFinish', e.target.value)}
-                                                className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
+                                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
+                                                className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
                                                 <option value="none">Кварц-винил 1500 ₽/м² (в базе)</option>
                                                 {Object.entries(BATHROOM_PRICES.floor).filter(([key]) => key !== 'quartzVinyl').map(([key, val]) => (
                                                     <option key={key} value={key}>{val.name} ({val.price} ₽/м²)</option>
@@ -313,9 +320,10 @@ export default function HouseCalculator() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-medium text-gray-700 mb-1">Стены санузла</label>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Стены санузла</label>
                                             <select value={state.bathroomWallFinish} onChange={e => set('bathroomWallFinish', e.target.value)}
-                                                className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
+                                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
+                                                className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
                                                 <option value="none">Фанера (в базе)</option>
                                                 {Object.entries(BATHROOM_PRICES.wall).filter(([key]) => key !== 'fanera').map(([key, val]) => (
                                                     <option key={key} value={key}>{val.name} ({val.price} ₽/м²)</option>
@@ -348,9 +356,10 @@ export default function HouseCalculator() {
                                 </div>
                                 <Check label="Разрыв мокрой точки (кухня далеко)" checked={state.wetPointSplit} onChange={set} name="wetPointSplit" price="60 000 ₽" />
                                 <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Отопление (Тёплый пол)</label>
+                                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Отопление (Тёплый пол)</label>
                                     <select value={state.heatingSystem} onChange={e => set('heatingSystem', e.target.value)}
-                                        className="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-sm">
+                                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
+                                        className="w-full bg-white border border-gray-100 rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all">
                                         <option value="none">Без тёплого пола (в базе)</option>
                                         <option value="electric">Тёплый пол электрический модульный ЗЕБРА ЭВО-300 WF</option>
                                         <option value="water">Водяной тёплый пол (котёл, коллектор, трубы, ЭППС)</option>
