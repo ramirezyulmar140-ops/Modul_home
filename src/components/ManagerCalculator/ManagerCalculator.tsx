@@ -432,7 +432,7 @@ export default function ManagerCalculator() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <CounterInput label="Уличный свет (шт)" name="optStreetLightCount" value={params.optStreetLightCount} onChange={handleChange} />
-                                        <CounterInput label="Трассы конд. (25к/шт)" name="optAcPrepCount" value={params.optAcPrepCount} onChange={handleChange} />
+                                        <CounterInput label="Трассы кондиционера (шт)" name="optAcPrepCount" value={params.optAcPrepCount} onChange={handleChange} />
                                     </div>
                                     <label className="flex items-center space-x-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100 cursor-pointer">
                                         <input type="checkbox" name="optWetPointSplit" checked={params.optWetPointSplit} onChange={handleChange} className="w-5 h-5 text-blue-600 border-gray-300 rounded" />

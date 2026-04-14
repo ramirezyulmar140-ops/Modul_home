@@ -96,7 +96,7 @@ export const PRICING_CONFIG = {
     optSocket: 3000,
     optSpotlight: 4000,
     optStreetLight: 7000,
-    optAcPrep: 25000,
+    optAcPrep: 30000,
     optWetPointSplit: 40000,
 
     // Каркас (пересчитано на м2 площади пола, где применимо)
