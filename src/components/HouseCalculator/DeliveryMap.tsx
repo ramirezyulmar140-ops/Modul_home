@@ -23,25 +23,25 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
     const [isCalculating, setIsCalculating] = useState(false);
     const [routeError, setRouteError] = useState('');
 
-    const handleCalculate = async () => {
-        if (!ymapsInstance || !mapInstance || !searchQuery) return;
+    const handleCalculate = async (manualKm?: number) => {
+        if (!ymapsInstance || !mapInstance) return;
         setIsCalculating(true);
         setRouteError('');
 
-        mapInstance.geoObjects.removeAll();
-
-        // Инициализируем подсказки, если еще нет
-        if (ymapsInstance && !document.getElementById('suggest-input-ready')) {
-            const suggestView = new ymapsInstance.SuggestView('suggest-input');
-            const hiddenMarker = document.createElement('div');
-            hiddenMarker.id = 'suggest-input-ready';
-            document.body.appendChild(hiddenMarker);
-            
-            suggestView.events.add('select', (e: any) => {
-                const item = e.get('item');
-                if (item) setSearchQuery(item.value);
-            });
+        if (manualKm !== undefined) {
+            onChange('deliveryDistance', manualKm);
+            let price = 0;
+            if (manualKm > FREE_DISTANCE_KM) {
+                const extraKm = manualKm - FREE_DISTANCE_KM;
+                price = extraKm * PRICE_PER_KM_PER_MODULE * modulesCount;
+            }
+            onChange('deliveryPrice', price);
+            setIsCalculating(false);
+            return;
         }
+
+        if (!searchQuery) return;
+        mapInstance.geoObjects.removeAll();
 
         try {
             // 1. Геокодируем обе точки, чтобы получить координаты
@@ -151,7 +151,20 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 defaultState={{ center: [56.761001, 61.054366], zoom: 9 }}
                                 width="100%"
                                 height="100%"
-                                onLoad={(ymaps) => setYmapsInstance(ymaps)}
+                                onLoad={(ymaps) => {
+                                    setYmapsInstance(ymaps);
+                                    // Инициализируем подсказки сразу при загрузке API
+                                    if (document.getElementById('suggest-input') && !document.getElementById('suggest-input-ready')) {
+                                        const suggestView = new ymaps.SuggestView('suggest-input');
+                                        const hiddenMarker = document.createElement('div');
+                                        hiddenMarker.id = 'suggest-input-ready';
+                                        document.body.appendChild(hiddenMarker);
+                                        suggestView.events.add('select', (e: any) => {
+                                            const item = e.get('item');
+                                            if (item) setSearchQuery(item.value);
+                                        });
+                                    }
+                                }}
                                 instanceRef={(map) => setMapInstance(map)}
                             />
                         </YMaps>
@@ -160,6 +173,25 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 <span className="text-sm font-medium text-gray-500 animate-pulse">Загрузка карты...</span>
                             </div>
                         )}
+                    </div>
+
+                    <div className="bg-amber-50 border border-amber-200 p-3 rounded text-xs flex items-center justify-between">
+                        <div>
+                            <p className="font-bold text-amber-800 mb-1">Ручной ввод (если карта не работает):</p>
+                            <div className="flex items-center gap-2">
+                                <span className="text-amber-700">Расстояние до участка:</span>
+                                <input 
+                                    type="number" 
+                                    value={state.deliveryDistance || ''} 
+                                    onChange={(e) => handleCalculate(parseInt(e.target.value) || 0)}
+                                    className="w-20 px-2 py-1 bg-white border border-amber-300 rounded"
+                                />
+                                <span className="text-amber-700">км</span>
+                            </div>
+                        </div>
+                        <div className="text-right text-gray-500 italic">
+                            {modulesCount} модуля
+                        </div>
                     </div>
 
                     {state.deliveryDistance > 0 && (
