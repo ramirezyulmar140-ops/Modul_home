@@ -11,7 +11,7 @@ export const HOUSE_MODELS: HouseModel[] = [
         basePrice: 1690000,
         description: 'Уютный дом с отдельной спальней и просторной кухней-столовой.',
         features: ['Кухня-столовая', 'Гостиная', 'Спальня', 'Санузел', 'Терраса'],
-        modulesCount: 3,
+        modulesCount: 2,
     },
     {
         id: 'dom49',
@@ -20,7 +20,7 @@ export const HOUSE_MODELS: HouseModel[] = [
         basePrice: 1890000,
         description: 'Квадратный дом с рациональной планировкой и выделенной спальной зоной.',
         features: ['Кухня-столовая', 'Гостиная', 'Спальня', 'Санузел', 'Терраса'],
-        modulesCount: 3,
+        modulesCount: 2,
     },
     {
         id: 'dom63',
@@ -29,7 +29,7 @@ export const HOUSE_MODELS: HouseModel[] = [
         basePrice: 2390000,
         description: 'Вместительный дом с двумя изолированными спальнями.',
         features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'],
-        modulesCount: 4,
+        modulesCount: 2,
     },
     {
         id: 'dom77',
@@ -38,7 +38,7 @@ export const HOUSE_MODELS: HouseModel[] = [
         basePrice: 2690000,
         description: 'Просторный семейный дом с большой кухней-гостиной.',
         features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'],
-        modulesCount: 5,
+        modulesCount: 3,
     },
     {
         id: 'dom77o',
@@ -47,7 +47,7 @@ export const HOUSE_MODELS: HouseModel[] = [
         basePrice: 2810000,
         description: 'Альтернативная планировка 77 м² с улучшенной конфигурацией.',
         features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'],
-        modulesCount: 5,
+        modulesCount: 3,
     },
 ];
 
