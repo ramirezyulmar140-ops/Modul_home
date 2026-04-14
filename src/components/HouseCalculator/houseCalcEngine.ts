@@ -281,24 +281,20 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         const floorDef = FLOOR_PRICES[state.floorFinish as keyof typeof FLOOR_PRICES];
         spec[6].push(`Финишное напольное покрытие: ${floorDef?.name || state.floorFinish}`);
     }
-    if (state.bathroomFloorArea > 0) {
-        let bathFloor = 'кварцвинил';
-        if (state.bathroomFloorFinish !== 'none') {
-            const bf = BATHROOM_PRICES.floor[state.bathroomFloorFinish as keyof typeof BATHROOM_PRICES.floor];
-            bathFloor = bf?.name || state.bathroomFloorFinish;
-        }
-        spec[6].push(`Влагостойкое напольное покрытие санузла: ${bathFloor}`);
+    let bathFloor = 'кварцвинил';
+    if (state.bathroomFloorFinish !== 'none') {
+        const bf = BATHROOM_PRICES.floor[state.bathroomFloorFinish as keyof typeof BATHROOM_PRICES.floor];
+        bathFloor = bf?.name || state.bathroomFloorFinish;
     }
+    spec[6].push(`Влагостойкое напольное покрытие санузла: ${bathFloor}`);
     const wallMap: Record<string, string> = { none: 'шлифованная фанера (стандарт)', vagonka: 'вагонка штиль (хвоя)', imitBrus: 'имитация бруса', gipsokarton: 'подготовка под чистовую (ГКЛ)' };
     spec[6].push(`Отделка стен: ${wallMap[state.wallFinish as keyof typeof wallMap] || state.wallFinish}${state.paintWalls ? ' + покраска в 2 слоя' : ''}`);
-    if (state.bathroomFloorArea > 0) {
-        let bathWall = 'фанера + зона душевой из кварцвинила (стандарт)';
-        if (state.bathroomWallFinish !== 'none') {
-            const bw = BATHROOM_PRICES.wall[state.bathroomWallFinish as keyof typeof BATHROOM_PRICES.wall];
-            bathWall = bw?.name || state.bathroomWallFinish;
-        }
-        spec[6].push(`Отделка стен санузла: ${bathWall}`);
+    let bathWall = 'фанера + зона душевой из кварцвинила (стандарт)';
+    if (state.bathroomWallFinish !== 'none') {
+        const bw = BATHROOM_PRICES.wall[state.bathroomWallFinish as keyof typeof BATHROOM_PRICES.wall];
+        bathWall = bw?.name || state.bathroomWallFinish;
     }
+    spec[6].push(`Отделка стен санузла: ${bathWall}`);
     const ceilMap: Record<string, string> = { none: 'натяжной потолок белый матовый (стандарт)', fanera: 'премиальная фанера', imitBrus: 'имитация бруса / вагонка' };
     spec[6].push(`Отделка потолка: ${ceilMap[state.ceilingFinish as keyof typeof ceilMap] || state.ceilingFinish}${state.paintCeiling && state.ceilingFinish !== 'none' ? ' + покраска в 2 слоя' : ''}`);
 
