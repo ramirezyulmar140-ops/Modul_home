@@ -36,10 +36,35 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
         ? state.deliveryVehicles
         : [{ vehicleId: 'manip_10_10', qty: 1 }];
 
+    // --- Считает общую стоимость доставки ---
+    const computeDeliveryPrice = (distanceKm: number, currentVehicles: DeliveryVehicleEntry[], isCraneNeeded: boolean): number => {
+        let price = 0;
+
+        for (const entry of currentVehicles) {
+            const rate = getVehicleRate(entry.vehicleId, distanceKm);
+            price += distanceKm * rate * entry.qty;
+
+            if (distanceKm > 0) {
+                let oversized = OVERSIZED_BASE_PRICE * entry.qty;
+                if (distanceKm > 50) {
+                    oversized += (distanceKm - 50) * OVERSIZED_KM_PRICE * entry.qty;
+                }
+                price += oversized;
+            }
+        }
+
+        if (isCraneNeeded) {
+            price += CRANE_SERVICES_PRICE;
+        }
+
+        return price;
+    };
+
     const updateVehicles = (newList: DeliveryVehicleEntry[]) => {
         onChange('deliveryVehicles', newList);
-        onChange('deliveryDistance', 0);
-        onChange('deliveryPrice', 0);
+        if (state.deliveryDistance > 0) {
+            onChange('deliveryPrice', computeDeliveryPrice(state.deliveryDistance, newList, state.needLoadingCrane));
+        }
     };
 
     const addVehicle = () => {
@@ -61,33 +86,6 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
         const list = [...vehicles];
         list[idx] = { ...list[idx], qty: Math.max(1, qty) };
         updateVehicles(list);
-    };
-
-    // --- Считает общую стоимость доставки ---
-    const computeDeliveryPrice = (distanceKm: number): number => {
-        let price = 0;
-
-        // Для каждой машины: ставка × км × кол-во
-        for (const entry of vehicles) {
-            const rate = getVehicleRate(entry.vehicleId, distanceKm);
-            price += distanceKm * rate * entry.qty;
-
-            // Негабарит за каждую единицу
-            if (distanceKm > 0) {
-                let oversized = OVERSIZED_BASE_PRICE * entry.qty;
-                if (distanceKm > 50) {
-                    oversized += (distanceKm - 50) * OVERSIZED_KM_PRICE * entry.qty;
-                }
-                price += oversized;
-            }
-        }
-
-        // Услуги крана — фиксировано 30 000 (не зависит от модулей)
-        if (state.needLoadingCrane) {
-            price += CRANE_SERVICES_PRICE;
-        }
-
-        return price;
     };
 
     const totalVehicleCount = vehicles.reduce((s, v) => s + v.qty, 0);
@@ -120,7 +118,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
 
                 onChange('deliveryAddress', searchQuery);
                 onChange('deliveryDistance', distanceKm);
-                onChange('deliveryPrice', computeDeliveryPrice(distanceKm));
+                onChange('deliveryPrice', computeDeliveryPrice(distanceKm, vehicles, state.needLoadingCrane));
 
                 mapInstance.setBounds(route.getWayPoints().getBounds(), { checkZoomRange: true });
                 setIsCalculating(false);
@@ -156,65 +154,6 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
             {state.useDeliveryMap && (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
 
-                    {/* ---- Список машин ---- */}
-                    <div className="bg-white p-3 border rounded shadow-sm space-y-3">
-                        <div className="flex items-center justify-between">
-                            <label className="text-xs font-semibold text-gray-700">Техника для доставки</label>
-                            <button onClick={addVehicle}
-                                className="text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded hover:bg-amber-200 font-bold transition-colors">
-                                + Добавить машину
-                            </button>
-                        </div>
-                        {vehicles.map((entry, idx) => {
-                            return (
-                                <div key={idx} className="flex items-center gap-2 bg-gray-50 border rounded p-2">
-                                    <select
-                                        value={entry.vehicleId}
-                                        onChange={(e) => changeVehicleType(idx, e.target.value)}
-                                        className="flex-1 bg-white border border-gray-300 rounded py-1.5 px-2 text-xs focus:ring-amber-500 focus:border-amber-500"
-                                    >
-                                        {DELIVERY_VEHICLES.map(dv => (
-                                            <option key={dv.id} value={dv.id}>{dv.name}</option>
-                                        ))}
-                                    </select>
-                                    <div className="flex items-center gap-1">
-                                        <button onClick={() => changeVehicleQty(idx, entry.qty - 1)}
-                                            className="w-6 h-6 bg-white border border-gray-300 rounded text-xs font-bold">−</button>
-                                        <input type="number" value={entry.qty}
-                                            onChange={e => changeVehicleQty(idx, parseInt(e.target.value) || 1)}
-                                            className="w-10 text-center border border-gray-300 rounded text-xs py-0.5" />
-                                        <button onClick={() => changeVehicleQty(idx, entry.qty + 1)}
-                                            className="w-6 h-6 bg-white border border-gray-300 rounded text-xs font-bold">+</button>
-                                        <span className="text-[10px] text-gray-400 w-6">шт</span>
-                                    </div>
-                                    {vehicles.length > 1 && (
-                                        <button onClick={() => removeVehicle(idx)}
-                                            className="text-red-500 hover:text-red-700 px-1 text-xs font-bold">✕</button>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {/* ---- Чекбокс крана (всегда видим) ---- */}
-                    <div className="bg-white p-3 border rounded shadow-sm">
-                        <label className="flex items-center cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                checked={state.needLoadingCrane}
-                                onChange={(e) => {
-                                    onChange('needLoadingCrane', e.target.checked);
-                                    onChange('deliveryDistance', 0);
-                                    onChange('deliveryPrice', 0);
-                                }}
-                                className="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
-                            />
-                            <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-amber-700">
-                                Услуги крана 25т — Погрузка + Монтаж ({CRANE_SERVICES_PRICE.toLocaleString()} ₽)
-                            </span>
-                        </label>
-                    </div>
-
                     {/* ---- Поиск адреса ---- */}
                     <div className="flex gap-2">
                         <div className="flex-1 relative">
@@ -225,24 +164,24 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleCalculate()}
                                 placeholder="Введите адрес участка (например: г. Истра, ул. Ленина 1)"
-                                className="w-full pl-3 pr-4 py-2 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm"
+                                className="w-full pl-3 pr-4 py-3 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm shadow-sm"
                             />
                         </div>
                         <button
                             onClick={handleCalculate}
                             disabled={!ymapsInstance || isCalculating}
-                            className="bg-amber-500 text-white font-bold py-2 px-6 rounded hover:bg-amber-600 transition-colors disabled:opacity-50 text-sm flex-shrink-0"
+                            className="bg-amber-500 text-white font-bold py-3 px-6 rounded hover:bg-amber-600 transition-colors disabled:opacity-50 text-sm flex-shrink-0 shadow-sm"
                         >
                             {isCalculating ? 'Считаем...' : 'Построить маршрут'}
                         </button>
                     </div>
 
                     {routeError && (
-                        <div className="text-red-500 text-xs font-semibold">{routeError}</div>
+                        <div className="text-red-500 text-sm font-semibold p-2 bg-red-50 rounded border border-red-200">{routeError}</div>
                     )}
 
                     {/* ---- Карта ---- */}
-                    <div className="h-[400px] bg-gray-200 rounded overflow-hidden relative">
+                    <div className="h-[400px] bg-gray-200 rounded overflow-hidden relative border border-gray-300 shadow-sm">
                         <YMaps query={{ apikey: '341481f1-976f-4208-893b-868e5f953b10', load: 'package.full', lang: 'ru_RU' }}>
                             <Map
                                 defaultState={{ center: [56.761001, 61.054366], zoom: 9 }}
@@ -271,11 +210,75 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                         )}
                     </div>
 
+                    {/* ---- Список машин ---- */}
+                    <div className="bg-white p-4 border rounded shadow-sm space-y-4">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-bold text-gray-800">Техника для доставки</label>
+                            <button onClick={addVehicle}
+                                className="text-sm bg-amber-100 text-amber-800 px-4 py-1.5 rounded hover:bg-amber-200 font-bold transition-colors">
+                                + Добавить машину
+                            </button>
+                        </div>
+                        <div className="space-y-3">
+                            {vehicles.map((entry, idx) => {
+                                return (
+                                    <div key={idx} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded p-3">
+                                        <select
+                                            value={entry.vehicleId}
+                                            onChange={(e) => changeVehicleType(idx, e.target.value)}
+                                            className="flex-1 bg-white border border-gray-300 rounded py-2 px-3 text-sm focus:ring-amber-500 focus:border-amber-500"
+                                        >
+                                            {DELIVERY_VEHICLES.map(dv => (
+                                                <option key={dv.id} value={dv.id}>{dv.name}</option>
+                                            ))}
+                                        </select>
+                                        <div className="flex items-center gap-1.5 bg-white border border-gray-300 rounded p-1">
+                                            <button onClick={() => changeVehicleQty(idx, entry.qty - 1)}
+                                                className="w-8 h-8 rounded text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 font-bold transition-colors">−</button>
+                                            <input type="number" value={entry.qty}
+                                                onChange={e => changeVehicleQty(idx, parseInt(e.target.value) || 1)}
+                                                className="w-12 text-center text-sm font-medium focus:outline-none" />
+                                            <button onClick={() => changeVehicleQty(idx, entry.qty + 1)}
+                                                className="w-8 h-8 rounded text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 font-bold transition-colors">+</button>
+                                        </div>
+                                        {vehicles.length > 1 && (
+                                            <button onClick={() => removeVehicle(idx)}
+                                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors text-lg" title="Удалить машину">
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* ---- Чекбокс крана (всегда видим) ---- */}
+                    <div className="bg-white p-4 border rounded shadow-sm">
+                        <label className="flex items-center cursor-pointer group">
+                            <input
+                                type="checkbox"
+                                checked={state.needLoadingCrane}
+                                onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    onChange('needLoadingCrane', checked);
+                                    if (state.deliveryDistance > 0) {
+                                        onChange('deliveryPrice', computeDeliveryPrice(state.deliveryDistance, vehicles, checked));
+                                    }
+                                }}
+                                className="w-5 h-5 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
+                            />
+                            <span className="ml-3 text-base font-medium text-gray-800 group-hover:text-amber-700">
+                                Услуги крана 25т — Погрузка + Монтаж ({CRANE_SERVICES_PRICE.toLocaleString()} ₽)
+                            </span>
+                        </label>
+                    </div>
+
                     {/* ---- Детали рейса ---- */}
                     {state.deliveryDistance > 0 && (
-                        <div className="bg-white border text-sm p-4 rounded shadow-sm border-amber-100">
-                            <h3 className="font-black text-gray-900 mb-2">Детали рейса</h3>
-                            <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-white border text-sm p-5 rounded shadow-sm border-amber-200">
+                            <h3 className="font-black text-gray-900 mb-4 text-lg">Детали рейса</h3>
+                            <div className="grid grid-cols-2 gap-6">
                                 <div>
                                     <p className="text-gray-500 text-xs mb-1">Точка отправления (База)</p>
                                     <p className="font-medium text-gray-800">{BASE_ADDRESS}</p>
