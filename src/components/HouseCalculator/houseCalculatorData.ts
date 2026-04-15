@@ -81,13 +81,13 @@ export const ENGINEERING_OPTIONS = {
     electricWarmFloorThermostat: { name: 'Терморегулятор к электро-ТП', price: 3000, unit: 'шт' },
 };
 
-// Тёплый пол — цены зависят от модели дома
+// Тёплый пол — цены зависят от модели дома (фиксированная стоимость)
 export const WARM_FLOOR_PRICES: Record<HouseModelId, number> = {
-    dom42: 150000,
-    dom49: 170000,
-    dom63: 200000,
-    dom77: 240000,
-    dom77o: 240000,
+    dom42: 160000,
+    dom49: 180000,
+    dom63: 220000,
+    dom77: 260000,
+    dom77o: 260000,
 };
 
 // ==========================================

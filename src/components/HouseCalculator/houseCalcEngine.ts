@@ -11,6 +11,7 @@ import {
     FLOOR_PRICES,
     FOUNDATION_ASSEMBLY_DATA,
     DELIVERY_VEHICLES,
+    WARM_FLOOR_PRICES,
 } from './houseCalculatorData';
 
 function getModel(id: HouseModelId) {
@@ -119,7 +120,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.heatingSystem === 'electric') {
         spec[7].items.push(`Система отопления: электрический теплый пол ЗЕБРА (${state.warmFloorArea} м²) + терморегуляторы`);
     } else if (state.heatingSystem === 'water') {
-        spec[7].items.push(`Система отопления: водяной теплый пол (${state.warmFloorArea} м²) + котел и автоматика`);
+        spec[7].items.push('Система отопления: Водяной теплыйпол (Котел, коллектор, разводка труб 16 мм, доп. утепление пола ЭППС - 30 мм, ГВЛВ - 10 мм., 2 слоя)');
     } else {
         spec[7].items.push('Система отопления: электрические конвекторы (стандарт)');
     }
@@ -276,7 +277,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         addItem(engItems, 'Тёплый пол электрический модульный ЗЕБРА ЭВО-300 WF', state.warmFloorArea, 'м²', 2200);
         addItem(engItems, ENGINEERING_OPTIONS.electricWarmFloorThermostat.name, state.warmFloorThermostats, 'шт', ENGINEERING_OPTIONS.electricWarmFloorThermostat.price);
     } else if (state.heatingSystem === 'water') {
-        addItem(engItems, 'Тёплый пол водяной (котёл, коллектор, трубы, ЭППС)', state.warmFloorArea, 'м²', 3900);
+        addFixed(engItems, 'Водяной теплыйпол (Котел, коллектор, разводка труб 16 мм, доп. утепление пола ЭППС - 30 мм, ГВЛВ - 10 мм., 2 слоя)', WARM_FLOOR_PRICES[modelId]);
         addItem(engItems, ENGINEERING_OPTIONS.warmFloorThermostat.name, state.warmFloorThermostats, 'шт', ENGINEERING_OPTIONS.warmFloorThermostat.price);
     }
 

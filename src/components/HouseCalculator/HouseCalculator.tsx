@@ -12,7 +12,8 @@ import {
     FLOOR_PRICES,
     FOUNDATION_ASSEMBLY_DATA,
     INTERIOR_FINISH_OPTIONS,
-    EXTERIOR_OPTIONS
+    EXTERIOR_OPTIONS,
+    WARM_FLOOR_PRICES
 } from './houseCalculatorData';
 
 const Counter = ({ label, value, onChange, name, min = 0, step = 1 }: { label: string, value: number, onChange: (n: keyof HouseCalcState, v: number) => void, name: keyof HouseCalcState, min?: number, step?: number }) => (
@@ -390,13 +391,15 @@ export default function HouseCalculator() {
                                             style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234BD16F'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right 1.5rem center', backgroundSize: '1.5rem', backgroundRepeat: 'no-repeat' }}
                                             className={`w-full border rounded-2xl px-6 py-6 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#4BD16F]/20 appearance-none shadow-sm cursor-pointer transition-all accent-[#4BD16F] ${state.heatingSystem !== 'none' ? 'bg-[#F2F8F4] border-[#4BD16F]' : 'bg-white border-gray-100'}`}>
                                             <option value="none">Без тёплого пола (в базе)</option>
-                                            <option value="electric">Тёплый пол электрический модульный ЗЕБРА ЭВО-300 WF</option>
-                                            <option value="water">Водяной тёплый пол (котёл, коллектор, трубы, ЭППС)</option>
+                                            <option value="electric">Тёплый пол электрический ЗЕБРА (монтаж по площади)</option>
+                                            <option value="water">Водяной теплыйпол (Котел, коллектор, трубы 16 мм, ЭППС 30 мм, ГВЛВ 10 мм) — {WARM_FLOOR_PRICES[state.selectedHouse].toLocaleString()} ₽</option>
                                         </select>
                                     </div>
                                     {state.heatingSystem !== 'none' && (
                                         <div className="bg-amber-50 p-6 rounded-[24px] border border-amber-100 space-y-4">
-                                            <Counter label="Площадь теплого пола (м²)" name="warmFloorArea" value={state.warmFloorArea} onChange={set} />
+                                            {state.heatingSystem === 'electric' && (
+                                                <Counter label="Площадь теплого пола (м²)" name="warmFloorArea" value={state.warmFloorArea} onChange={set} />
+                                            )}
                                             <Counter 
                                                 label={`Терморегуляторы к ${state.heatingSystem === 'electric' ? 'электро' : 'водяному'} ТП (${state.heatingSystem === 'electric' ? '3 000' : '15 000'} ₽/шт)`} 
                                                 name="warmFloorThermostats" 
