@@ -546,15 +546,15 @@ export default function HouseCalculator() {
                                                         <label className="block text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-1">Длина сваи</label>
                                                         <select value={state.pileLength} onChange={e => set('pileLength', e.target.value)}
                                                             className="w-full bg-white border border-[#4BD16F]/30 rounded px-2 py-1.5 text-xs focus:ring-[#4BD16F] focus:border-[#4BD16F] font-medium accent-[#4BD16F]">
-                                                            <option value="2500">2500 мм (6 000 ₽)</option>
-                                                            <option value="3000">3000 мм (6 800 ₽)</option>
-                                                            <option value="3500">3500 мм (7 300 ₽)</option>
+                                                            <option value="2500">2500 мм (7 000 ₽)</option>
+                                                            <option value="3000">3000 мм (7 800 ₽)</option>
+                                                            <option value="3500">3500 мм (8 300 ₽)</option>
                                                         </select>
                                                     </div>
                                                     <div className="text-right pb-1">
                                                         <div className="text-[10px] uppercase text-gray-400 font-bold">Итого свай: {FOUNDATION_ASSEMBLY_DATA[state.selectedHouse].piles} шт</div>
                                                         <div className="text-sm font-bold text-amber-700">
-                                                            {(FOUNDATION_ASSEMBLY_DATA[state.selectedHouse].piles * (state.pileLength === '2500' ? 6000 : state.pileLength === '3000' ? 6800 : 7300)).toLocaleString()} ₽
+                                                            {(FOUNDATION_ASSEMBLY_DATA[state.selectedHouse].piles * (state.pileLength === '2500' ? 7000 : state.pileLength === '3000' ? 7800 : 8300)).toLocaleString()} ₽
                                                         </div>
                                                     </div>
                                                 </div>
