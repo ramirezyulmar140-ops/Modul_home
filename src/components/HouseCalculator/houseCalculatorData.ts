@@ -281,9 +281,9 @@ export const FLOOR_PRICES = {
 // ==========================================
 export const SERVICE_CATALOG: Omit<ServiceEntry, 'quantity'>[] = [
     // Фундамент
-    { id: 'pile_2500', category: 'Фундамент', name: 'Свая 73ф', specs: '2500мм', unit: 'шт', price: 6000 },
-    { id: 'pile_3000', category: 'Фундамент', name: 'Свая 73ф', specs: '3000мм', unit: 'шт', price: 6800 },
-    { id: 'pile_3500', category: 'Фундамент', name: 'Свая 73ф', specs: '3500мм', unit: 'шт', price: 7300 },
+    { id: 'pile_2500', category: 'Фундамент', name: 'Свая 73ф', specs: '2500мм', unit: 'шт', price: 7000 },
+    { id: 'pile_3000', category: 'Фундамент', name: 'Свая 73ф', specs: '3000мм', unit: 'шт', price: 7800 },
+    { id: 'pile_3500', category: 'Фундамент', name: 'Свая 73ф', specs: '3500мм', unit: 'шт', price: 8300 },
     // Септик
     { id: 'ring_700', category: 'Септик', name: 'Кольцо ЖБ', specs: '700мм', unit: 'шт', price: 2800 },
     { id: 'ring_1000', category: 'Септик', name: 'Кольцо ЖБ', specs: '1000мм', unit: 'шт', price: 3200 },
