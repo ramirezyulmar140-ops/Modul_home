@@ -150,7 +150,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     const foundationData = FOUNDATION_ASSEMBLY_DATA[modelId];
     
     if (state.addFoundation) {
-        const pilePrice = state.pileLength === '2500' ? 6000 : state.pileLength === '3000' ? 6800 : 7300;
+        const pilePrice = state.pileLength === '2500' ? 7000 : state.pileLength === '3000' ? 7800 : 8300;
         addItem(foundationItems, `Свайно-винтовой фундамент (d=73мм, L=${state.pileLength}мм)`, foundationData.piles, 'шт', pilePrice);
     }
     if (state.addAssembly) {
