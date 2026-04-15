@@ -274,9 +274,6 @@ export const BATHROOM_PRICES = {
 export const FLOOR_PRICES = {
     laminateWP: { name: 'Ламинат 33 кл. водостойкий', price: 1590 },
     quartzVinyl: { name: 'Кварцвинил (SPC)', price: 1500 },
-    linoleum: { name: 'Линолеум', price: 600 },
-    boardPine: { name: 'Половая доска (Хвоя)', price: 1000 },
-    boardLarch: { name: 'Половая доска (Лиственница)', price: 1600 },
 };
 
 // ==========================================

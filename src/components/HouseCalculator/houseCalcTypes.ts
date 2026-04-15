@@ -58,7 +58,7 @@ export interface HouseCalcState {
     paintWalls: boolean;
     paintCeiling: boolean;
     // Пол — per m² pricing
-    floorFinish: 'none' | 'laminateWP' | 'quartzVinyl' | 'linoleum' | 'boardPine' | 'boardLarch';
+    floorFinish: 'none' | 'laminateWP' | 'quartzVinyl';
 
     // Санузел
     bathroomFloorArea: number;
