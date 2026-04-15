@@ -154,32 +154,37 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         addItem(foundationItems, `Свайно-винтовой фундамент (d=73мм, L=${state.pileLength}мм)`, foundationData.piles, 'шт', pilePrice);
     }
     if (state.addAssembly) {
-        if (state.useDeliveryMap && state.deliveryDistance > 0) {
-            const vehicleDescs = (state.deliveryVehicles || []).map(entry => {
-                const v = DELIVERY_VEHICLES.find(d => d.id === entry.vehicleId);
-                return `${v?.name || '?'} ×${entry.qty}`;
-            }).join('\n');
+        addFixed(foundationItems, 'Монтаж и сборка дома.', foundationData.assemblyPrice);
+    }
 
-            addFixed(foundationItems, 'Монтаж и сборка дома.', foundationData.assemblyPrice);
-            
-            // Address item without price
-            foundationItems.push({ 
-                name: `Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}).`, 
-                quantity: 1, 
-                unit: 'адрес', 
-                price: 0, 
-                total: 0 
-            });
-            
-            let techBlock = `Расстояние: ${state.deliveryDistance} км.\nТехника:\n${vehicleDescs}`;
-            if (state.needLoadingCrane) {
-                techBlock += `\nВкл. услуги крана 25т (погрузка/монтаж).`;
-            }
-            
-            addFixed(foundationItems, techBlock, state.deliveryPrice);
-        } else {
-            addFixed(foundationItems, `Монтаж дома на участке`, foundationData.assemblyPrice);
+    if (state.useDeliveryMap && state.deliveryDistance > 0) {
+        const vehicleDescs = (state.deliveryVehicles || []).map(entry => {
+            const v = DELIVERY_VEHICLES.find(d => d.id === entry.vehicleId);
+            return `${v?.name || '?'} ×${entry.qty}`;
+        }).join('\n');
+
+        // Delivery line with price in name for PDF visibility
+        foundationItems.push({ 
+            name: `Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). ${state.deliveryPrice.toLocaleString('ru-RU')} ₽`, 
+            quantity: 1, 
+            unit: 'адрес', 
+            price: state.deliveryPrice, 
+            total: state.deliveryPrice 
+        });
+        
+        // Informational items (0 price)
+        let techInfo = `Расстояние: ${state.deliveryDistance} км.\n\nТехника:\n${vehicleDescs}`;
+        if (state.needLoadingCrane) {
+            techInfo += `\nВкл. услуги крана 25т (погрузка/монтаж).`;
         }
+
+        foundationItems.push({
+            name: techInfo,
+            quantity: 1,
+            unit: 'инфо',
+            price: 0,
+            total: 0
+        });
     }
     if (foundationItems.length > 0) {
         sections.push({ 
