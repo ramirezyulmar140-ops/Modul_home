@@ -830,7 +830,7 @@ export default function HouseCalculator() {
                                             <td colSpan={3} className="print:hidden"></td>
                                             <td className="px-6 py-4 text-right print:px-6 print:py-1 print:text-sm">
                                                 {!section.hidePrice && (
-                                                    <span className="font-bold text-gray-900 border-b-2 border-green-200">
+                                                    <span className="font-bold text-gray-900 border-b-2 border-green-200 print:hidden">
                                                         {section.total.toLocaleString('ru-RU')} ₽
                                                     </span>
                                                 )}
@@ -850,7 +850,7 @@ export default function HouseCalculator() {
                                                 <td className="px-4 py-2.5 text-center text-gray-500 print:hidden">{item.unit}</td>
                                                 <td className="px-4 py-2.5 text-right text-gray-500 print:hidden">{item.price.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}</td>
                                                 <td className="px-6 py-2.5 text-right font-medium print:px-6 print:py-1 print:text-sm">
-                                                    <span className={section.hidePrice && item.total > 0 ? "" : "print:hidden"}>
+                                                    <span className={section.hidePrice && item.total > 0 ? "print:hidden" : "print:hidden"}>
                                                         {item.total.toLocaleString('ru-RU')} ₽
                                                     </span>
                                                 </td>
@@ -878,20 +878,20 @@ export default function HouseCalculator() {
                                 ))}
 
                                 {state.discountPercent > 0 && (
-                                    <tr className="bg-green-50/30 text-green-700 font-semibold border-t">
+                                    <tr className="bg-green-50/30 text-green-700 font-semibold border-t print:hidden">
                                         <td colSpan={4} className="px-6 py-3">Скидка ({state.discountPercent}%)</td>
                                         <td className="px-6 py-3 text-right">-{Math.ceil(beforeDiscount * (state.discountPercent / 100)).toLocaleString()} ₽</td>
                                     </tr>
                                 )}
                                 {state.markupAmount !== 0 && (
-                                    <tr className="bg-gray-50/50 text-gray-700 font-semibold border-t">
+                                    <tr className="bg-gray-50/50 text-gray-700 font-semibold border-t print:hidden">
                                         <td colSpan={4} className="px-6 py-3">Корректировка стоимости</td>
                                         <td className="px-6 py-3 text-right">{state.markupAmount > 0 ? '+' : ''}{state.markupAmount.toLocaleString()} ₽</td>
                                     </tr>
                                 )}
 
                                 {/* GrandTotal */}
-                                <tr className="bg-gray-900 text-white font-bold text-xl border-t-4 border-white">
+                                <tr className="bg-gray-900 text-white font-bold text-xl border-t-4 border-white print:hidden">
                                     <td colSpan={4} className="px-6 py-6 rounded-bl-lg">
                                         ИТОГО К ОПЛАТЕ:
                                         <div className="text-xs font-normal text-gray-400 mt-1">
@@ -910,12 +910,12 @@ export default function HouseCalculator() {
                             <div className="flex justify-between items-end">
                                 <div>
                                     <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Информация о предложении</div>
-                                    <div className="text-sm text-gray-600 space-y-1">
+                                    <div className="text-sm text-gray-600 space-y-1 print:hidden">
                                         <p>Предложение действительно в течение 7 календарных дней.</p>
                                         <p>Цены указаны в рублях. В стоимость не включена доставка (рассчитывается индивидуально).</p>
                                     </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right print:hidden">
                                     <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Итоговая стоимость</div>
                                     <div className="text-3xl font-bold text-gray-900">{grandTotal.toLocaleString('ru-RU')} ₽</div>
                                     <div className="text-sm text-gray-500 mt-1">
