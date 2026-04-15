@@ -155,6 +155,7 @@ export interface EstimateSection {
     total: number;
     passportItems?: string[];
     hideItems?: boolean;
+    hidePrice?: boolean;
 }
 
 export interface EstimateResult {

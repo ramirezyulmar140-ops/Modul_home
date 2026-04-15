@@ -172,7 +172,8 @@ export default function HouseCalculator() {
             items: houseSections.flatMap(s => s.items),
             total: houseSections.reduce((acc, s) => acc + s.total, 0),
             passportItems: houseSections[0].passportItems, // Already contains unified spec
-            hideItems: true
+            hideItems: true,
+            hidePrice: true
         };
 
         return [unifiedHouseSection, ...otherSections];
@@ -828,10 +829,12 @@ export default function HouseCalculator() {
                                             <td className="px-6 py-3 text-gray-900 print:text-sm print:pb-1 print:pt-4 print:font-bold">{section.name}</td>
                                             <td colSpan={3} className="print:hidden"></td>
                                             <td className="px-6 py-4 text-right print:px-6 print:py-1 print:text-sm">
-                        <span className="font-bold text-gray-900 border-b-2 border-green-200">
-                            {section.total.toLocaleString('ru-RU')} ₽
-                        </span>
-                    </td>
+                                                {!section.hidePrice && (
+                                                    <span className="font-bold text-gray-900 border-b-2 border-green-200">
+                                                        {section.total.toLocaleString('ru-RU')} ₽
+                                                    </span>
+                                                )}
+                                            </td>
                                         </tr>
                                         {section.items.map((item, iIdx) => (
                                             <tr key={iIdx} className={`border-b last:border-none hover:bg-gray-50/50 print:border-gray-50 ${section.hideItems ? 'print:hidden' : ''}`}>

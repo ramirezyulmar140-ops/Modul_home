@@ -186,7 +186,8 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
             name: 'Фундамент и монтаж', 
             items: foundationItems, 
             total: sumItems(foundationItems),
-            hideItems: false
+            hideItems: false,
+            hidePrice: true
         });
     }
 
