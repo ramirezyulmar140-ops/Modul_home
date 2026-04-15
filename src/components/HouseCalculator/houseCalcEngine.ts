@@ -163,9 +163,9 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
             return `${v?.name || '?'} ×${entry.qty}`;
         }).join('\n');
 
-        // Delivery line with price in name for PDF visibility
+        // Delivery line
         foundationItems.push({ 
-            name: `Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}). ${state.deliveryPrice.toLocaleString('ru-RU')} ₽`, 
+            name: `Доставка модулей (Адрес: ${state.deliveryAddress || 'не указан'}).`, 
             quantity: 1, 
             unit: 'адрес', 
             price: state.deliveryPrice, 

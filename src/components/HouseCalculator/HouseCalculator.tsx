@@ -849,8 +849,10 @@ export default function HouseCalculator() {
                                                 </td>
                                                 <td className="px-4 py-2.5 text-center text-gray-500 print:hidden">{item.unit}</td>
                                                 <td className="px-4 py-2.5 text-right text-gray-500 print:hidden">{item.price.toLocaleString('ru-RU', { maximumFractionDigits: 0 })}</td>
-                                                <td className="px-6 py-2.5 text-right font-medium print:hidden">
-                                                    <span className="print:hidden">{item.total.toLocaleString('ru-RU')} ₽</span>
+                                                <td className="px-6 py-2.5 text-right font-medium print:px-6 print:py-1 print:text-sm">
+                                                    <span className={section.hidePrice && item.total > 0 ? "" : "print:hidden"}>
+                                                        {item.total.toLocaleString('ru-RU')} ₽
+                                                    </span>
                                                 </td>
                                             </tr>
                                         ))}
