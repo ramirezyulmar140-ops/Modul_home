@@ -891,7 +891,7 @@ export default function HouseCalculator() {
                                 )}
 
                                 {/* GrandTotal */}
-                                <tr className="bg-gray-900 text-white font-bold text-xl border-t-4 border-white print:hidden">
+                                <tr className="bg-gray-900 text-white font-bold text-xl border-t-4 border-white">
                                     <td colSpan={4} className="px-6 py-6 rounded-bl-lg">
                                         ИТОГО К ОПЛАТЕ:
                                         <div className="text-xs font-normal text-gray-400 mt-1">
@@ -910,12 +910,12 @@ export default function HouseCalculator() {
                             <div className="flex justify-between items-end">
                                 <div>
                                     <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Информация о предложении</div>
-                                    <div className="text-sm text-gray-600 space-y-1 print:hidden">
+                                    <div className="text-sm text-gray-600 space-y-1">
                                         <p>Предложение действительно в течение 7 календарных дней.</p>
                                         <p>Цены указаны в рублях. В стоимость не включена доставка (рассчитывается индивидуально).</p>
                                     </div>
                                 </div>
-                                <div className="text-right print:hidden">
+                                <div className="text-right">
                                     <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Итоговая стоимость</div>
                                     <div className="text-3xl font-bold text-gray-900">{grandTotal.toLocaleString('ru-RU')} ₽</div>
                                     <div className="text-sm text-gray-500 mt-1">
