@@ -1035,8 +1035,11 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
 
     const terraceSection = sections.find(s => s.name === 'Терраса и Крыльцо');
     const terraceTotal = terraceSection ? terraceSection.total : 0;
+
+    const customItemsSection = sections.find(s => s.name === 'Дополнительные услуги и материалы (индивидуально)');
+    const customItemsTotal = customItemsSection ? customItemsSection.total : 0;
     
-    const excludedTotal = foundationTotal + windowsDoorsTotal + consumablesTotal + engineeringTotal + extraOptionsTotal + terraceTotal;
+    const excludedTotal = foundationTotal + windowsDoorsTotal + consumablesTotal + engineeringTotal + extraOptionsTotal + terraceTotal + customItemsTotal;
     const houseMaterialsTotal = materialsTotal - excludedTotal;
 
     // Коэффициент наценки на материалы (динамический: 1.8 для фанеры, 2.1 для остального)
