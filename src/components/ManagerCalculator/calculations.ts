@@ -135,10 +135,9 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     const innerWallsLength = Math.max(0, params.innerWallsLength);
     const windowsPercent = Math.min(80, Math.max(0, params.windowsPercent));
 
-    // Автоматическая корректировка шага для отделки фанерой
     const isPlywood = params.interiorWallFinish === 'plywood' || params.ceilingFinish === 'plywood';
-    const actualWallStudStep = isPlywood ? 1.2 : params.wallStudStep;
-    const actualRoofRafterStep = isPlywood ? 1.2 : params.roofRafterStep;
+    const actualWallStudStep = params.wallStudStep;
+    const actualRoofRafterStep = params.roofRafterStep;
 
     // 1. Базовая Геометрия
     const floorArea = length * width; // Площадь пола (Sпол)
@@ -988,21 +987,21 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Расчет основан на средних отраслевых нормах потребления
     const areaRatio = floorArea / 36;
     const consumablesItems: EstimateItem[] = [
-        { name: 'Гайка оцинкованная ГОСТ 5927-70, M16 (5кг)', quantity: parseFloat((3 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_nutM16, total: Math.ceil(3 * areaRatio) * PRICING_CONFIG.consumables_nutM16 },
-        { name: 'Шуруп КРЕП-КОМП Глухарь 8x120 (50шт)', quantity: parseFloat((1 * areaRatio).toFixed(2)), unit: 'компл', price: PRICING_CONFIG.consumables_gluhar8x120, total: Math.ceil(1 * areaRatio) * PRICING_CONFIG.consumables_gluhar8x120 },
-        { name: 'Утеплитель межвенцовый ТермоДЖУТ (20м)', quantity: parseFloat((8 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_jute, total: Math.ceil(8 * areaRatio) * PRICING_CONFIG.consumables_jute },
-        { name: 'Клейкая лента Delta Multi Band M 60 (25м)', quantity: parseFloat((15 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_deltaTape, total: Math.ceil(15 * areaRatio) * PRICING_CONFIG.consumables_deltaTape },
-        { name: 'Гвозди шиферные 5x120 мм оцинк (1кг)', quantity: parseFloat((8 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_nailsShif5x120, total: Math.ceil(8 * areaRatio * PRICING_CONFIG.consumables_nailsShif5x120) },
-        { name: 'Скоба для степлера тонкая 53/14 (1000шт)', quantity: parseFloat((5 * areaRatio).toFixed(2)), unit: 'компл', price: PRICING_CONFIG.consumables_staples53, total: Math.ceil(5 * areaRatio) * PRICING_CONFIG.consumables_staples53 },
-        { name: 'Гвозди строительные 3x70 мм (1кг)', quantity: parseFloat((10 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_nails3x70, total: Math.ceil(10 * areaRatio * PRICING_CONFIG.consumables_nails3x70) },
-        { name: 'Саморезы по дереву/ГКЛ 3.5x35 (3кг)', quantity: parseFloat((10 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_screws35x35, total: Math.ceil(10 * areaRatio * PRICING_CONFIG.consumables_screws35x35) },
-        { name: 'Шуруп констр. для дер. домостр. 5x60 (1кг)', quantity: parseFloat((12 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_screwConstr5x60, total: Math.ceil(12 * areaRatio * PRICING_CONFIG.consumables_screwConstr5x60) },
-        { name: 'Шуруп констр. для дер. домостр. 5x70 (50шт)', quantity: parseFloat((35 * areaRatio).toFixed(2)), unit: 'компл', price: PRICING_CONFIG.consumables_screwConstr5x70, total: Math.ceil(35 * areaRatio) * PRICING_CONFIG.consumables_screwConstr5x70 },
-        { name: 'Лента бутил-каучуковая Изобонд LK (25м)', quantity: parseFloat((3 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_butylTape, total: Math.ceil(3 * areaRatio) * PRICING_CONFIG.consumables_butylTape },
-        { name: 'Герметик акриловый Kudo Praktik white (260мл)', quantity: parseFloat((24 * areaRatio).toFixed(2)), unit: 'шт', price: PRICING_CONFIG.consumables_sealantKudo, total: Math.ceil(24 * areaRatio) * PRICING_CONFIG.consumables_sealantKudo },
-        { name: 'Шайба DIN 125A 16 мм оцинк (1кг)', quantity: parseFloat((5 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_washerM16, total: Math.ceil(5 * areaRatio * PRICING_CONFIG.consumables_washerM16) },
-        { name: 'Саморезы кровельные 4.8x29 RAL7024 (1кг)', quantity: parseFloat((15 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_screwsRoof48x29, total: Math.ceil(15 * areaRatio * PRICING_CONFIG.consumables_screwsRoof48x29) },
-        { name: 'Саморезы по дереву/ГКЛ 4.8x100 (1кг)', quantity: parseFloat((10 * areaRatio).toFixed(2)), unit: 'кг', price: PRICING_CONFIG.consumables_screws48x100, total: Math.ceil(10 * areaRatio * PRICING_CONFIG.consumables_screws48x100) }
+        { name: 'Гайка оцинкованная ГОСТ 5927-70, M16 (5кг)', quantity: Math.ceil(3 * areaRatio), unit: 'шт', price: PRICING_CONFIG.consumables_nutM16, total: Math.ceil(3 * areaRatio) * PRICING_CONFIG.consumables_nutM16 },
+        { name: 'Шуруп КРЕП-КОМП Глухарь 8x120 (50шт)', quantity: Math.ceil(1 * areaRatio), unit: 'компл', price: PRICING_CONFIG.consumables_gluhar8x120, total: Math.ceil(1 * areaRatio) * PRICING_CONFIG.consumables_gluhar8x120 },
+        { name: 'Утеплитель межвенцовый ТермоДЖУТ (20м)', quantity: Math.ceil(8 * areaRatio), unit: 'шт', price: PRICING_CONFIG.consumables_jute, total: Math.ceil(8 * areaRatio) * PRICING_CONFIG.consumables_jute },
+        { name: 'Клейкая лента Delta Multi Band M 60 (25м)', quantity: Math.ceil(15 * areaRatio), unit: 'шт', price: PRICING_CONFIG.consumables_deltaTape, total: Math.ceil(15 * areaRatio) * PRICING_CONFIG.consumables_deltaTape },
+        { name: 'Гвозди шиферные 5x120 мм оцинк (1кг)', quantity: Math.ceil(8 * areaRatio), unit: 'кг', price: PRICING_CONFIG.consumables_nailsShif5x120, total: Math.ceil(8 * areaRatio) * PRICING_CONFIG.consumables_nailsShif5x120 },
+        { name: 'Скоба для степлера тонкая 53/14 (1000шт)', quantity: Math.ceil(5 * areaRatio), unit: 'компл', price: PRICING_CONFIG.consumables_staples53, total: Math.ceil(5 * areaRatio) * PRICING_CONFIG.consumables_staples53 },
+        { name: 'Гвозди строительные 3x70 мм (1кг)', quantity: Math.ceil(10 * areaRatio), unit: 'кг', price: PRICING_CONFIG.consumables_nails3x70, total: Math.ceil(10 * areaRatio) * PRICING_CONFIG.consumables_nails3x70 },
+        { name: 'Саморезы по дереву/ГКЛ 3.5x35 (3кг)', quantity: Math.ceil(10 * areaRatio), unit: 'кг', price: PRICING_CONFIG.consumables_screws35x35, total: Math.ceil(10 * areaRatio) * PRICING_CONFIG.consumables_screws35x35 },
+        { name: 'Шуруп констр. для дер. домостр. 5x60 (1кг)', quantity: Math.ceil(12 * areaRatio), unit: 'кг', price: PRICING_CONFIG.consumables_screwConstr5x60, total: Math.ceil(12 * areaRatio) * PRICING_CONFIG.consumables_screwConstr5x60 },
+        { name: 'Шуруп констр. для дер. домостр. 5x70 (50шт)', quantity: Math.ceil(35 * areaRatio), unit: 'компл', price: PRICING_CONFIG.consumables_screwConstr5x70, total: Math.ceil(35 * areaRatio) * PRICING_CONFIG.consumables_screwConstr5x70 },
+        { name: 'Лента бутил-каучуковая Изобонд LK (25м)', quantity: Math.ceil(3 * areaRatio), unit: 'шт', price: PRICING_CONFIG.consumables_butylTape, total: Math.ceil(3 * areaRatio) * PRICING_CONFIG.consumables_butylTape },
+        { name: 'Герметик акриловый Kudo Praktik white (260мл)', quantity: Math.ceil(24 * areaRatio), unit: 'шт', price: PRICING_CONFIG.consumables_sealantKudo, total: Math.ceil(24 * areaRatio) * PRICING_CONFIG.consumables_sealantKudo },
+        { name: 'Шайба DIN 125A 16 мм оцинк (1кг)', quantity: Math.ceil(5 * areaRatio), unit: 'кг', price: PRICING_CONFIG.consumables_washerM16, total: Math.ceil(5 * areaRatio) * PRICING_CONFIG.consumables_washerM16 },
+        { name: 'Саморезы кровельные 4.8x29 RAL7024 (1кг)', quantity: Math.ceil(15 * areaRatio), unit: 'кг', price: PRICING_CONFIG.consumables_screwsRoof48x29, total: Math.ceil(15 * areaRatio) * PRICING_CONFIG.consumables_screwsRoof48x29 },
+        { name: 'Саморезы по дереву/ГКЛ 4.8x100 (1кг)', quantity: Math.ceil(10 * areaRatio), unit: 'кг', price: PRICING_CONFIG.consumables_screws48x100, total: Math.ceil(10 * areaRatio) * PRICING_CONFIG.consumables_screws48x100 }
     ];
 
     sections.push({
