@@ -118,8 +118,8 @@ export const PRICING_CONFIG = {
     optWin150x50: 40000,
 
     optFacadePlankenM2: 1450,       // Планкен вместо стандарта (разница/замена)
-    optGutterPlasticM2: 1500,       // Водосточка пластик (за 1 м2 пола)
-    optGutterMetalM2: 2300,         // Водосточка металл (за 1 м2 пола)
+    optGutterPlasticM: 5900,          // Водосточка пластик (за 1 пог. м)
+    optGutterMetalM: 7900,            // Водосточка металл (за 1 пог. м)
     optPlinthPlankenM2: 3000,       // Обшивка цоколя планкеном (за 1 м2)
 
     // Терраса / Крыльцо

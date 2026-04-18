@@ -914,8 +914,8 @@ export function calculateEstimate(params: HouseParams): EstimateResult {
     // Отделка фасадная (Доп)
     // Водосточка: по 2 стенам по длине в двухмодульном, по 1 стене в одномодульном
     const gutterLength = length * (params.modulesCount >= 2 ? 2 : 1);
-    if (params.optGutterPlastic) extraItems.push({ name: 'Водосточная система (пластик)', quantity: parseFloat(gutterLength.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterPlasticM2, total: Math.ceil(gutterLength * PRICING_CONFIG.optGutterPlasticM2) });
-    if (params.optGutterMetal) extraItems.push({ name: 'Водосточная система (металл)', quantity: parseFloat(gutterLength.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterMetalM2, total: Math.ceil(gutterLength * PRICING_CONFIG.optGutterMetalM2) });
+    if (params.optGutterPlastic) extraItems.push({ name: 'Водосточная система (пластик)', quantity: parseFloat(gutterLength.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterPlasticM, total: Math.ceil(gutterLength * PRICING_CONFIG.optGutterPlasticM) });
+    if (params.optGutterMetal) extraItems.push({ name: 'Водосточная система (металл)', quantity: parseFloat(gutterLength.toFixed(2)), unit: 'пог. м', price: PRICING_CONFIG.optGutterMetalM, total: Math.ceil(gutterLength * PRICING_CONFIG.optGutterMetalM) });
     if (params.optPlinthPlanken) {
         // Цоколь считаем в м2: периметр * высота цоколя (0.5м по умолчанию)
         const plinthHeight = 0.5; // высота цоколя, м
