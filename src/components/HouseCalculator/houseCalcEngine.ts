@@ -18,14 +18,14 @@ function getModel(id: HouseModelId) {
     return HOUSE_MODELS.find(m => m.id === id)!;
 }
 
-function addItem(items: EstimateLineItem[], name: string, quantity: number, unit: string, price: number) {
-    if (quantity <= 0 || price === 0) return;
-    items.push({ name, quantity, unit, price, total: Math.round(quantity * price) });
+function addItem(items: EstimateLineItem[], name: string, quantity: number, unit: string, price: number, hidden?: boolean) {
+    if (quantity <= 0 || (price === 0 && !hidden)) return;
+    items.push({ name, quantity, unit, price, total: Math.round(quantity * price), hidden });
 }
 
-function addFixed(items: EstimateLineItem[], name: string, price: number) {
-    if (price === 0) return;
-    items.push({ name, quantity: 1, unit: 'компл.', price, total: price });
+function addFixed(items: EstimateLineItem[], name: string, price: number, hidden?: boolean) {
+    if (price === 0 && !hidden) return;
+    items.push({ name, quantity: 1, unit: 'компл.', price, total: price, hidden });
 }
 
 function sumItems(items: EstimateLineItem[]): number {
@@ -138,10 +138,25 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         cat.items.forEach(item => unifiedPassport.push(item));
     }
 
+    const baseItems: EstimateLineItem[] = [
+        { name: `${model.name} — базовая комплектация`, quantity: 1, unit: 'компл.', price: model.basePrice, total: model.basePrice }
+    ];
+
+    // Credit logic for standard finishes (floor 700/m2, bath floor 1500/m2 included in base)
+    if (state.floorFinish !== 'none') {
+        const floorArea = model.area - (state.bathroomFloorArea || 0);
+        if (floorArea > 0) {
+            addFixed(baseItems, 'Вычет стандартного пола', -(floorArea * 700), true);
+        }
+    }
+    if (state.bathroomFloorArea > 0 && state.bathroomFloorFinish !== 'none') {
+        addFixed(baseItems, 'Вычет стандартного пола санузла', -(state.bathroomFloorArea * 1500), true);
+    }
+
     sections.push({
         name: 'Базовая комплектация дома',
-        items: [{ name: `${model.name} — базовая комплектация`, quantity: 1, unit: 'компл.', price: model.basePrice, total: model.basePrice }],
-        total: model.basePrice,
+        items: baseItems,
+        total: sumItems(baseItems),
         passportItems: unifiedPassport,
         hideItems: true
     });
@@ -226,8 +241,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
         if (floorDef) {
             const floorArea = model.area - (state.bathroomFloorArea || 0);
             if (floorArea > 0) {
-                const upgradePrice = floorDef.price - 700;
-                if (upgradePrice !== 0) addItem(finishItems, `Напольное покрытие — ${floorDef.name} (${upgradePrice > 0 ? 'доплата' : 'экономия'})`, floorArea, 'м²', upgradePrice);
+                addItem(finishItems, `Напольное покрытие — ${floorDef.name}`, floorArea, 'м²', floorDef.price);
             }
         }
     }
@@ -245,13 +259,12 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.bathroomFloorArea > 0) {
         if (state.bathroomFloorFinish !== 'none') {
             const bathFloor = BATHROOM_PRICES.floor[state.bathroomFloorFinish as keyof typeof BATHROOM_PRICES.floor];
-            const upgradePrice = bathFloor.price - 1500;
-            if (upgradePrice !== 0) addItem(bathItems, `Пол санузла — ${bathFloor.name}`, state.bathroomFloorArea, 'м²', upgradePrice);
+            addItem(bathItems, `Пол санузла — ${bathFloor.name}`, state.bathroomFloorArea, 'м²', bathFloor.price);
         }
         if (state.bathroomWallFinish !== 'none') {
             const bathWallArea = Math.round(Math.sqrt(state.bathroomFloorArea) * 4 * 3.25 * 10) / 10;
             const bathWall = BATHROOM_PRICES.wall[state.bathroomWallFinish as keyof typeof BATHROOM_PRICES.wall];
-            const upgradePrice = bathWall.price - 450;
+            const upgradePrice = bathWall.price;
             if (upgradePrice !== 0) addItem(bathItems, `Стены санузла — ${bathWall.name}`, bathWallArea, 'м²', upgradePrice);
         }
     }

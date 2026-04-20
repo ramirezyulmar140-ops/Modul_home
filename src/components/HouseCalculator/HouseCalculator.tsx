@@ -757,9 +757,9 @@ export default function HouseCalculator() {
                                             <span className="font-black text-gray-900 tabular-nums whitespace-nowrap pl-2">{section.total.toLocaleString('ru-RU')} ₽</span>
                                         </div>
                                         {/* Развернутые предметы из раздела */}
-                                        {section.items.length > 0 && (
+                                        {section.items.filter(item => !item.hidden).length > 0 && (
                                             <div className="space-y-3 mt-4 pl-6 mb-4">
-                                                {section.items.map((item, i) => (
+                                                {section.items.filter(item => !item.hidden).map((item, i) => (
                                                     <div key={i} className="flex justify-between items-start text-sm text-gray-500 py-1">
                                                         <span className="pr-4 leading-tight py-0.5 flex-1 transition-all whitespace-pre-line">
                                                             {item.name} {item.quantity > 1 && <span className="text-gray-400 font-medium">({item.quantity} {item.unit})</span>}

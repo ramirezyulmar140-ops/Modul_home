@@ -149,6 +149,7 @@ export interface EstimateLineItem {
     unit: string;
     price: number;
     total: number;
+    hidden?: boolean;
 }
 
 export interface EstimateSection {
