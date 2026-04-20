@@ -43,7 +43,7 @@ export const HOUSE_MODELS: HouseModel[] = [
     },
     {
         id: 'dom77o',
-        name: 'Дом 77о м²',
+        name: 'Дом 77-о м²',
         area: 77,
         basePrice: 2810000,
         description: 'Альтернативная планировка 77 м² с улучшенной конфигурацией.',
