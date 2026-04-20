@@ -107,6 +107,14 @@ export const FRAME_OPTIONS = {
         name: 'Доп. утепление стен до 200 мм',
         priceByModel: { dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
     },
+    extraFloorInsulation: {
+        name: 'Доп. утепление пола до 200 мм',
+        priceByModel: { dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
+    },
+    extraCeilingInsulation: {
+        name: 'Доп. утепление потолка до 200 мм',
+        priceByModel: { dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
+    },
     removePartition: {
         name: 'Убрать перегородку между модулями (опен спейс)',
         price: 120000,

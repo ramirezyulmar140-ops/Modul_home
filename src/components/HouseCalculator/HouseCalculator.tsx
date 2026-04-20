@@ -62,7 +62,8 @@ const INITIAL_STATE: HouseCalcState = {
     acPrepCount: 0, wetPointSplit: false, convectorCount: 0,
     breezer80Count: 0, breezer100Count: 0,
     heatingSystem: 'none', warmFloorArea: 34, warmFloorThermostats: 0,
-    moduleExtendCount: 0, mouseMesh: false, extraInsulation: false,
+    moduleExtendCount: 0, mouseMesh: false, 
+    extraInsulation: false, extraFloorInsulation: false, extraCeilingInsulation: false,
     removePartition: false, extraPartitionLength: 0,
     safeDoor: false, relocateDoor: false,
     panoramicTrapezoidCount: 0, extraPanoramicSection: false,
@@ -437,6 +438,8 @@ export default function HouseCalculator() {
                                 )}
                                 <Check label="Сетка от грызунов" checked={state.mouseMesh} onChange={set} name="mouseMesh" price={`${(FRAME_OPTIONS.mouseMesh.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
                                 <Check label="Доп. утепление стен до 200 мм" checked={state.extraInsulation} onChange={set} name="extraInsulation" price={`${(FRAME_OPTIONS.extraInsulation.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
+                                <Check label="Доп. утепление пола до 200 мм" checked={state.extraFloorInsulation} onChange={set} name="extraFloorInsulation" price={`${(FRAME_OPTIONS.extraFloorInsulation.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
+                                <Check label="Доп. утепление потолка до 200 мм" checked={state.extraCeilingInsulation} onChange={set} name="extraCeilingInsulation" price={`${(FRAME_OPTIONS.extraCeilingInsulation.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
                                 <Check label="Убрать перегородку (опен спейс)" checked={state.removePartition} onChange={set} name="removePartition" price="120 000 ₽" />
                                 {isAvailable(FRAME_OPTIONS.extraPartition.availableFor) && (
                                     <Counter label="Доп. перегородка (м.п.)" name="extraPartitionLength" value={state.extraPartitionLength} onChange={set} />
@@ -720,7 +723,7 @@ export default function HouseCalculator() {
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#4BD16F] opacity-20 rounded-full blur-3xl -mr-10 -mt-10"></div>
                             <div className="flex items-center justify-between mb-4 relative z-10">
                                 <div className="text-gray-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                                    Total Balance
+                                    Общая стоимость
                                 </div>
                                 <div className="text-[10px] font-bold text-[#1A1C19] bg-[#4BD16F] px-2.5 py-1 rounded-full uppercase tracking-wider">
                                     {Math.round(grandTotal / model.area).toLocaleString('ru-RU')} ₽/м²
@@ -742,7 +745,7 @@ export default function HouseCalculator() {
                         {/* Spending Overview */}
                         <div className="bg-white rounded-[24px] shadow-sm border border-gray-100/80 p-6 overflow-hidden">
                             <h3 className="text-sm font-black text-gray-900 mb-5 flex items-center gap-2">
-                                Spending Overview
+                                Обзор расходов
                             </h3>
                             <div className="space-y-8">
                                 {sections.map((section, idx) => (

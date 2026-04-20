@@ -85,6 +85,8 @@ export interface HouseCalcState {
     moduleExtendCount: number;
     mouseMesh: boolean;
     extraInsulation: boolean;
+    extraFloorInsulation: boolean;
+    extraCeilingInsulation: boolean;
     removePartition: boolean;
     extraPartitionLength: number;
 

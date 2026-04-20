@@ -52,7 +52,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     spec[1].items.push('Нижняя силовая обвязка из пакета 3-х досок 150×50 мм');
     spec[1].items.push('Лаги пола из сухой строганой доски 150×50 мм');
     spec[1].items.push('Черновой пол из плит OSB толщиной 22 мм');
-    spec[1].items.push('Утепление пола минеральным утеплителем толщиной 150 мм');
+    spec[1].items.push(`Утепление пола минеральным утеплителем толщиной ${state.extraFloorInsulation ? 200 : 150} мм`);
     if (state.mouseMesh) spec[1].items.push('Металлическая защитная сетка от грызунов ЦПВС');
     spec[1].items.push('Ветрозащитная мембрана по нижней части пола');
 
@@ -74,7 +74,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     spec[4].items.push('Стропильная система крыши из сухой строганой доски 150×50 мм');
     spec[4].items.push('Обрешетка крыши из сухой строганой доски 100×25 мм');
     spec[4].items.push('Кровельное покрытие из металлочерепицы или профилированного листа');
-    spec[4].items.push('Утепление кровли минеральным утеплителем толщиной 150 мм');
+    spec[4].items.push(`Утепление кровли минеральным утеплителем толщиной ${state.extraCeilingInsulation ? 200 : 150} мм`);
     spec[4].items.push('Ветровлагозащитная мембрана кровли');
     if (state.gutterPlastic) spec[4].items.push('Водосточная система: ПВХ Döcke (Premium)');
     if (state.gutterMetal) spec[4].items.push('Водосточная система: металлическая Grand Line (Lux)');
@@ -249,7 +249,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
             if (upgradePrice !== 0) addItem(bathItems, `Пол санузла — ${bathFloor.name}`, state.bathroomFloorArea, 'м²', upgradePrice);
         }
         if (state.bathroomWallFinish !== 'none') {
-            const bathWallArea = Math.round(Math.sqrt(state.bathroomFloorArea) * 4 * 2.5 * 10) / 10;
+            const bathWallArea = Math.round(Math.sqrt(state.bathroomFloorArea) * 4 * 3.25 * 10) / 10;
             const bathWall = BATHROOM_PRICES.wall[state.bathroomWallFinish as keyof typeof BATHROOM_PRICES.wall];
             const upgradePrice = bathWall.price - 450;
             if (upgradePrice !== 0) addItem(bathItems, `Стены санузла — ${bathWall.name}`, bathWallArea, 'м²', upgradePrice);
@@ -290,6 +290,8 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.moduleExtendCount > 0 && FRAME_OPTIONS.moduleExtend.priceByModel[modelId]) addItem(frameItems, FRAME_OPTIONS.moduleExtend.name, state.moduleExtendCount, 'шт', FRAME_OPTIONS.moduleExtend.priceByModel[modelId]!);
     if (state.mouseMesh) addFixed(frameItems, FRAME_OPTIONS.mouseMesh.name, FRAME_OPTIONS.mouseMesh.priceByModel[modelId]);
     if (state.extraInsulation) addFixed(frameItems, FRAME_OPTIONS.extraInsulation.name, FRAME_OPTIONS.extraInsulation.priceByModel[modelId]);
+    if (state.extraFloorInsulation) addFixed(frameItems, FRAME_OPTIONS.extraFloorInsulation.name, FRAME_OPTIONS.extraFloorInsulation.priceByModel[modelId]);
+    if (state.extraCeilingInsulation) addFixed(frameItems, FRAME_OPTIONS.extraCeilingInsulation.name, FRAME_OPTIONS.extraCeilingInsulation.priceByModel[modelId]);
     if (state.removePartition) addFixed(frameItems, FRAME_OPTIONS.removePartition.name, FRAME_OPTIONS.removePartition.price);
     if (state.extraPartitionLength > 0 && FRAME_OPTIONS.extraPartition.availableFor.includes(modelId)) addItem(frameItems, FRAME_OPTIONS.extraPartition.name, state.extraPartitionLength, 'м.п.', FRAME_OPTIONS.extraPartition.price);
     if (frameItems.length > 0) {
@@ -326,6 +328,8 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     const terItems: EstimateLineItem[] = [];
     if (state.closedTerraceArea > 0) addItem(terItems, TERRACE_OPTIONS.closedTerraceArea.name, state.closedTerraceArea, 'м²', TERRACE_OPTIONS.closedTerraceArea.price);
     if (state.openTerraceArea > 0) addItem(terItems, TERRACE_OPTIONS.openTerraceArea.name, state.openTerraceArea, 'м²', TERRACE_OPTIONS.openTerraceArea.price);
+    if (state.terraceCloseSideCount > 0) addItem(terItems, TERRACE_OPTIONS.terraceCloseSide.name, state.terraceCloseSideCount, 'шт', TERRACE_OPTIONS.terraceCloseSide.price);
+    if (state.porchCanopy && TERRACE_OPTIONS.porchCanopy.availableFor.includes(modelId)) addFixed(terItems, TERRACE_OPTIONS.porchCanopy.name, TERRACE_OPTIONS.porchCanopy.price);
     if (state.railingsPlankenLength > 0) addItem(terItems, TERRACE_OPTIONS.railingsPlanken.name, state.railingsPlankenLength, 'п.м.', TERRACE_OPTIONS.railingsPlanken.price);
     if (state.railingsCrossLength > 0) addItem(terItems, TERRACE_OPTIONS.railingsCross.name, state.railingsCrossLength, 'п.м.', TERRACE_OPTIONS.railingsCross.price);
     if (terItems.length > 0) {
