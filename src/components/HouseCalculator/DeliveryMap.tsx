@@ -53,7 +53,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
             price += CRANE_SERVICES_PRICE;
         }
 
-        return price;
+        return Math.round(price * 1.1);
     };
 
     const updateVehicles = (newList: DeliveryVehicleEntry[]) => {
