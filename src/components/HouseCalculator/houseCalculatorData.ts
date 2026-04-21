@@ -329,14 +329,14 @@ export const SERVICE_CATALOG: Omit<ServiceEntry, 'quantity'>[] = [
 ];
 
 export const DELIVERY_VEHICLES: DeliveryVehicle[] = [
-    { id: 'trawl_12', name: 'Трал 12м', type: 'trawl', priceTier1: 200, priceTier2: 170, priceTier3: 140 },
-    { id: 'trawl_15', name: 'Трал раздвижка 15м+свес', type: 'trawl', priceTier1: 250, priceTier2: 200, priceTier3: 170 },
-    { id: 'manip_7_5', name: 'Манипулятор 7/5', type: 'manipulator', fixedKmPrice: 88 },
-    { id: 'manip_7_10', name: 'Манипулятор 7/10', type: 'manipulator', fixedKmPrice: 100 },
-    { id: 'manip_10_10', name: 'Манипулятор 10/10', type: 'manipulator', fixedKmPrice: 120 },
-    { id: 'manip_10_12', name: 'Манипулятор 10/12', type: 'manipulator', fixedKmPrice: 132 },
-    { id: 'manip_15_15', name: 'Манипулятор 15/15', type: 'manipulator', fixedKmPrice: 155 },
-    { id: 'manip_15_15_awd', name: 'Манипулятор 15/15 полный привод', type: 'manipulator', fixedKmPrice: 176 },
-    { id: 'manip_long_10_20', name: 'Манипулятор-длинномер 10/20', type: 'manipulator', fixedKmPrice: 135 },
-    { id: 'manip_long_12_20_awd', name: 'Манипулятор-длинномер полный привод 12/20', type: 'manipulator', fixedKmPrice: 155 },
+    { id: 'trawl_12', name: 'Трал 12м', type: 'trawl', priceTier1: 400, priceTier2: 340, priceTier3: 280 },
+    { id: 'trawl_15', name: 'Трал раздвижка 15м+свес', type: 'trawl', priceTier1: 500, priceTier2: 400, priceTier3: 340 },
+    { id: 'manip_7_5', name: 'Манипулятор 7/5', type: 'manipulator', fixedKmPrice: 176 },
+    { id: 'manip_7_10', name: 'Манипулятор 7/10', type: 'manipulator', fixedKmPrice: 200 },
+    { id: 'manip_10_10', name: 'Манипулятор 10/10', type: 'manipulator', fixedKmPrice: 240 },
+    { id: 'manip_10_12', name: 'Манипулятор 10/12', type: 'manipulator', fixedKmPrice: 264 },
+    { id: 'manip_15_15', name: 'Манипулятор 15/15', type: 'manipulator', fixedKmPrice: 310 },
+    { id: 'manip_15_15_awd', name: 'Манипулятор 15/15 полный привод', type: 'manipulator', fixedKmPrice: 352 },
+    { id: 'manip_long_10_20', name: 'Манипулятор-длинномер 10/20', type: 'manipulator', fixedKmPrice: 270 },
+    { id: 'manip_long_12_20_awd', name: 'Манипулятор-длинномер полный привод 12/20', type: 'manipulator', fixedKmPrice: 310 },
 ];

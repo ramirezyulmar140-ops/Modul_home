@@ -19,7 +19,7 @@ function getVehicleRate(vehicleId: string, distanceKm: number): number {
 }
 
 const OVERSIZED_BASE_PRICE = 20000;
-const OVERSIZED_KM_PRICE = 50;
+const OVERSIZED_KM_PRICE = 0; // Теперь негабарит всегда фиксирован 20000 за машину
 const CRANE_SERVICES_PRICE = 30000; // фиксировано, не зависит от кол-ва модулей
 
 export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => {
@@ -45,10 +45,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
             price += distanceKm * rate * entry.qty;
 
             if (distanceKm > 0) {
-                let oversized = OVERSIZED_BASE_PRICE * entry.qty;
-                if (distanceKm > 50) {
-                    oversized += (distanceKm - 50) * OVERSIZED_KM_PRICE * entry.qty;
-                }
+                const oversized = OVERSIZED_BASE_PRICE * entry.qty;
                 price += oversized;
             }
         }
@@ -317,9 +314,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => 
                                 <div>
                                     <p className="text-gray-500 text-xs mb-1">Расстояние по трассе</p>
                                     <p className="font-bold text-amber-600 text-lg">{state.deliveryDistance} км</p>
-                                    {state.deliveryDistance > 50 && (
-                                        <p className="text-[10px] text-red-500 italic">Свыше 50 км ({state.deliveryDistance - 50} км) применяется надбавка за негабарит.</p>
-                                    )}
+
                                 </div>
                                 <div>
                                     <p className="text-gray-500 text-xs mb-1">Итоговая стоимость доставки</p>
