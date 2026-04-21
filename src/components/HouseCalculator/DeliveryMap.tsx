@@ -19,7 +19,6 @@ function getVehicleRate(vehicleId: string, distanceKm: number): number {
 }
 
 const OVERSIZED_BASE_PRICE = 20000;
-const OVERSIZED_KM_PRICE = 0; // Теперь негабарит всегда фиксирован 20000 за машину
 const CRANE_SERVICES_PRICE = 30000; // фиксировано, не зависит от кол-ва модулей
 
 export const DeliveryMap: React.FC<DeliveryMapProps> = ({ state, onChange }) => {
