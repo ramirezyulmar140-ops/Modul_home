@@ -15,7 +15,10 @@ function getVehicleRate(vehicleId: string, distanceKm: number): number {
     if (v.type === 'manipulator') return v.fixedKmPrice || 0;
     if (distanceKm <= 100) return v.priceTier1 || 0;
     if (distanceKm <= 200) return v.priceTier2 || 0;
-    return v.priceTier3 || 0;
+    if (distanceKm <= 500) return v.priceTier3 || 0;
+    if (distanceKm <= 1000) return v.priceTier4 || 0;
+    if (distanceKm <= 1500) return v.priceTier5 || 0;
+    return v.priceTier6 || 0;
 }
 
 const OVERSIZED_BASE_PRICE = 20000;

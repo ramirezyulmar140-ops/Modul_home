@@ -8,7 +8,10 @@ export interface DeliveryVehicle {
     perHourPrice?: number;
     priceTier1?: number; // do 100km
     priceTier2?: number; // 100-200km
-    priceTier3?: number; // >200km
+    priceTier3?: number; // 200-500km
+    priceTier4?: number; // 500-1000km
+    priceTier5?: number; // 1000-1500km
+    priceTier6?: number; // >1500km
 }
 
 export interface DeliveryVehicleEntry {

@@ -329,8 +329,8 @@ export const SERVICE_CATALOG: Omit<ServiceEntry, 'quantity'>[] = [
 ];
 
 export const DELIVERY_VEHICLES: DeliveryVehicle[] = [
-    { id: 'trawl_12', name: 'Трал 12м', type: 'trawl', priceTier1: 400, priceTier2: 340, priceTier3: 280 },
-    { id: 'trawl_15', name: 'Трал раздвижка 15м+свес', type: 'trawl', priceTier1: 500, priceTier2: 400, priceTier3: 340 },
+    { id: 'trawl_12', name: 'Трал 12м', type: 'trawl', priceTier1: 400, priceTier2: 340, priceTier3: 280, priceTier4: 200, priceTier5: 150, priceTier6: 100 },
+    { id: 'trawl_15', name: 'Трал раздвижка 15м+свес', type: 'trawl', priceTier1: 500, priceTier2: 400, priceTier3: 340, priceTier4: 240, priceTier5: 190, priceTier6: 140 },
     { id: 'manip_7_5', name: 'Манипулятор 7/5', type: 'manipulator', fixedKmPrice: 176 },
     { id: 'manip_7_10', name: 'Манипулятор 7/10', type: 'manipulator', fixedKmPrice: 200 },
     { id: 'manip_10_10', name: 'Манипулятор 10/10', type: 'manipulator', fixedKmPrice: 240 },
