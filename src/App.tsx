@@ -20,6 +20,7 @@ import StyleProjectsPage from './pages/StyleProjectsPage'
 import ProjectDetailsPage from './pages/ProjectDetailsPage'
 import ManagerCalculator from './components/ManagerCalculator/ManagerCalculator'
 import HouseCalculator from './components/HouseCalculator/HouseCalculator'
+import ProDomCalculator from './components/ProDomCalculator/ProDomCalculator'
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -79,6 +80,7 @@ function App() {
         {/* Скрытый роут для менеджеров */}
         <Route path="/manager-calculator" element={<ManagerCalculator />} />
         <Route path="/house-calculator" element={<HouseCalculator />} />
+        <Route path="/prodom-calculator" element={<ProDomCalculator />} />
       </Routes>
     </BrowserRouter>
   )
