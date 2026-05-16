@@ -13,7 +13,7 @@ import {
     FOUNDATION_ASSEMBLY_DATA,
     INTERIOR_FINISH_OPTIONS,
     EXTERIOR_OPTIONS,
-    WARM_FLOOR_PRICES
+    WARM_FLOOR_PRICES,
 } from './prodomCalculatorData';
 
 const Counter = ({ label, value, onChange, name, min = 0, step = 1 }: { label: string, value: number, onChange: (n: keyof HouseCalcState, v: number) => void, name: keyof HouseCalcState, min?: number, step?: number }) => (
@@ -71,7 +71,8 @@ const INITIAL_STATE: HouseCalcState = {
     extraWindow600x500: 0, extraWindow1500x500: 0,
     windowLamination: false, windowLaminationInside: false,
     extraInteriorDoorCount: 0,
-    facadePlanken: false, gutterPlastic: false, gutterMetal: false,
+    facadePlanken: false, facadePlankenBurn: false, facadeBurn: false,
+    gutterPlastic: false, gutterMetal: false,
     plinthPlankenArea: 0,
     terraceCloseSideCount: 0, porchCanopy: false,
     closedTerraceArea: 0, openTerraceArea: 0,
@@ -440,7 +441,9 @@ export default function ProDomCalculator() {
                                 <Check label="Доп. утепление стен до 200 мм" checked={state.extraInsulation} onChange={set} name="extraInsulation" price={`${(FRAME_OPTIONS.extraInsulation.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
                                 <Check label="Доп. утепление пола до 200 мм" checked={state.extraFloorInsulation} onChange={set} name="extraFloorInsulation" price={`${(FRAME_OPTIONS.extraFloorInsulation.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
                                 <Check label="Доп. утепление потолка до 200 мм" checked={state.extraCeilingInsulation} onChange={set} name="extraCeilingInsulation" price={`${(FRAME_OPTIONS.extraCeilingInsulation.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
-                                <Check label="Убрать перегородку (опен спейс)" checked={state.removePartition} onChange={set} name="removePartition" price={`${FRAME_OPTIONS.removePartition.price.toLocaleString()} ₽`} />
+                                {isAvailable(FRAME_OPTIONS.removePartition.availableFor) && (
+                                    <Check label="Убрать перегородку (опен спейс)" checked={state.removePartition} onChange={set} name="removePartition" price={`${FRAME_OPTIONS.removePartition.price.toLocaleString()} ₽`} />
+                                )}
                                 {isAvailable(FRAME_OPTIONS.extraPartition.availableFor) && (
                                     <Counter label="Доп. перегородка (м.п.)" name="extraPartitionLength" value={state.extraPartitionLength} onChange={set} />
                                 )}
@@ -457,7 +460,9 @@ export default function ProDomCalculator() {
                                 {isAvailable(WINDOW_OPTIONS.relocateDoor.availableFor) && (
                                     <Check label="Перенос ПВХ двери на б. стену + крыльцо + 3 ступени" checked={state.relocateDoor} onChange={set} name="relocateDoor" price={`${WINDOW_OPTIONS.relocateDoor.price.toLocaleString()} ₽`} />
                                 )}
-                                <Counter label="Панорам. трапециевидн. окно (шт)" name="panoramicTrapezoidCount" value={state.panoramicTrapezoidCount} onChange={set} />
+                                {isAvailable(WINDOW_OPTIONS.panoramicTrapezoid.availableFor) && (
+                                    <Counter label="Панорам. трапециевидн. окно (шт)" name="panoramicTrapezoidCount" value={state.panoramicTrapezoidCount} onChange={set} />
+                                )}
                                 <Check label="Доп. секция панорамного ост. кухни" checked={state.extraPanoramicSection} onChange={set} name="extraPanoramicSection" price={`${WINDOW_OPTIONS.extraPanoramicSection.price.toLocaleString()} ₽`} />
                                 <div className="grid grid-cols-2 gap-3">
                                     <Counter label="Окно 1000×2000 (шт)" name="extraWindow1000x2000" value={state.extraWindow1000x2000} onChange={set} />
@@ -477,7 +482,32 @@ export default function ProDomCalculator() {
                         {activeTab === 'exterior' && (
                             <div className="space-y-5 animate-fadeIn">
                                 <h2 className="text-xl font-black text-[#1A1C19] border-b border-gray-100 pb-4 mb-6">Внешняя отделка</h2>
-                                <Check label="Фасад — планкен 90×18, покраска 2 слоя" checked={state.facadePlanken} onChange={set} name="facadePlanken" price={`${(EXTERIOR_OPTIONS.facadePlanken.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
+                                <div className="pt-2">
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Отделка фасада планкеном</label>
+                                    <div className="space-y-2">
+                                        <label className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${!state.facadePlanken && !state.facadePlankenBurn ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
+                                            <input type="radio" name="facade" checked={!state.facadePlanken && !state.facadePlankenBurn}
+                                                onChange={() => { set('facadePlanken', false); set('facadePlankenBurn', false); }}
+                                                className="w-5 h-5 text-amber-600 border-gray-300" />
+                                            <span className="text-xs font-medium text-gray-700 flex-1">Без отделки планкеном (в базе)</span>
+                                        </label>
+                                        <label className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${state.facadePlanken ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
+                                            <input type="radio" name="facade" checked={state.facadePlanken}
+                                                onChange={() => { set('facadePlanken', true); set('facadePlankenBurn', false); }}
+                                                className="w-5 h-5 text-amber-600 border-gray-300" />
+                                            <span className="text-xs font-medium text-gray-700 flex-1">Планкен 90×18, покраска 2 слоя</span>
+                                            <span className="text-xs font-semibold text-amber-700 whitespace-nowrap">{(EXTERIOR_OPTIONS.facadePlanken.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽</span>
+                                        </label>
+                                        <label className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors ${state.facadePlankenBurn ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 hover:bg-gray-100'}`}>
+                                            <input type="radio" name="facade" checked={state.facadePlankenBurn}
+                                                onChange={() => { set('facadePlanken', false); set('facadePlankenBurn', true); }}
+                                                className="w-5 h-5 text-amber-600 border-gray-300" />
+                                            <span className="text-xs font-medium text-gray-700 flex-1">Планкен 90×18, покраска 2 слоя + обжиг</span>
+                                            <span className="text-xs font-semibold text-amber-700 whitespace-nowrap">{(EXTERIOR_OPTIONS.facadePlankenBurn.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <Check label="Обжиг планкена (торцы дома + терраса)" checked={state.facadeBurn} onChange={set} name="facadeBurn" price={`${(EXTERIOR_OPTIONS.facadeBurn.priceByModel[state.selectedHouse] || 0).toLocaleString()} ₽`} />
                                 <div className="pt-2 border-t">
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Водосточная система</label>
                                     <div className="space-y-2">

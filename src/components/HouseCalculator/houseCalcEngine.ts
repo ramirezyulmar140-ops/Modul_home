@@ -58,12 +58,15 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
 
     spec[2].items.push('Несущий каркас наружных стен из сухой строганой доски 150×50 мм');
     spec[2].items.push(`Утепление наружных стен минеральным утеплителем толщиной ${state.extraInsulation ? 200 : 150} мм`);
-    if (state.facadePlanken) {
+    if (state.facadePlankenBurn) {
+        spec[2].items.push('Отделка фасада: полная отделка деревянным планкеном с покраской в 2 слоя + обжиг');
+    } else if (state.facadePlanken) {
         spec[2].items.push('Отделка фасада: полная отделка деревянным планкеном с покраской в 2 слоя');
     } else {
         spec[2].items.push('Отделка фронтонов фасадной доской планкен');
         spec[2].items.push('Отделка боковых стен фасада металлическим профилированным листом');
     }
+    if (state.facadeBurn) spec[2].items.push('Обжиг планкена (торцы дома + терраса)');
     spec[2].items.push('Ветрозащитная мембрана наружных стен');
 
     spec[3].items.push('Каркас внутренних перегородок из сухой строганой доски 100×50 мм');
@@ -305,7 +308,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     if (state.extraInsulation) addFixed(frameItems, FRAME_OPTIONS.extraInsulation.name, FRAME_OPTIONS.extraInsulation.priceByModel[modelId]);
     if (state.extraFloorInsulation) addFixed(frameItems, FRAME_OPTIONS.extraFloorInsulation.name, FRAME_OPTIONS.extraFloorInsulation.priceByModel[modelId]);
     if (state.extraCeilingInsulation) addFixed(frameItems, FRAME_OPTIONS.extraCeilingInsulation.name, FRAME_OPTIONS.extraCeilingInsulation.priceByModel[modelId]);
-    if (state.removePartition) addFixed(frameItems, FRAME_OPTIONS.removePartition.name, FRAME_OPTIONS.removePartition.price);
+    if (state.removePartition && (!FRAME_OPTIONS.removePartition.availableFor || FRAME_OPTIONS.removePartition.availableFor.includes(modelId))) addFixed(frameItems, FRAME_OPTIONS.removePartition.name, FRAME_OPTIONS.removePartition.price);
     if (state.extraPartitionLength > 0 && FRAME_OPTIONS.extraPartition.availableFor.includes(modelId)) addItem(frameItems, FRAME_OPTIONS.extraPartition.name, state.extraPartitionLength, 'м.п.', FRAME_OPTIONS.extraPartition.price);
     if (frameItems.length > 0) {
         sections.push({ name: 'Конструктив и каркас', items: frameItems, total: sumItems(frameItems), hideItems: false });
@@ -315,7 +318,7 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
     const winItems: EstimateLineItem[] = [];
     if (state.safeDoor && (!WINDOW_OPTIONS.safeDoor.availableFor || WINDOW_OPTIONS.safeDoor.availableFor.includes(modelId))) addFixed(winItems, WINDOW_OPTIONS.safeDoor.name, WINDOW_OPTIONS.safeDoor.price);
     if (state.relocateDoor && (!WINDOW_OPTIONS.relocateDoor.availableFor || WINDOW_OPTIONS.relocateDoor.availableFor.includes(modelId))) addFixed(winItems, WINDOW_OPTIONS.relocateDoor.name, WINDOW_OPTIONS.relocateDoor.price);
-    if (state.panoramicTrapezoidCount > 0) addItem(winItems, WINDOW_OPTIONS.panoramicTrapezoid.name, state.panoramicTrapezoidCount, 'шт', WINDOW_OPTIONS.panoramicTrapezoid.price);
+    if (state.panoramicTrapezoidCount > 0 && (!WINDOW_OPTIONS.panoramicTrapezoid.availableFor || WINDOW_OPTIONS.panoramicTrapezoid.availableFor.includes(modelId))) addItem(winItems, WINDOW_OPTIONS.panoramicTrapezoid.name, state.panoramicTrapezoidCount, 'шт', WINDOW_OPTIONS.panoramicTrapezoid.price);
     if (state.extraPanoramicSection) addFixed(winItems, WINDOW_OPTIONS.extraPanoramicSection.name, WINDOW_OPTIONS.extraPanoramicSection.price);
     if (state.extraWindow1000x2000 > 0) addItem(winItems, WINDOW_OPTIONS.win1000x2000.name, state.extraWindow1000x2000, 'шт', WINDOW_OPTIONS.win1000x2000.price);
     if (state.extraWindow500x2000 > 0) addItem(winItems, WINDOW_OPTIONS.win500x2000.name, state.extraWindow500x2000, 'шт', WINDOW_OPTIONS.win500x2000.price);
@@ -329,7 +332,9 @@ export function calculateHouseEstimate(state: HouseCalcState): EstimateResult {
 
     // ─── 7. Внешняя отделка ──────────────────
     const extItems: EstimateLineItem[] = [];
-    if (state.facadePlanken) addFixed(extItems, EXTERIOR_OPTIONS.facadePlanken.name, EXTERIOR_OPTIONS.facadePlanken.priceByModel[modelId]);
+    if (state.facadePlankenBurn) addFixed(extItems, EXTERIOR_OPTIONS.facadePlankenBurn.name, EXTERIOR_OPTIONS.facadePlankenBurn.priceByModel[modelId]);
+    else if (state.facadePlanken) addFixed(extItems, EXTERIOR_OPTIONS.facadePlanken.name, EXTERIOR_OPTIONS.facadePlanken.priceByModel[modelId]);
+    if (state.facadeBurn) addFixed(extItems, EXTERIOR_OPTIONS.facadeBurn.name, EXTERIOR_OPTIONS.facadeBurn.priceByModel[modelId]);
     if (state.gutterPlastic) addFixed(extItems, EXTERIOR_OPTIONS.gutterPlastic.name, EXTERIOR_OPTIONS.gutterPlastic.priceByModel[modelId]);
     if (state.gutterMetal) addFixed(extItems, EXTERIOR_OPTIONS.gutterMetal.name, EXTERIOR_OPTIONS.gutterMetal.priceByModel[modelId]);
     if (state.plinthPlankenArea > 0) addItem(extItems, EXTERIOR_OPTIONS.plinthPlanken.name, state.plinthPlankenArea, 'м²', EXTERIOR_OPTIONS.plinthPlanken.price);

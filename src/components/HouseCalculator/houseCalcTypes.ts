@@ -1,4 +1,4 @@
-export type HouseModelId = 'dom42' | 'dom49' | 'dom63' | 'dom77' | 'dom77o';
+export type HouseModelId = 'dom21' | 'dom31' | 'dom42' | 'dom49' | 'dom63' | 'dom77' | 'dom77o';
 
 export interface DeliveryVehicle {
     id: string;
@@ -108,6 +108,8 @@ export interface HouseCalcState {
 
     // Внешняя отделка
     facadePlanken: boolean;
+    facadePlankenBurn: boolean;
+    facadeBurn: boolean;
     gutterPlastic: boolean;
     gutterMetal: boolean;
     plinthPlankenArea: number;

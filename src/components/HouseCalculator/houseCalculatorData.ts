@@ -6,6 +6,24 @@ export type { DeliveryVehicleEntry };
 // ==========================================
 export const HOUSE_MODELS: HouseModel[] = [
     {
+        id: 'dom21',
+        name: 'Дом 21 м²',
+        area: 21,
+        basePrice: 890000,
+        description: 'Компактный модульный дом-студия для дачи или гостевого размещения.',
+        features: ['Студия', 'Санузел', 'Терраса'],
+        modulesCount: 1,
+    },
+    {
+        id: 'dom31',
+        name: 'Дом 31 м²',
+        area: 31,
+        basePrice: 1390000,
+        description: 'Небольшой одномодульный дом с выделенной спальной зоной.',
+        features: ['Кухня-гостиная', 'Спальня', 'Санузел', 'Терраса'],
+        modulesCount: 1,
+    },
+    {
         id: 'dom42',
         name: 'Дом 42 м²',
         area: 42,
@@ -53,6 +71,8 @@ export const HOUSE_MODELS: HouseModel[] = [
 ];
 
 export const FOUNDATION_ASSEMBLY_DATA: Record<HouseModelId, { piles: number; assemblyPrice: number }> = {
+    dom21: { piles: 11, assemblyPrice: 40000 },
+    dom31: { piles: 14, assemblyPrice: 60000 },
     dom42: { piles: 18, assemblyPrice: 80000 },
     dom49: { piles: 21, assemblyPrice: 100000 },
     dom63: { piles: 24, assemblyPrice: 120000 },
@@ -83,6 +103,8 @@ export const ENGINEERING_OPTIONS = {
 
 // Тёплый пол — цены зависят от модели дома (фиксированная стоимость)
 export const WARM_FLOOR_PRICES: Record<HouseModelId, number> = {
+    dom21: 110000,
+    dom31: 130000,
     dom42: 160000,
     dom49: 180000,
     dom63: 220000,
@@ -96,28 +118,29 @@ export const WARM_FLOOR_PRICES: Record<HouseModelId, number> = {
 export const FRAME_OPTIONS = {
     moduleExtend: {
         name: 'Увеличение длины модуля на 60 см',
-        priceByModel: { dom42: 250000, dom49: 250000 } as Partial<Record<HouseModelId, number>>,
+        priceByModel: { dom21: 100000, dom42: 250000, dom49: 250000 } as Partial<Record<HouseModelId, number>>,
         unit: 'шт',
     },
     mouseMesh: {
         name: 'Сетка от грызунов на основание дома',
-        priceByModel: { dom42: 30000, dom49: 35000, dom63: 45000, dom77: 50000, dom77o: 50000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 15000, dom31: 22000, dom42: 30000, dom49: 35000, dom63: 45000, dom77: 50000, dom77o: 50000 } as Record<HouseModelId, number>,
     },
     extraInsulation: {
         name: 'Доп. утепление стен до 200 мм',
-        priceByModel: { dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 50000, dom31: 60000, dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
     },
     extraFloorInsulation: {
         name: 'Доп. утепление пола до 200 мм',
-        priceByModel: { dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 35000, dom31: 50000, dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
     },
     extraCeilingInsulation: {
         name: 'Доп. утепление потолка до 200 мм',
-        priceByModel: { dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 35000, dom31: 55000, dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
     },
     removePartition: {
         name: 'Убрать перегородку между модулями (опен спейс)',
         price: 120000,
+        availableFor: ['dom42', 'dom49', 'dom63', 'dom77'] as HouseModelId[],
     },
     extraPartition: {
         name: 'Доп. перегородка (тамбур и прочее)',
@@ -134,17 +157,18 @@ export const WINDOW_OPTIONS = {
     safeDoor: {
         name: 'Входная сейф-дверь + крыльцо (1×1,2м) + 3 ступени',
         price: 115000,
-        availableFor: ['dom42', 'dom49', 'dom63', 'dom77o'] as HouseModelId[],
+        availableFor: ['dom21', 'dom31', 'dom42', 'dom49', 'dom63', 'dom77', 'dom77o'] as HouseModelId[],
     },
     relocateDoor: {
         name: 'Перенос ПВХ двери на боковую стену + крыльцо + 3 ступени',
         price: 80000,
-        availableFor: ['dom42', 'dom49', 'dom63'] as HouseModelId[],
+        availableFor: ['dom21', 'dom31', 'dom42', 'dom49', 'dom63'] as HouseModelId[],
     },
     panoramicTrapezoid: {
         name: 'Замена горизонт. окна на панорамное трапециевидное',
         price: 60000,
         unit: 'шт',
+        availableFor: ['dom42', 'dom49', 'dom63', 'dom77', 'dom77o'] as HouseModelId[],
     },
     extraPanoramicSection: {
         name: 'Доп. секция к панорамному остеклению кухни-гостиной',
@@ -164,15 +188,23 @@ export const WINDOW_OPTIONS = {
 export const EXTERIOR_OPTIONS = {
     facadePlanken: {
         name: 'Отделка фасада — Планкен 90×18, покраска 2 слоя',
-        priceByModel: { dom42: 60000, dom49: 75000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 70000, dom31: 100000, dom42: 70000, dom49: 85000, dom63: 100000, dom77: 120000, dom77o: 120000 } as Record<HouseModelId, number>,
+    },
+    facadePlankenBurn: {
+        name: 'Отделка фасада — Планкен 90×18, покраска 2 слоя + обжиг',
+        priceByModel: { dom21: 100000, dom31: 135000, dom42: 100000, dom49: 120000, dom63: 135000, dom77: 160000, dom77o: 160000 } as Record<HouseModelId, number>,
+    },
+    facadeBurn: {
+        name: 'Обжиг планкена (торцы дома + терраса)',
+        priceByModel: { dom21: 30000, dom31: 30000, dom42: 60000, dom49: 60000, dom63: 70000, dom77: 80000, dom77o: 80000 } as Record<HouseModelId, number>,
     },
     gutterPlastic: {
         name: 'Водосточная система (пластик)',
-        priceByModel: { dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 70000, dom31: 90000, dom42: 70000, dom49: 80000, dom63: 90000, dom77: 100000, dom77o: 100000 } as Record<HouseModelId, number>,
     },
     gutterMetal: {
         name: 'Водосточная система (металл)',
-        priceByModel: { dom42: 100000, dom49: 120000, dom63: 140000, dom77: 150000, dom77o: 150000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 100000, dom31: 140000, dom42: 100000, dom49: 120000, dom63: 140000, dom77: 150000, dom77o: 150000 } as Record<HouseModelId, number>,
     },
     plinthPlanken: {
         name: 'Обшивка цоколя планкеном',
@@ -187,31 +219,31 @@ export const EXTERIOR_OPTIONS = {
 export const INTERIOR_FINISH_OPTIONS = {
     wallVagonka: {
         name: 'Отделка стен — вагонка штиль',
-        priceByModel: { dom42: 60000, dom49: 75000, dom63: 100000, dom77: 120000, dom77o: 120000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 30000, dom31: 50000, dom42: 60000, dom49: 75000, dom63: 100000, dom77: 120000, dom77o: 120000 } as Record<HouseModelId, number>,
     },
     wallImitBrus: {
         name: 'Отделка стен — имитация бруса',
-        priceByModel: { dom42: 80000, dom49: 100000, dom63: 130000, dom77: 150000, dom77o: 150000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 40000, dom31: 75000, dom42: 80000, dom49: 100000, dom63: 130000, dom77: 150000, dom77o: 150000 } as Record<HouseModelId, number>,
     },
     wallGipsokarton: {
         name: 'Отделка стен — гипсокартон',
-        priceByModel: { dom42: 60000, dom49: 75000, dom63: 100000, dom77: 120000, dom77o: 120000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 30000, dom31: 50000, dom42: 60000, dom49: 75000, dom63: 100000, dom77: 120000, dom77o: 120000 } as Record<HouseModelId, number>,
     },
     ceilingFanera: {
         name: 'Отделка потолка — фанера',
-        priceByModel: { dom42: 50000, dom49: 60000, dom63: 80000, dom77: 90000, dom77o: 90000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 20000, dom31: 40000, dom42: 50000, dom49: 60000, dom63: 80000, dom77: 90000, dom77o: 90000 } as Record<HouseModelId, number>,
     },
     ceilingImitBrus: {
         name: 'Отделка потолка — имитация бруса / вагонка штиль',
-        priceByModel: { dom42: 40000, dom49: 50000, dom63: 65000, dom77: 75000, dom77o: 75000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 20000, dom31: 33000, dom42: 42000, dom49: 50000, dom63: 65000, dom77: 75000, dom77o: 75000 } as Record<HouseModelId, number>,
     },
     paintWalls: {
         name: 'Покраска стен (2 слоя Тиккурила Евро Тренд)',
-        priceByModel: { dom42: 30000, dom49: 35000, dom63: 42000, dom77: 50000, dom77o: 50000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 25000, dom31: 30000, dom42: 35000, dom49: 40000, dom63: 50000, dom77: 60000, dom77o: 60000 } as Record<HouseModelId, number>,
     },
     paintCeiling: {
         name: 'Покраска потолка (2 слоя Тиккурила Евро Тренд)',
-        priceByModel: { dom42: 18000, dom49: 22000, dom63: 27000, dom77: 30000, dom77o: 30000 } as Record<HouseModelId, number>,
+        priceByModel: { dom21: 15000, dom31: 18000, dom42: 22000, dom49: 25000, dom63: 30000, dom77: 35000, dom77o: 35000 } as Record<HouseModelId, number>,
     },
     keramogranit: {
         name: 'Монтаж керамогранита (бюджет керамогранита 2000 ₽)',
@@ -222,6 +254,7 @@ export const INTERIOR_FINISH_OPTIONS = {
         name: 'Дополнительная межкомнатная дверь',
         price: 30000,
         unit: 'шт',
+        availableFor: ['dom42', 'dom49', 'dom63', 'dom77', 'dom77o'] as HouseModelId[],
     },
 };
 

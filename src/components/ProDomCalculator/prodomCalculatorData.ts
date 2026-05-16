@@ -13,62 +13,24 @@ const r = (v: number) => Math.round(v * M); // округление
 // 1. ТИПОВЫЕ ДОМА
 // ==========================================
 export const HOUSE_MODELS: HouseModel[] = [
-    {
-        id: 'dom42',
-        name: 'Дом 42 м²',
-        area: 42,
-        basePrice: r(1690000),
-        description: 'Уютный дом с отдельной спальней и просторной кухней-столовой.',
-        features: ['Кухня-столовая', 'Гостиная', 'Спальня', 'Санузел', 'Терраса'],
-        modulesCount: 2,
-    },
-    {
-        id: 'dom49',
-        name: 'Дом 49 м²',
-        area: 49,
-        basePrice: r(1890000),
-        description: 'Квадратный дом с рациональной планировкой и выделенной спальной зоной.',
-        features: ['Кухня-столовая', 'Гостиная', 'Спальня', 'Санузел', 'Терраса'],
-        modulesCount: 2,
-    },
-    {
-        id: 'dom63',
-        name: 'Дом 63 м²',
-        area: 63,
-        basePrice: r(2390000),
-        description: 'Вместительный дом с двумя изолированными спальнями.',
-        features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'],
-        modulesCount: 2,
-    },
-    {
-        id: 'dom77',
-        name: 'Дом 77 м²',
-        area: 77,
-        basePrice: r(2690000),
-        description: 'Просторный семейный дом с большой кухней-гостиной.',
-        features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'],
-        modulesCount: 3,
-    },
-    {
-        id: 'dom77o',
-        name: 'Дом 77-о м²',
-        area: 77,
-        basePrice: r(2810000),
-        description: 'Альтернативная планировка 77 м² с улучшенной конфигурацией.',
-        features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'],
-        modulesCount: 3,
-    },
+    { id: 'dom21', name: 'Дом 21 м²', area: 21, basePrice: r(890000), description: 'Компактный модульный дом-студия для дачи или гостевого размещения.', features: ['Студия', 'Санузел', 'Терраса'], modulesCount: 1 },
+    { id: 'dom31', name: 'Дом 31 м²', area: 31, basePrice: r(1390000), description: 'Небольшой одномодульный дом с выделенной спальной зоной.', features: ['Кухня-гостиная', 'Спальня', 'Санузел', 'Терраса'], modulesCount: 1 },
+    { id: 'dom42', name: 'Дом 42 м²', area: 42, basePrice: r(1690000), description: 'Уютный дом с отдельной спальней и просторной кухней-столовой.', features: ['Кухня-столовая', 'Гостиная', 'Спальня', 'Санузел', 'Терраса'], modulesCount: 2 },
+    { id: 'dom49', name: 'Дом 49 м²', area: 49, basePrice: r(1890000), description: 'Квадратный дом с рациональной планировкой и выделенной спальной зоной.', features: ['Кухня-столовая', 'Гостиная', 'Спальня', 'Санузел', 'Терраса'], modulesCount: 2 },
+    { id: 'dom63', name: 'Дом 63 м²', area: 63, basePrice: r(2390000), description: 'Вместительный дом с двумя изолированными спальнями.', features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'], modulesCount: 2 },
+    { id: 'dom77', name: 'Дом 77 м²', area: 77, basePrice: r(2690000), description: 'Просторный семейный дом с большой кухней-гостиной.', features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'], modulesCount: 3 },
+    { id: 'dom77o', name: 'Дом 77-о м²', area: 77, basePrice: r(2810000), description: 'Альтернативная планировка 77 м² с улучшенной конфигурацией.', features: ['Кухня-гостиная', '2 Спальни', 'Санузел', 'Терраса'], modulesCount: 3 },
 ];
 
 export const FOUNDATION_ASSEMBLY_DATA: Record<HouseModelId, { piles: number; assemblyPrice: number }> = {
+    dom21: { piles: 11, assemblyPrice: r(40000) },
+    dom31: { piles: 14, assemblyPrice: r(60000) },
     dom42: { piles: 18, assemblyPrice: r(80000) },
     dom49: { piles: 21, assemblyPrice: r(100000) },
     dom63: { piles: 24, assemblyPrice: r(120000) },
     dom77: { piles: 28, assemblyPrice: r(160000) },
     dom77o: { piles: 28, assemblyPrice: r(160000) },
 };
-
-
 
 // ==========================================
 // 2. ОПЦИИ — ИНЖЕНЕРНЫЕ ЭЛЕМЕНТЫ
@@ -89,43 +51,39 @@ export const ENGINEERING_OPTIONS = {
     electricWarmFloorThermostat: { name: 'Терморегулятор к электро-ТП', price: r(3000), unit: 'шт' },
 };
 
-// Тёплый пол — цены зависят от модели дома (фиксированная стоимость)
 export const WARM_FLOOR_PRICES: Record<HouseModelId, number> = {
-    dom42: r(160000),
-    dom49: r(180000),
-    dom63: r(220000),
-    dom77: r(260000),
-    dom77o: r(260000),
+    dom21: r(110000), dom31: r(130000), dom42: r(160000), dom49: r(180000), dom63: r(220000), dom77: r(260000), dom77o: r(260000),
 };
 
 // ==========================================
-// 3. ОПЦИИ — КАРКАС (цены по моделям)
+// 3. ОПЦИИ — КАРКАС
 // ==========================================
 export const FRAME_OPTIONS = {
     moduleExtend: {
         name: 'Увеличение длины модуля на 60 см',
-        priceByModel: { dom42: r(250000), dom49: r(250000) } as Partial<Record<HouseModelId, number>>,
+        priceByModel: { dom21: r(100000), dom42: r(250000), dom49: r(250000) } as Partial<Record<HouseModelId, number>>,
         unit: 'шт',
     },
     mouseMesh: {
         name: 'Сетка от грызунов на основание дома',
-        priceByModel: { dom42: r(30000), dom49: r(35000), dom63: r(45000), dom77: r(50000), dom77o: r(50000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(15000), dom31: r(22000), dom42: r(30000), dom49: r(35000), dom63: r(45000), dom77: r(50000), dom77o: r(50000) } as Record<HouseModelId, number>,
     },
     extraInsulation: {
         name: 'Доп. утепление стен до 200 мм',
-        priceByModel: { dom42: r(70000), dom49: r(80000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(50000), dom31: r(60000), dom42: r(70000), dom49: r(80000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
     },
     extraFloorInsulation: {
         name: 'Доп. утепление пола до 200 мм',
-        priceByModel: { dom42: r(70000), dom49: r(80000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(35000), dom31: r(50000), dom42: r(70000), dom49: r(80000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
     },
     extraCeilingInsulation: {
         name: 'Доп. утепление потолка до 200 мм',
-        priceByModel: { dom42: r(70000), dom49: r(80000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(35000), dom31: r(55000), dom42: r(70000), dom49: r(80000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
     },
     removePartition: {
         name: 'Убрать перегородку между модулями (опен спейс)',
         price: r(120000),
+        availableFor: ['dom42', 'dom49', 'dom63', 'dom77'] as HouseModelId[],
     },
     extraPartition: {
         name: 'Доп. перегородка (тамбур и прочее)',
@@ -142,22 +100,20 @@ export const WINDOW_OPTIONS = {
     safeDoor: {
         name: 'Входная сейф-дверь + крыльцо (1×1,2м) + 3 ступени',
         price: r(115000),
-        availableFor: ['dom42', 'dom49', 'dom63', 'dom77o'] as HouseModelId[],
+        availableFor: ['dom21', 'dom31', 'dom42', 'dom49', 'dom63', 'dom77', 'dom77o'] as HouseModelId[],
     },
     relocateDoor: {
         name: 'Перенос ПВХ двери на боковую стену + крыльцо + 3 ступени',
         price: r(80000),
-        availableFor: ['dom42', 'dom49', 'dom63'] as HouseModelId[],
+        availableFor: ['dom21', 'dom31', 'dom42', 'dom49', 'dom63'] as HouseModelId[],
     },
     panoramicTrapezoid: {
         name: 'Замена горизонт. окна на панорамное трапециевидное',
         price: r(60000),
         unit: 'шт',
+        availableFor: ['dom42', 'dom49', 'dom63', 'dom77', 'dom77o'] as HouseModelId[],
     },
-    extraPanoramicSection: {
-        name: 'Доп. секция к панорамному остеклению кухни-гостиной',
-        price: r(60000),
-    },
+    extraPanoramicSection: { name: 'Доп. секция к панорамному остеклению кухни-гостиной', price: r(60000) },
     win1000x2000: { name: 'Дополнительное окно 1000×2000 мм', price: r(70000), unit: 'шт' },
     win500x2000: { name: 'Доп. глухое окно 500×2000 мм', price: r(50000), unit: 'шт' },
     win600x500: { name: 'Дополнительное окно 600×500 мм', price: r(30000), unit: 'шт' },
@@ -167,69 +123,70 @@ export const WINDOW_OPTIONS = {
 };
 
 // ==========================================
-// 5. ОПЦИИ — ВНЕШНЯЯ ОТДЕЛКА (цены по моделям)
+// 5. ОПЦИИ — ВНЕШНЯЯ ОТДЕЛКА
 // ==========================================
 export const EXTERIOR_OPTIONS = {
     facadePlanken: {
         name: 'Отделка фасада — Планкен 90×18, покраска 2 слоя',
-        priceByModel: { dom42: r(60000), dom49: r(75000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(70000), dom31: r(100000), dom42: r(70000), dom49: r(85000), dom63: r(100000), dom77: r(120000), dom77o: r(120000) } as Record<HouseModelId, number>,
+    },
+    facadePlankenBurn: {
+        name: 'Отделка фасада — Планкен 90×18, покраска 2 слоя + обжиг',
+        priceByModel: { dom21: r(100000), dom31: r(135000), dom42: r(100000), dom49: r(120000), dom63: r(135000), dom77: r(160000), dom77o: r(160000) } as Record<HouseModelId, number>,
+    },
+    facadeBurn: {
+        name: 'Обжиг планкена (торцы дома + терраса)',
+        priceByModel: { dom21: r(30000), dom31: r(30000), dom42: r(60000), dom49: r(60000), dom63: r(70000), dom77: r(80000), dom77o: r(80000) } as Record<HouseModelId, number>,
     },
     gutterPlastic: {
         name: 'Водосточная система (пластик)',
-        priceByModel: { dom42: r(70000), dom49: r(80000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(70000), dom31: r(90000), dom42: r(70000), dom49: r(80000), dom63: r(90000), dom77: r(100000), dom77o: r(100000) } as Record<HouseModelId, number>,
     },
     gutterMetal: {
         name: 'Водосточная система (металл)',
-        priceByModel: { dom42: r(100000), dom49: r(120000), dom63: r(140000), dom77: r(150000), dom77o: r(150000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(100000), dom31: r(140000), dom42: r(100000), dom49: r(120000), dom63: r(140000), dom77: r(150000), dom77o: r(150000) } as Record<HouseModelId, number>,
     },
-    plinthPlanken: {
-        name: 'Обшивка цоколя планкеном',
-        price: r(3000),
-        unit: 'м²',
-    },
+    plinthPlanken: { name: 'Обшивка цоколя планкеном', price: r(3000), unit: 'м²' },
 };
 
 // ==========================================
-// 6. ОПЦИИ — ВНУТРЕННЯЯ ОТДЕЛКА (цены по моделям)
+// 6. ОПЦИИ — ВНУТРЕННЯЯ ОТДЕЛКА
 // ==========================================
 export const INTERIOR_FINISH_OPTIONS = {
     wallVagonka: {
         name: 'Отделка стен — вагонка штиль',
-        priceByModel: { dom42: r(60000), dom49: r(75000), dom63: r(100000), dom77: r(120000), dom77o: r(120000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(30000), dom31: r(50000), dom42: r(60000), dom49: r(75000), dom63: r(100000), dom77: r(120000), dom77o: r(120000) } as Record<HouseModelId, number>,
     },
     wallImitBrus: {
         name: 'Отделка стен — имитация бруса',
-        priceByModel: { dom42: r(80000), dom49: r(100000), dom63: r(130000), dom77: r(150000), dom77o: r(150000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(40000), dom31: r(75000), dom42: r(80000), dom49: r(100000), dom63: r(130000), dom77: r(150000), dom77o: r(150000) } as Record<HouseModelId, number>,
     },
     wallGipsokarton: {
         name: 'Отделка стен — гипсокартон',
-        priceByModel: { dom42: r(60000), dom49: r(75000), dom63: r(100000), dom77: r(120000), dom77o: r(120000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(30000), dom31: r(50000), dom42: r(60000), dom49: r(75000), dom63: r(100000), dom77: r(120000), dom77o: r(120000) } as Record<HouseModelId, number>,
     },
     ceilingFanera: {
         name: 'Отделка потолка — фанера',
-        priceByModel: { dom42: r(50000), dom49: r(60000), dom63: r(80000), dom77: r(90000), dom77o: r(90000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(20000), dom31: r(40000), dom42: r(50000), dom49: r(60000), dom63: r(80000), dom77: r(90000), dom77o: r(90000) } as Record<HouseModelId, number>,
     },
     ceilingImitBrus: {
         name: 'Отделка потолка — имитация бруса / вагонка штиль',
-        priceByModel: { dom42: r(40000), dom49: r(50000), dom63: r(65000), dom77: r(75000), dom77o: r(75000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(20000), dom31: r(33000), dom42: r(42000), dom49: r(50000), dom63: r(65000), dom77: r(75000), dom77o: r(75000) } as Record<HouseModelId, number>,
     },
     paintWalls: {
         name: 'Покраска стен (2 слоя Тиккурила Евро Тренд)',
-        priceByModel: { dom42: r(30000), dom49: r(35000), dom63: r(42000), dom77: r(50000), dom77o: r(50000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(25000), dom31: r(30000), dom42: r(35000), dom49: r(40000), dom63: r(50000), dom77: r(60000), dom77o: r(60000) } as Record<HouseModelId, number>,
     },
     paintCeiling: {
         name: 'Покраска потолка (2 слоя Тиккурила Евро Тренд)',
-        priceByModel: { dom42: r(18000), dom49: r(22000), dom63: r(27000), dom77: r(30000), dom77o: r(30000) } as Record<HouseModelId, number>,
+        priceByModel: { dom21: r(15000), dom31: r(18000), dom42: r(22000), dom49: r(25000), dom63: r(30000), dom77: r(35000), dom77o: r(35000) } as Record<HouseModelId, number>,
     },
-    keramogranit: {
-        name: 'Монтаж керамогранита (бюджет керамогранита 2000 ₽)',
-        price: r(9000),
-        unit: 'м²',
-    },
+    keramogranit: { name: 'Монтаж керамогранита (бюджет керамогранита 2000 ₽)', price: r(9000), unit: 'м²' },
     extraInteriorDoor: {
         name: 'Дополнительная межкомнатная дверь',
         price: r(30000),
         unit: 'шт',
+        availableFor: ['dom42', 'dom49', 'dom63', 'dom77', 'dom77o'] as HouseModelId[],
     },
 };
 
@@ -237,40 +194,16 @@ export const INTERIOR_FINISH_OPTIONS = {
 // 7. ОПЦИИ — ТЕРРАСА / КРЫЛЬЦО
 // ==========================================
 export const TERRACE_OPTIONS = {
-    terraceCloseSide: {
-        name: 'Закрытие проёма террасы (одна сторона)',
-        price: r(25000),
-        unit: 'шт',
-    },
-    porchCanopy: {
-        name: 'Навес над крыльцом',
-        price: r(65000),
-        availableFor: ['dom77o'] as HouseModelId[],
-    },
-    closedTerraceArea: {
-        name: 'Доп. площадь закрытой террасы (без свай)',
-        price: r(16000),
-        unit: 'м²',
-    },
-    openTerraceArea: {
-        name: 'Доп. площадь открытой террасы (без свай)',
-        price: r(9000),
-        unit: 'м²',
-    },
-    railingsPlanken: {
-        name: 'Перила (планкен горизонтальный)',
-        price: r(6000),
-        unit: 'п.м.',
-    },
-    railingsCross: {
-        name: 'Перила (узор крестик)',
-        price: r(10000),
-        unit: 'п.м.',
-    },
+    terraceCloseSide: { name: 'Закрытие проёма террасы (одна сторона)', price: r(25000), unit: 'шт' },
+    porchCanopy: { name: 'Навес над крыльцом', price: r(65000), availableFor: ['dom77o'] as HouseModelId[] },
+    closedTerraceArea: { name: 'Доп. площадь закрытой террасы (без свай)', price: r(16000), unit: 'м²' },
+    openTerraceArea: { name: 'Доп. площадь открытой террасы (без свай)', price: r(9000), unit: 'м²' },
+    railingsPlanken: { name: 'Перила (планкен горизонтальный)', price: r(6000), unit: 'п.м.' },
+    railingsCross: { name: 'Перила (узор крестик)', price: r(10000), unit: 'п.м.' },
 };
 
 // ==========================================
-// 8. САНУЗЕЛ — цены за м²
+// 8. САНУЗЕЛ
 // ==========================================
 export const BATHROOM_PRICES = {
     floor: {
@@ -286,21 +219,18 @@ export const BATHROOM_PRICES = {
     },
 };
 
-// Пол — цены за м² (из pricingConfig)
 export const FLOOR_PRICES = {
     laminateWP: { name: 'Ламинат 33 кл. водостойкий', price: r(1590) },
     quartzVinyl: { name: 'Кварцвинил (SPC)', price: r(1500) },
 };
 
 // ==========================================
-// 9. ДОП. УСЛУГИ — конструктор по позициям
+// 9. ДОП. УСЛУГИ
 // ==========================================
 export const SERVICE_CATALOG: Omit<ServiceEntry, 'quantity'>[] = [
-    // Фундамент
     { id: 'pile_2500', category: 'Фундамент', name: 'Свая 73ф', specs: '2500мм', unit: 'шт', price: r(7000) },
     { id: 'pile_3000', category: 'Фундамент', name: 'Свая 73ф', specs: '3000мм', unit: 'шт', price: r(7800) },
     { id: 'pile_3500', category: 'Фундамент', name: 'Свая 73ф', specs: '3500мм', unit: 'шт', price: r(8300) },
-    // Септик
     { id: 'ring_700', category: 'Септик', name: 'Кольцо ЖБ', specs: '700мм', unit: 'шт', price: r(2800) },
     { id: 'ring_1000', category: 'Септик', name: 'Кольцо ЖБ', specs: '1000мм', unit: 'шт', price: r(3200) },
     { id: 'ring_1500', category: 'Септик', name: 'Кольцо ЖБ', specs: '1500мм', unit: 'шт', price: r(5800) },
@@ -316,7 +246,6 @@ export const SERVICE_CATALOG: Omit<ServiceEntry, 'quantity'>[] = [
     { id: 'gravel', category: 'Септик', name: 'Щебень/отсев', specs: '1 машина', unit: 'маш.', price: r(20000) },
     { id: 'septic_connect', category: 'Септик', name: 'Подключение септика к дому', specs: '', unit: 'компл.', price: r(5000) },
     { id: 'drain_bath', category: 'Септик', name: 'Дренаж для бани', specs: '1 комплект', unit: 'компл.', price: r(35000) },
-    // Скважина
     { id: 'well_drilling', category: 'Скважина', name: 'Бурение скважины', specs: '', unit: 'м.п.', price: r(2500) },
     { id: 'well_pump', category: 'Скважина', name: 'Насос', specs: '', unit: 'шт', price: r(12000) },
     { id: 'well_head', category: 'Скважина', name: 'Оголовок 168мм', specs: '', unit: 'шт', price: r(3500) },
@@ -328,11 +257,8 @@ export const SERVICE_CATALOG: Omit<ServiceEntry, 'quantity'>[] = [
     { id: 'pnd_pipe', category: 'Скважина', name: 'Труба ПНД 32ф', specs: '', unit: 'м', price: r(60) },
     { id: 'water_laying', category: 'Скважина', name: 'Прокладка водоподведения', specs: '', unit: 'м', price: r(700) },
     { id: 'water_connect', category: 'Скважина', name: 'Подключение воды к дому', specs: '', unit: 'компл.', price: r(7000) },
-    // Электричество
     { id: 'electric_connect', category: 'Электричество', name: 'Подключение к электричеству объект', specs: '', unit: 'компл.', price: r(5000) },
-    // Забор
     { id: 'fence', category: 'Забор', name: 'Забор Профлист МП-20, высота 2м', specs: '', unit: 'м.п.', price: r(4200) },
-    // Монтаж
     { id: 'module_install', category: 'Монтаж', name: 'Монтаж модуля (бани)', specs: '1 модуль', unit: 'шт', price: r(5000) },
 ];
 
